@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - Bistro FDI</title>
+</head>
+<body>
+	<form action="mailto:nucieda@ucm.es" method="post" enctype="text/plain">
+		<label for="nombre">Nombre:</label><br>
+		<input type="text" id="nombre" name="nombre"><br>
+
+		<label for="correo">Correo Electronico:</label><br>
+		<input type="email" id="correo" name="correo"><br>
+
+		<label for="evaluacion">Evaluacion</label>
+		<input type="radio" id="evaluacion" name="motivo" value="evaluacion"><br>
+		<label for="sugerencias">Sugerencias</label>
+		<input type="radio" id="sugerencias" name="motivo" value="sugerencias"><br>
+		<label for="criticas">Criticas</label>
+		<input type="radio" id="criticas" name="motivo" value="criticas"><br>
+
+		<label for="termsandconditions">Marque esta casilla para verificar que ha leído nuestros términos y condiciones del servicio:</label>
+		<input type="checkbox" id="termsandconditions" name="termsandconditions"><br>
+
+		<label for="consulta">Consulta:</label><br>
+		<textarea id="consulta" name="consulta"></textarea>
+
+		<button type="submit">Enviar</button>
+	</form>
+</body>
+</html>
