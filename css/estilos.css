@@ -1,0 +1,155 @@
+/* Fondo blanco para toda la página */
+body {
+  background-color: white;
+  font-family: "Lexend", "Montserrat", sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Contenedor principal de 1800px centrado */
+#contenedor {
+  width: 100%; /* Ocupa todo el ancho disponible */
+  display: flex; /* Alinea nav, main y aside en fila */
+  flex: 1; /* Hace que el contenedor crezca hasta el footer */
+  width: 100%; /* Ocupa todo el ancho de la pantalla */
+}
+
+/* Encabezado oscuro con el logo y título (Color: #9496f5, parecido al de la facultad) */
+header {
+  background-color: #9496f5;
+  color: white;
+  padding: 10px 40px;
+
+  display: flex;
+  flex-direction: row; /* Pone imagen y h1 en la misma línea */
+  align-items: center; /* Centra verticalmente la imagen con el texto */
+  justify-content: flex-start; /* Alinea todo al principio (izquierda) */
+  gap: 20px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+}
+
+header img {
+  max-width: 225px;
+  height: auto;
+  margin-top: 0;
+}
+
+/* Navegación a la izquierda */
+nav {
+  width: 15%;
+  flex-shrink: 0;
+  background-color: #9496f5;
+  padding: 20px;
+}
+
+nav ul {
+  /*quita los puntos negros de la lista */
+  list-style: none;
+  /*elimina el espacio interior que el navegador asigna por defecto a las listas */
+  padding: 0;
+}
+
+nav li {
+  /*separación entre elementos de la lista*/
+  margin-bottom: 10px;
+}
+
+/* pseudo-selector que detecta cuando el usuario pasa el ratón por encima*/
+nav a:hover {
+  background-color: #4f46e5;
+}
+
+/* Enlaces de navegación en formato de botón */
+nav a {
+  display: block;
+  padding: 10px;
+  background-color: black;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+/* Barra lateral a la derecha */
+aside {
+  width: 15%;
+  background-color: white;
+  padding: 20px;
+  border-left: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+/* Contenido principal en el centro */
+main {
+  flex-grow: 1; /* ocupa el espacio restante */
+  background-color: white;
+  padding: 40px; /* Espacio interno*/
+
+  /* Para centrar el texto y contenido visualmente dentro del área grande: */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centrar el contenido interno */
+}
+
+/* Límite de lectura para el texto (opcional, para que no sea una línea eterna) */
+main h1,
+main p {
+  max-width: 900px;
+  width: 100%;
+}
+
+/* Pie de página */
+footer {
+  background-color: black;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  margin-top: auto; /* Empuja el footer hacia abajo si el contenido es corto */
+}
+
+/* Títulos */
+h1 {
+  color: black;
+  margin-bottom: 15px;
+}
+
+h2 {
+  color: black;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #9496f5;
+  padding-bottom: 8px;
+}
+
+h3 {
+  color: black;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+/* Párrafos */
+p {
+  margin-bottom: 12px;
+  text-align: justify;
+  line-height: 1.6;
+}
+
+/* Enlaces en el contenido */
+main a,
+aside a {
+  color: #9496f5;
+  text-decoration: none;
+}
+
+main a:hover,
+aside a:hover {
+  color: #9496f5;
+  text-decoration: underline;
+}
+
