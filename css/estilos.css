@@ -94,7 +94,7 @@ main {
   /* Para centrar el texto y contenido visualmente dentro del área grande: */
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centrar el contenido interno */
+  
 }
 
 /* Límite de lectura para el texto (opcional, para que no sea una línea eterna) */
@@ -153,3 +153,17 @@ aside a:hover {
   text-decoration: underline;
 }
 
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
