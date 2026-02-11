@@ -4,29 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contacto - Bistro FDI</title>
+
+    <link rel="stylesheet" href="css/estilos.css" />
 </head>
 <body>
-	<form action="mailto:nucieda@ucm.es" method="post" enctype="text/plain">
-		<label for="nombre">Nombre:</label><br>
-		<input type="text" id="nombre" name="nombre"><br>
+    <header>
+        <img src="img/logo2.png" alt="Logo de Bistro FDI" width="400" />
+        <h1>Bistro FDI</h1>
+    </header>
 
-		<label for="correo">Correo Electronico:</label><br>
-		<input type="email" id="correo" name="correo"><br>
+	<div id="contenedor">
+		<!-- Navegación izquierda-->
+		<nav>
+		    <ul>
+			<li><a href="index.html">Inicio</a></li>
+			<li><a href="detalles.html">Detalles</a></li>
+			<li><a href="bocetos.html">Bocetos</a></li>
+			<li><a href="miembros.html">Miembros</a></li>
+			<li><a href="planificacion.html">Planificación</a></li>
+			<li><a href="contacto.html">Contacto</a></li>
+		    </ul>
+		</nav>
 
-		<label for="evaluacion">Evaluacion</label>
-		<input type="radio" id="evaluacion" name="motivo" value="evaluacion"><br>
-		<label for="sugerencias">Sugerencias</label>
-		<input type="radio" id="sugerencias" name="motivo" value="sugerencias"><br>
-		<label for="criticas">Criticas</label>
-		<input type="radio" id="criticas" name="motivo" value="criticas"><br>
+		<main>
+		<form action="mailto:nucieda@ucm.es" method="post" enctype="text/plain">
+			<label for="nombre">Nombre:</label><br>
+			<input type="text" id="nombre" name="nombre"><br>
 
-		<label for="termsandconditions">Marque esta casilla para verificar que ha leído nuestros términos y condiciones del servicio:</label>
-		<input type="checkbox" id="termsandconditions" name="termsandconditions"><br>
+			<label for="correo">Correo Electronico:</label><br>
+			<input type="email" id="correo" name="correo"><br>
 
-		<label for="consulta">Consulta:</label><br>
-		<textarea id="consulta" name="consulta"></textarea>
+			<label for="evaluacion">Evaluacion</label>
+			<input type="radio" id="evaluacion" name="motivo" value="evaluacion"><br>
+			<label for="sugerencias">Sugerencias</label>
+			<input type="radio" id="sugerencias" name="motivo" value="sugerencias"><br>
+			<label for="criticas">Criticas</label>
+			<input type="radio" id="criticas" name="motivo" value="criticas"><br>
 
-		<button type="submit">Enviar</button>
-	</form>
+			<label for="termsandconditions">Marque esta casilla para verificar que ha leído nuestros términos y condiciones del servicio:</label>
+			<input type="checkbox" id="termsandconditions" name="termsandconditions"><br>
+
+			<label for="consulta">Consulta:</label><br>
+			<textarea id="consulta" name="consulta"></textarea>
+
+			<button type="submit">Enviar</button>
+		</form>
+		</main>
+
+	</div>
 </body>
 </html>
