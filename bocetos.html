@@ -1,116 +1,243 @@
 <doctype html>
-<html lang="es">
+  <html lang="es">
 
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Página de Bocetos</title>
-		<!-- Enlace al archivo CSS para estilos -->
-		<link rel="stylesheet" href="css/estilos.css" />
-	</head>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Página de Bocetos</title>
+      <!-- Enlace al archivo CSS para estilos -->
+      <link rel="stylesheet" href="css/estilos.css" />
+    </head>
 
 
-	<body>
+    <body>
 
-		<header>
-			<img src="img/logo2.png" alt="Logo de Bistro FDI" width="400">
-			<h1>Bocetos</h1>
-		</header>
+      <header>
+        <img src="img/logo2.png" alt="Logo de Bistro FDI" width="400">
+        <h1>Bocetos</h1>
+      </header>
 
-		<div id="contenedor">
+      <div id="contenedor">
 
-			<!-- Navegación -->
-			<nav>
-				<ul>
-					<li><a href="index.html">Inicio</a></li>
-					<li><a href="detalles.html">Detalles</a></li>
-					<li><a href="bocetos.html">Bocetos</a></li>
-					<li><a href="miembros.html">Miembros</a></li>
-					<li><a href="planificacion.html">Planificación</a></li>
-					<li><a href="contacto.html">Contacto</a></li>
-				</ul>
-			</nav>
+        <!-- Navegación -->
+        <nav>
+          <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="detalles.html">Detalles</a></li>
+            <li><a href="bocetos.html">Bocetos</a></li>
+            <li><a href="miembros.html">Miembros</a></li>
+            <li><a href="planificacion.html">Planificación</a></li>
+            <li><a href="contacto.html">Contacto</a></li>
+          </ul>
+        </nav>
 
-			<main>
+        <main>
 
-				<h2>Bocetos de la Aplicación</h2>
+          <h2>Bocetos de la Aplicación</h2>
 
-				<p>
-				En esta sección se presentan los bocetos de baja fidelidad
-				que representan las principales pantallas de la aplicación.
-				</p>
-				<section>
-					<h3>Compartido (para cualquier usuario)</h3>
+          <p>
+            En esta sección se presentan los bocetos de baja fidelidad
+            que representan las principales pantallas de la aplicación.
+          </p>
+          <section>
+            <h3>Compartido (para cualquier usuario)</h3>
 
-					<article class="boceto">
-						<h4>Registro e inicio de sesión</h4>
+            <article class="boceto">
+              <h4>Registro e inicio de sesión</h4>
 
-						<figure>
-							<img src="img/Login.png"
-							     alt="Boceto pantalla de inicio de sesión"
-							     width="600">
-							<figcaption>Pantalla de inicio de sesión.</figcaption>
-						</figure>
+              <figure>
+                <img src="img/Login.png"
+                  alt="Boceto pantalla de inicio de sesión"
+                  width="600">
+                <figcaption>Pantalla de inicio de sesión.</figcaption>
+              </figure>
 
-						<figure>
-							<img src="img/Register.png"
-							     alt="Boceto pantalla de registro" 
-							     width="600">
-							<figcaption>Pantalla de registro.</figcaption>
-						</figure>
+              <figure>
+                <img src="img/Register.png"
+                  alt="Boceto pantalla de registro" 
+                  width="600">
+                <figcaption>Pantalla de registro.</figcaption>
+              </figure>
 
-						<p>
-						Cuando un usuario entra al sistema
-						siempre tiene que pasar por la pantalla de login.
-						En el caso de que no tenga cuenta tiene que registrarse. 
+              <p>
+                Cuando un usuario entra al sistema
+                siempre tiene que pasar por la pantalla de login.
+                En el caso de que no tenga cuenta tiene que registrarse. 
 
-						Una vez pasado este proceso el usuario pasara a la pagina de inicio.
-						</p>
+                Una vez pasado este proceso el usuario pasara a la pagina de inicio.
+              </p>
 
-						<p><strong>Navegación:</strong> Login | Registro → Inicio (distinta segun el tipo de usuario)</p>
-					</article>
+              <p><strong>Navegación:</strong> Login | Registro → Inicio (distinta segun el tipo de usuario)</p>
 
-				</section>
+              <h4>Lista de Productos</h4>
+              <figure>
+                <img src="img/ListaProductos.png"
+                  alt="Boceto de la Lista de Productos" 
+                  width="600">
+                <figcaption>Pantalla de Lista Productos</figcaption>
+              </figure>
 
-				<section>
-					<h3>Cliente</h3>
-					<article class="boceto">
-						<h4>Inicio de Cliente</h4>
+              <p>
+               Muestra todos los productos que se han creado. La opción de "Crear Nuevo" solo estara disponible si el usuario 
+               es gerente. 
+              </p>
 
-						<figure>
-							<img src="img/InicioCliente.png"
-							     alt="Boceto de inicio de cliente"
-							     width="600">
-							<figcaption>Página de Inicio Cliente</figcaption>
-						</figure>
+              <p><strong>Navegación:</strong> Ver -> Página de Ver Producto</p>
 
-						<p>
-						Página de inicio de cliente. Dara acceso a todas las funcionalidades a las que tenga acceso.
-						Además, se muestra la cantidad de BistroCoins que tiene el usuario disponibles para gastar. 
-						</p>
+              <h4>Ver Producto</h4>
+              <figure>
+                <img src="img/VerProducto.png"
+                  alt="Boceto Página Ver Producto" 
+                  width="600">
+                <figcaption>Pantalla Ver Producto</figcaption>
+              </figure>
 
-						<p><strong>Navegación:</strong> 
-						<p> Nuevo Pedido -> Página Nuevo Pedido (se demostrara a continuación)</p>
-						<p> Ver Pedidos -> Página Lista de Pedidos Cliente</p> 
-						<p> Ver Ofertas -> Página Lista de  Ofertas</p> 
-						<p> Ver Recompensas -> Página Crear Pedido</p> 
-						</p>
+              <p>
+               Muestra la información almacenada del producto. La opción de modificar cualquier campo y de borrar el producto,
+                aparece si el usuario es un gerente. 
+              </p>
 
-						<<h4>Proceso de nuevo pedido</h4>
-						<figure>
-							<img src="img/NuevoPedidoProceso.png"
-							     alt="Boceto del proceso de un nuevo pedido"
-							     width="100%"
-							     <figcaption>Página de Inicio Cliente</figcaption>
-						</figure>
+              <p><strong>Navegación:</strong> Modificar (Solo Gerente) -> Pone el campo modificable</p>
 
-						<p>
-						Aqui se muestra el proceso entero de un nuevo pedido. Para destacar se tiene que en cualquier momento se puede cancelar el pedido y volver a la pantalla de Inicio del usuario.  
-						</p>
+              <h4>Lista de Categoria</h4>
+              <figure>
+                <img src="img/ListaCategorias.png"
+                  alt="Boceto de la Lista de Categorias" 
+                  width="600">
+                <figcaption>Pantalla de Lista categorias</figcaption>
+              </figure>
 
-					</article>
+              <p>
+               Muestra todos los categorias que se han creado. La opción de "Crear Nuevo" solo estara disponible si el usuario 
+               es gerente. 
+              </p>
 
-				</section>
+              <p><strong>Navegación:</strong> Ver -> Página de Ver Categoria</p>
+
+              <h4>Ver categoria</h4>
+              <figure>
+                <img src="img/VerCategoria.png"
+                  alt="Boceto Página Ver categoria" 
+                  width="600">
+                <figcaption>Pantalla Ver categoria</figcaption>
+              </figure>
+
+              <p>
+               Muestra la información almacenada del categoria. La opción de modificar cualquier campo y de borrar la categoria,
+                aparece si el usuario es un gerente. 
+              </p>
+
+              <p><strong>Navegación:</strong> Modificar (Solo Gerente) -> Pone el campo modificable</p>
+
+
+              <h4>Lista de Recompensa</h4>
+              <figure>
+                <img src="img/ListaDeRecompensas.png"
+                  alt="Boceto de la Lista de Recompensas" 
+                  width="600">
+                <figcaption>Pantalla de Lista Recompensas</figcaption>
+              </figure>
+
+              <p>
+               Muestra todos los Recompensas que se han creado. La opción de "Crear Nuevo" solo estara disponible si el usuario 
+               es gerente. 
+              </p>
+
+              <p><strong>Navegación:</strong> Ver -> Página de Ver Recompensa</p>
+
+              <h4>Ver Recompensa</h4>
+              <figure>
+                <img src="img/VerRecompensa.png"
+                  alt="Boceto Página Ver Recompensa" 
+                  width="600">
+                <figcaption>Pantalla Ver Recompensa</figcaption>
+              </figure>
+
+              <p>
+               Muestra la información almacenada de la recompensa. La opción de modificar cualquier campo y de borrar la recompensa,
+                aparece si el usuario es un gerente. 
+              </p>
+
+              <p><strong>Navegación:</strong> Modificar (Solo Gerente) -> Pone el campo modificable</p>
+
+
+              <h4>Lista de Oferta</h4>
+              <figure>
+                <img src="img/ListaDeOfertas.png"
+                  alt="Boceto de la Lista de Ofertas" 
+                  width="600">
+                <figcaption>Pantalla de Lista Ofertas</figcaption>
+              </figure>
+
+              <p>
+               Muestra todos los Ofertas que se han creado. La opción de "Crear Nuevo" solo estara disponible si el usuario 
+               es gerente. 
+              </p>
+
+              <p><strong>Navegación:</strong> Ver -> Página de Ver Oferta</p>
+
+              <h4>Ver Oferta</h4>
+              <figure>
+                <img src="img/VerOferta.png"
+                  alt="Boceto Página Ver Oferta" 
+                  width="600">
+                <figcaption>Pantalla Ver Oferta</figcaption>
+              </figure>
+
+              <p>
+               Muestra la información almacenada de la oferta. La opción de modificar cualquier campo y de borrar la recompensa,
+                aparece si el usuario es un gerente. 
+              </p>
+
+              <p><strong>Navegación:</strong> Modificar (Solo Gerente) -> Pone el campo modificable</p>
+
+
+
+
+
+            </article>
+
+          </section>
+
+          <section>
+            <h3>Cliente</h3>
+            <article class="boceto">
+              <h4>Inicio de Cliente</h4>
+
+              <figure>
+                <img src="img/InicioCliente.png"
+                  alt="Boceto de inicio de cliente"
+                  width="600">
+                <figcaption>Página de Inicio Cliente</figcaption>
+              </figure>
+
+              <p>
+                Página de inicio de cliente. Dara acceso a todas las funcionalidades a las que tenga acceso.
+                Además, se muestra la cantidad de BistroCoins que tiene el usuario disponibles para gastar. 
+              </p>
+
+              <p><strong>Navegación:</strong> 
+              <p> Nuevo Pedido -> Página Nuevo Pedido (se demostrara a continuación)</p>
+              <p> Ver Pedidos -> Página Lista de Pedidos Cliente</p> 
+              <p> Ver Ofertas -> Página Lista de  Ofertas</p> 
+              <p> Ver Recompensas -> Página Crear Pedido</p> 
+              </p>
+
+              <h4>Proceso de nuevo pedido</h4>
+              <figure>
+                <img src="img/NuevoPedidoProceso.png"
+                  alt="Boceto del proceso de un nuevo pedido"
+                  width="100%"
+                <figcaption>Proceso de nuevo pedido</figcaption>
+              </figure>
+
+              <p>
+                Aqui se muestra el proceso entero de un nuevo pedido. Para destacar se tiene que en cualquier momento se puede cancelar el pedido y volver a la pantalla de Inicio del usuario.  
+              </p>
+
+            </article>
+
+          </section>
 
 
 				<!-- ================= CAMARERO ================= -->
@@ -245,23 +372,23 @@
 					</article>
 				</section>
 
-			</main>
+        </main>
 
-			<!-- Barra lateral -->
-			<aside>
-				<h3>Diseño preliminar</h3>
-				<ul>
-					<li>📱 Adaptado a móviles</li>
-					<li>🖥 Adaptado a escritorio</li>
-					<li>👨‍🍳 Interfaz simplificada por rol</li>
-					<li>🧭 Navegación clara y estructurada</li>
-				</ul>
-			</aside>
+        <!-- Barra lateral -->
+        <aside>
+          <h3>Diseño preliminar</h3>
+          <ul>
+            <li>📱 Adaptado a móviles</li>
+            <li>🖥 Adaptado a escritorio</li>
+            <li>👨‍🍳 Interfaz simplificada por rol</li>
+            <li>🧭 Navegación clara y estructurada</li>
+          </ul>
+        </aside>
 
-		</div>
+      </div>
 
-		<footer>
-			<p>&copy; 2026 Bistro FDI - Aplicaciones Web - Facultad de Informática</p>
-		</footer>
+      <footer>
+        <p>&copy; 2026 Bistro FDI - Aplicaciones Web - Facultad de Informática</p>
+      </footer>
 
-	</body>
+    </body>
