@@ -1,36 +1,9 @@
-<!doctype html>
-<html lang="es">
+<?php
 
-<head>
-    <meta charset="UTF-8" >
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
-    <title>Bistro FDI - Proyecto 1</title>
-    <!-- Enlace al archivo CSS para estilos -->
-    <link rel="stylesheet" href="css/estilos.css" >
-</head>
+$tituloPagina = 'Bistro FDI';
 
-<body>
-    <!-- Encabezado-->
-    <header>
-        <img src="img/logo2.png" alt="Logo de Bistro FDI" width="400" >
-        <h1>Bistro FDI</h1>
-    </header>
-
-    <!-- Contenedor principal -->
+$contenidoPrincipal=<<<EOS
     <div id="contenedor">
-
-        <!-- Navegación izquierda-->
-        <nav>
-            <ul>
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="detalles.html">Detalles</a></li>
-                <li><a href="bocetos.html">Bocetos</a></li>
-                <li><a href="miembros.html">Miembros</a></li>
-                <li><a href="planificacion.html">Planificación</a></li>
-                <li><a href="contacto.html">Contacto</a></li>
-            </ul>
-        </nav>
-
         <!-- Contenido principal -->
         <main>
             <section>
@@ -54,27 +27,16 @@
                 </p>
             </section>
         </main>
-
-        <!-- Barra lateral derecha -->
-        <aside>
-            <h3>Características</h3>
-            <ul>
-                <li>📦 Sistema de pedidos online</li>
-                <li>⏱️ Seguimiento en tiempo real</li>
-                <li>👨‍🍳 Gestión para el personal</li>
-                <li>🎁 Programa de fidelización</li>
-                <li>🏷️ Ofertas y descuentos</li>
-            </ul>
-        </aside>
     </div>
+EOS;
 
-    <!-- Pie de página -->
-    <footer>
-        <p>
-            &copy; 2026 Bistro FDI - Aplicaciones Web - Facultad de Informática
-        </p>
-    </footer>
+$listaCaracteristicas = [
+   "📦 Sistema de pedidos online",
+   "⏱️ Seguimiento en tiempo real"
+   "👨‍🍳 Gestión para el personal",
+   "🎁 Programa de fidelización",
+   "🏷️ Ofertas y descuentos"
+]
 
-</body>
-
-</html>
+require("includes/vistas/common/plantilla.php");
+?>
