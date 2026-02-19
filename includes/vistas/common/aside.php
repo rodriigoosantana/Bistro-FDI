@@ -1,11 +1,17 @@
+<?php require_once __DIR__.'/includes/config.php' ?>
 <aside>
-	<section>
-		<h3>Enlaces de interes</h3>
-		<ol>
-			<li><a target="_blank" href="https://developer.mozilla.org/es/docs/Web/HTML">HTML5</a></li>
-			<li><a target="_blank" href="https://developer.mozilla.org/es/docs/Web/CSS">CSS</a></li>
-			<li><a target="_blank" href="https://developer.mozilla.org/es/docs/Web/JavaScript">Javascript</a></li>
-			<li><a target="_blank" href="https://getbootstrap.com/">Bootstrap</a></li>
-		</ol>					
-	</section>
+    <section>
+        <h3>Características</h3>
+        <ul>
+            <?php
+
+            //Entra la lista de caracteristicas desde la vista (ver por ejemplo index.php)
+            if (isset($listaCaracteristicas) && is_array($listaCaracteristicas)) {
+                foreach ($listaCaracteristicas as $item) {
+                    echo "<li>$item</li>";
+                }
+            }
+            ?>
+        </ul>
+    </section>
 </aside>
