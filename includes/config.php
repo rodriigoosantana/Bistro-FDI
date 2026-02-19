@@ -1,6 +1,6 @@
 <?php 
   define('RAIZ_APP', dirname(__DIR__));
-  define('RUTA_APP', '/var/www/produccion'); #Revisar porque no sé si es correcto
+  define('RUTA_APP', '/BISTRO-FDI');
   define('RUTA_VISTAS', RUTA_APP.'/includes/vistas');
   define('RUTA_IMGS', RUTA_APP.'/img');
   define('RUTA_CSS', RUTA_APP.'/css');
