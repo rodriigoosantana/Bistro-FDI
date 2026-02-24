@@ -17,16 +17,20 @@ if (!$password || strlen(trim($password)) < 4) {
 
 // Solo intentamos login si no hay errores de validación
 if (count($erroresFormulario) === 0) {
-    if ($username === "user" && $password === "userpass") {
-        $_SESSION["login"]  = true;
-        $_SESSION["nombre"] = "Usuario";
-    } else if ($username === "admin" && $password === "adminpass") {
-        $_SESSION["login"] = true;
-        $_SESSION["nombre"] = "Administrador";
-        $_SESSION["esAdmin"] = true;
-    } else {
-        $erroresFormulario['global'] = "El usuario o el password no coinciden";
-    }
+  $usuario = Usuario::login($username, $password);
+
+  if (!$usuario) {
+    $erroresFormulario[] = "El usuario o el password no coinciden";
+  }
+  else {
+    $_SESSION['login'] = true;
+    $_SESSION['nombre'] = $usuario.getNombre();
+    $_SESSION['esAdmin'] = $usuario->tieneRol(Usuario::ADMIN_ROLE);
+    
+    header('Location:' . RUTA_APP . '/index.php');
+
+    exit();
+  }
 }
 
 // Generamos contenido principal según sesión y errores

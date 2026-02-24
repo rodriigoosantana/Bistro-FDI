@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS `Productos`;
 DROP TABLE IF EXISTS `Categorias`;
 DROP TABLE IF EXISTS `Usuarios`;
 DROP TABLE IF EXISTS `Roles`;
+DROP TABLE IF EXISTS `RolesUsuario`;
 
 
 -- TABLA ROLES
@@ -23,6 +24,13 @@ CREATE TABLE IF NOT EXISTS `Roles` (
   UNIQUE KEY `uq_rol_nombre` (`nombre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
+-- TABLA ROLES USUARIO
+CREATE TABLE IF NOT EXISTS `RolesUsuario` (
+  `usuario` INT(11) NOT NULL,
+  `rol`     INT(11) NOT NULL,
+  PRIMARY KEY (`usuario`),
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- TABLA USUARIOS
 CREATE TABLE IF NOT EXISTS `Usuarios` (
