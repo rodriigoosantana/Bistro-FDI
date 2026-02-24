@@ -12,7 +12,7 @@ class Rol
 
    //region Constructor
 
-   private function __construct($id, $nombre = null)
+   public function __construct($id, $nombre = null)
    {
       $this->id = $id;
       $this->nombre = $nombre;

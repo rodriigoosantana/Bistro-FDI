@@ -31,7 +31,7 @@ INSERT INTO `Roles` (`id`, `nombre`, `prioridad`) VALUES
 -- USUARIOS
 -- password123 -> $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
 -- =========================
-INSERT INTO `Usuarios` (`id`, `username`, `email`, `nombre`, `apellidos`, `password`, `rol_id`) VALUES
+INSERT INTO `Usuarios` (`id`, `nombreUsuario`, `email`, `nombre`, `apellidos`, `password`, `rol_id`) VALUES
 (1, 'gerente1',  'gerente@bistrofdi.es',  'Ana',    'García López',    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1),
 (2, 'cocinero1', 'cocinero@bistrofdi.es', 'Carlos', 'Martínez Ruiz',   '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2),
 (3, 'camarero1', 'camarero@bistrofdi.es', 'Laura',  'Sánchez Pérez',   '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 3),

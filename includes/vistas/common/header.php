@@ -8,7 +8,7 @@ function mostrarSaludo()
     } 
     else 
     {
-        return "Usuario desconocido. <a href=' " . RUTA_VISTAS . "/login.php'>Login</a>";
+        return "Usuario desconocido. <a href='" . RUTA_VISTAS . "/login.php'>Login</a> <a href=' " . RUTA_VISTAS . "/registro.php'>Registro</a>";
     }
 }
 ?>

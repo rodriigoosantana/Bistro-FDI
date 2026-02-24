@@ -24,28 +24,28 @@ CREATE TABLE IF NOT EXISTS `Roles` (
   UNIQUE KEY `uq_rol_nombre` (`nombre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
 -- TABLA ROLES USUARIO
 CREATE TABLE IF NOT EXISTS `RolesUsuario` (
-  `usuario` INT(11) NOT NULL,
-  `rol`     INT(11) NOT NULL,
-  PRIMARY KEY (`usuario`),
+  `usuario` int(11) NOT NULL,
+  `rol` int(11) NOT NULL,
+  PRIMARY KEY (`usuario`,`rol`),
+  KEY `rol` (`rol`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- TABLA USUARIOS
 CREATE TABLE IF NOT EXISTS `Usuarios` (
   `id`             int(11)      NOT NULL AUTO_INCREMENT,
-  `username`       varchar(50)  COLLATE utf8mb4_general_ci NOT NULL,
+  `nombreUsuario`       varchar(50)  COLLATE utf8mb4_general_ci NOT NULL,
   `email`          varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `nombre`         varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `apellidos`      varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
   `password`       varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `rol_id`         int(11)      NOT NULL,
+  `rol_id`         int(11)      NOT NULL DEFAULT 4,
   `avatar`         varchar(255) COLLATE utf8mb4_general_ci,
   `activo`         tinyint(1)   NOT NULL DEFAULT 1,
   `fecha_creacion` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_username` (`username`),
+  UNIQUE KEY `uq_nombreUsuario` (`nombreUsuario`),
   KEY `fk_usuario_rol` (`rol_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
