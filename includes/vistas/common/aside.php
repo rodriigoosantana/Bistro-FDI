@@ -1,4 +1,3 @@
-<?php require_once __DIR__.'/includes/config.php' ?>
 <aside>
     <section>
         <h3>Características</h3>

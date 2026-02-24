@@ -1,4 +1,8 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+require_once __DIR__.'/includes/config.php';
 
 $tituloPagina = 'Bistro FDI';
 
@@ -32,11 +36,11 @@ EOS;
 
 $listaCaracteristicas = [
    "📦 Sistema de pedidos online",
-   "⏱️ Seguimiento en tiempo real"
+   "⏱️ Seguimiento en tiempo real",
    "👨‍🍳 Gestión para el personal",
    "🎁 Programa de fidelización",
    "🏷️ Ofertas y descuentos"
-]
+];
 
 require("includes/vistas/common/plantilla.php");
 ?>

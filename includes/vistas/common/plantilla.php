@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<?php require_once __DIR__.'/includes/config.php' ?>
 <html lang="es">
     <head>
         <title><?= $tituloPagina ?></title>

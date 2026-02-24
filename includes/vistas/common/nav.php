@@ -1,4 +1,3 @@
-<?php require_once __DIR__.'/includes/config.php' ?>
 <nav>
 	<h3>Navegación</h3>
   <ul>
