@@ -1,37 +1,13 @@
-<!DOCTYPE html>
-<html lang="es">
+<?php
+require_once __DIR__.'/includes/config.php';
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Página de Bocetos</title>
-  <link rel="stylesheet" href="css/estilos.css" >
-</head>
-
-
-<body>
-
-  <header>
-    <img src="img/logo2.png" alt="Logo de Bistro FDI" width="400">
-    <h1>Bocetos</h1>
-  </header>
-
-  <div id="contenedor">
-
-    <nav>
-      <ul>
-        <li><a href="index.html">Inicio</a></li>
-        <li><a href="detalles.html">Detalles</a></li>
-        <li><a href="bocetos.html">Bocetos</a></li>
-        <li><a href="miembros.html">Miembros</a></li>
-        <li><a href="planificacion.html">Planificación</a></li>
-        <li><a href="contacto.html">Contacto</a></li>
-      </ul>
-    </nav>
-
-    <main>
-
-      <h2>Bocetos de la Aplicación</h2>
+$tituloPagina = 'Bocetos';
+$tituloHeader = 'Bocetos de las Vistas';
+$contenidoPrincipal=<<<EOS
+    <div id="contenedor">
+        <!-- Contenido principal -->
+        <main>
+<h2>Bocetos de la Aplicación</h2>
 
       <p>
         En esta sección se presentan los bocetos de baja fidelidad
@@ -484,24 +460,16 @@
         </article>
       </section>
 
-    </main>
+        </main>
+    </div>
+EOS;
 
-    <aside>
-      <h3>Diseño preliminar</h3>
-      <ul>
-        <li>📱 Adaptado a móviles</li>
-        <li>🖥 Adaptado a escritorio</li>
-        <li>👨‍🍳 Interfaz simplificada por rol</li>
-        <li>🧭 Navegación clara y estructurada</li>
-      </ul>
-    </aside>
+$listaCaracteristicas = [
+        "📱 Adaptado a móviles",
+        "🖥 Adaptado a escritorio",
+        "👨‍🍳 Interfaz simplificada por rol",
+        "🧭 Navegación clara y estructurada"
+];
 
-  </div>
-
-  <footer>
-    <p>&copy; 2026 Bistro FDI - Aplicaciones Web - Facultad de Informática</p>
-  </footer>
-
-</body>
-
-</html>
+require("includes/vistas/common/plantilla.php");
+?>

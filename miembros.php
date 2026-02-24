@@ -1,7 +1,8 @@
 <?php
+require_once __DIR__.'/includes/config.php';
 
-$tituloPagina = 'Miembros de Nuestro Equipo - Bistro FDI;
-
+$tituloPagina = 'Miembros';
+$tituloHeader = 'Miembros de Nuestro Equipo - Bistro FDI';
 $contenidoPrincipal=<<<EOS
     <div id="contenedor">
         <!-- Contenido principal -->
@@ -121,7 +122,7 @@ $listaCaracteristicas = [
     "🌱 En mejora continua y aprendizaje constante",
     "🚀 Más de 10 proyectos lanzados",
     "📬 Respuesta en menos de 24h",
-]
+];
 
 require("includes/vistas/common/plantilla.php");
 ?>

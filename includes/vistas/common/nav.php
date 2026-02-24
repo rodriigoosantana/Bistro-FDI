@@ -7,10 +7,10 @@
     <li><a href="<?php echo RUTA_VISTAS . '/usuarioslist.php' ?>">Lista de Usuarios</a></li>
 
     <!-- Temporal -->
-    <li><a href="detalles.html">detalles</a></li>
-    <li><a href="bocetos.html">bocetos</a></li>
-    <li><a href="miembros.html">miembros</a></li>
-    <li><a href="planificacion.html">planificación</a></li>
-    <li><a href="contacto.html">contacto</a></li>
+    <li><a href="detalles.php">detalles</a></li>
+    <li><a href="bocetos.php">bocetos</a></li>
+    <li><a href="miembros.php">miembros</a></li>
+    <li><a href="planificacion.php">planificación</a></li>
+    <li><a href="contacto.php">contacto</a></li>
 	</ul>
 </nav>

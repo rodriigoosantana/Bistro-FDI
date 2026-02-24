@@ -1,40 +1,13 @@
-<!DOCTYPE html>
-<html lang="es">
+<?php
+require_once __DIR__.'/includes/config.php';
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalles del proyecto - Bistro FDI</title>
-    <!-- Enlace al archivo CSS para estilos -->
-    <link rel="stylesheet" href="css/estilos.css" >
-</head>
-
-<body>
-    <!-- Encabezado-->
-    <header>
-         <img src="img/logo2.png" alt="Logo de Bistro FDI" width="400" >
-        <h1>Detalles </h1>
-    </header>
-
-    <!-- Contenedor principal -->
+$tituloPagina = 'Detalles';
+$tituloHeader = 'Detalles del Proyecto';
+$contenidoPrincipal=<<<EOS
     <div id="contenedor">
-        
-        <!-- Navegación -->
-        <nav>
-            <ul>
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="detalles.html">Detalles</a></li>
-                <li><a href="bocetos.html">Bocetos</a></li>
-                <li><a href="miembros.html">Miembros</a></li>
-                <li><a href="planificacion.html">Planificación</a></li>
-                <li><a href="contacto.html">Contacto</a></li>
-            </ul>
-        </nav>
-
         <!-- Contenido principal -->
         <main>
-            <!-- Introducción -->
-            <section>
+         <section>
                 <h2>Introducción</h2>
                 <p>
                     Bistro FDI es una aplicación web integral diseñada para modernizar y optimizar la gestión
@@ -234,28 +207,19 @@
                     </ul>
                 </article>
             </section>
+
         </main>
-
-        <!-- Barra lateral  -->
-        <aside>
-            <h3>Funcionalidades</h3>
-            <ul>
-                <li>🕴️ Gestión de usuarios</li>
-                <li>🥐 Gestión de productos</li>
-                <li>🍽️ Gestión de pedidos</li>
-                <li>🍳 Preparación de pedidos</li>
-                <li>🏷️ Gestión de ofertas</li>
-                <li>🎁 Gestión de recompensas</li>
-            </ul>
-        </aside>
-
     </div>
-    
-    <!-- Pie de página -->
-    <footer>
-        <p>&copy; 2026 Bistro FDI - Aplicaciones Web - Facultad de Informática</p>
-    </footer>
+EOS;
 
-</body>
+$listaCaracteristicas = [
+  "🕴️ Gestión de usuarios",                
+  "🥐 Gestión de productos",
+  "🍽️ Gestión de pedidos",               
+  "🍳 Preparación de pedidos",
+  "🏷️ Gestión de ofertas",               
+  "🎁 Gestión de recompensas"
+];
 
-</html>
+require("includes/vistas/common/plantilla.php");
+?>

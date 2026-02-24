@@ -10,20 +10,16 @@
         <link rel="stylesheet" type="text/css" href="<?php echo RUTA_CSS . '/estilos.css' ?>" />
     </head>
     <body>
+        <?php include(RAIZ_APP . '/includes/vistas/common/header.php');?>
         <div id="contenedor">
-            <?php
-                include(RAIZ_APP . '/includes/vistas/common/header.php');
-                include(RAIZ_APP . '/includes/vistas/common/nav.php');
-            ?>
+            <?php include(RAIZ_APP . '/includes/vistas/common/nav.php');?>
 
             <main>
                 <?= $contenidoPrincipal ?>
             </main>
 
-            <?php
-                include(RAIZ_APP . '/includes/vistas/common/aside.php');
-                include(RAIZ_APP . '/includes/vistas/common/footer.php');
-            ?>
+            <?php include(RAIZ_APP . '/includes/vistas/common/aside.php');?>
         </div> 
+    <?php include(RAIZ_APP . '/includes/vistas/common/footer.php'); ?>
     </body>
 </html>
