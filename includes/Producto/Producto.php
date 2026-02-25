@@ -1,6 +1,6 @@
 <?php
 
-require_once RAIZ_APP . '/includes/Categoria/Categoria.php';
+require_once RAIZ_APP . '/includes/Producto/Categoria.php';
 
 class Producto
 {

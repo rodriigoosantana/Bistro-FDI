@@ -90,7 +90,8 @@ EOF;
             {
                $_SESSION['login'] = true;
                $_SESSION['nombre'] = $usuario->getNombre();
-               $_SESSION['esAdmin'] = $usuario->tieneRol(Usuario::ADMIN_ROLE);
+               $_SESSION['rolId']  = $usuario->getRolId();
+               $_SESSION['userId'] = $usuario->getId();
             }
       }
    }

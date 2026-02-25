@@ -144,7 +144,7 @@
                   } 
                   else 
                   {
-                     $usuario = Usuario::crear($nombreUsuario, $password, $nombre, $apellidos, $email, Usuario::USER_ROLE);
+                     $usuario = Usuario::crear($nombreUsuario, $password, $nombre, $apellidos, $email, Usuario::ROL_CLIENTE);
                      
                      if (!$usuario) 
                      {

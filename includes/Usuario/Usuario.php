@@ -13,19 +13,21 @@ class Usuario
 
    private $nombre;
 
+   private $apellidos;
+
    private $roles;
 
    private $email;
 
-   private $apellidos;
+
 
    //endregion
-  
+
    //region Campos estaticos 
-
-   public const ADMIN_ROLE = 1;
-
-   public const USER_ROLE = 2;
+   public const ROL_GERENTE = 1;
+   public const ROL_COCINERO = 2;
+   public const ROL_CAMARERO = 3;
+   public const ROL_CLIENTE = 4;
 
    //endregion
 
@@ -43,7 +45,7 @@ class Usuario
    }
 
    //endregion
-   
+
    //region Propiedades
 
    public function getId()
@@ -63,17 +65,32 @@ class Usuario
 
    public function getRoles()
    {
-     return $this->roles;
+      if (empty($this->roles)) {
+         $this->cargarRoles();
+      }
+
+      return $this->roles;
    }
-  
+
    public function getEmail()
    {
-     return $this->email;
+      return $this->email;
    }
-  public function getApellidos()
+   public function getApellidos()
    {
-     return $this->Apellidos;
+      return $this->apellidos;
    }
+
+      public function getRolId()
+    {
+        $roles = $this->getRoles();
+
+        if ($roles && count($roles) > 0) {
+            return $roles[0]->getId();
+        }
+
+        return null;
+    }
 
    //endregion
 
@@ -83,19 +100,17 @@ class Usuario
    {
       $this->cargarRoles();
 
-      if ($this->roles) 
-      {
-         return (bool) array_filter($this->roles, function($o) use ($role)
-         {
-               return $o->getId() === $role;
+      if ($this->roles) {
+         return (bool) array_filter($this->roles, function ($o) use ($role) {
+            return $o->getId() === $role;
          });
       }
-      
+
       return false;
    }
 
    //endregion
-   
+
    //region Métodos privados
 
    private function compruebaPassword($password)
@@ -114,23 +129,27 @@ class Usuario
       $result = false;
 
       $conn = Aplicacion::getInstance()->getConexionBd();
-      
-      $query=sprintf("INSERT INTO Usuarios(nombreUsuario, nombre, apellidos, email, password) VALUES ('%s', '%s', '%s', '%s', '%s')"
-         , $conn->real_escape_string($this->nombreUsuario)
-         , $conn->real_escape_string($this->nombre)
-         , $conn->real_escape_string($this->apellidos)
-         , $conn->real_escape_string($this->email)
-         , $conn->real_escape_string($this->password)
+
+      $query = sprintf(
+         "INSERT INTO Usuarios(nombreUsuario, nombre, apellidos, email, password) 
+         VALUES ('%s', '%s', '%s', '%s', '%s')"
+         ,
+         $conn->real_escape_string($this->nombreUsuario)
+         ,
+         $conn->real_escape_string($this->nombre)
+         ,
+         $conn->real_escape_string($this->apellidos)
+         ,
+         $conn->real_escape_string($this->email)
+         ,
+         $conn->real_escape_string($this->password)
       );
 
-      if ( $conn->query($query) ) 
-      {
+      if ($conn->query($query)) {
          $this->id = $conn->insert_id;
-         
+
          $result = $this->insertarRoles();
-      } 
-      else 
-      {
+      } else {
          error_log("Error BD ({$conn->errno}): {$conn->error}");
       }
 
@@ -139,13 +158,11 @@ class Usuario
 
    private function insertarRoles()
    {
-      foreach($this->roles as $rol) 
-      {
+      foreach ($this->roles as $rol) {
          $rolesUsuario = new RolesUsuario($this->id, $rol->getId());
 
-         if (! $rolesUsuario->insertar())
-         {
-               return false;
+         if (!$rolesUsuario->insertar()) {
+            return false;
          }
       }
 
@@ -158,10 +175,9 @@ class Usuario
    public static function login($nombreUsuario, $password)
    {
       $usuario = self::buscaUsuario($nombreUsuario);
-      
-      if ($usuario && $usuario->compruebaPassword($password)) 
-      {
-            return $usuario;
+
+      if ($usuario && $usuario->compruebaPassword($password)) {
+         return $usuario;
       }
 
       return false;
@@ -170,40 +186,35 @@ class Usuario
    public static function buscaUsuario($nombreUsuario)
    {
       $conn = Aplicacion::getInstance()->getConexionBd();
-      
+
       $query = sprintf("SELECT * FROM Usuarios U WHERE U.nombreUsuario='%s'", $conn->real_escape_string($nombreUsuario));
-      
+
       $rs = $conn->query($query);
-      
-      if ($rs) 
-      {
-            $fila = $rs->fetch_assoc();
-            
-            $rs->free();
 
-            if ($fila)
-            {
-               $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['id']);
+      if ($rs) {
+         $fila = $rs->fetch_assoc();
 
-               return $user;
-            }
-      } 
-      else 
-      {
-            error_log("Error BD ({$conn->errno}): {$conn->error}");
+         $rs->free();
+
+         if ($fila) {
+            $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['id']);
+
+            return $user;
+         }
+      } else {
+         error_log("Error BD ({$conn->errno}): {$conn->error}");
       }
-      
+
       return false;
    }
 
    public static function crear($nombreUsuario, $password, $nombre, $apellidos, $email, $rol)
    {
-      $roles = [ new Rol($rol) ];
+      $roles = [new Rol($rol)];
 
       $user = new Usuario($nombreUsuario, self::hashPassword($password), $nombre, $apellidos, $email, null, $roles);
-      
-      if($user->insertar())
-      {
+
+      if ($user->insertar()) {
          return $user;
       }
 

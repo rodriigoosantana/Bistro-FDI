@@ -10,9 +10,9 @@ DROP TABLE IF EXISTS `Pedidos`;
 DROP TABLE IF EXISTS `EstadosPedido`;
 DROP TABLE IF EXISTS `Productos`;
 DROP TABLE IF EXISTS `Categorias`;
+DROP TABLE IF EXISTS `RolesUsuario`;
 DROP TABLE IF EXISTS `Usuarios`;
 DROP TABLE IF EXISTS `Roles`;
-DROP TABLE IF EXISTS `RolesUsuario`;
 
 
 -- TABLA ROLES
@@ -24,31 +24,28 @@ CREATE TABLE IF NOT EXISTS `Roles` (
   UNIQUE KEY `uq_rol_nombre` (`nombre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- TABLA ROLES USUARIO
-CREATE TABLE IF NOT EXISTS `RolesUsuario` (
-  `usuario` int(11) NOT NULL,
-  `rol` int(11) NOT NULL,
-  PRIMARY KEY (`usuario`,`rol`),
-  KEY `rol` (`rol`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 -- TABLA USUARIOS
 CREATE TABLE IF NOT EXISTS `Usuarios` (
   `id`             int(11)      NOT NULL AUTO_INCREMENT,
-  `nombreUsuario`       varchar(50)  COLLATE utf8mb4_general_ci NOT NULL,
+  `nombreUsuario`  varchar(50)  COLLATE utf8mb4_general_ci NOT NULL,
   `email`          varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `nombre`         varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `apellidos`      varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
   `password`       varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `rol_id`         int(11)      NOT NULL DEFAULT 4,
   `avatar`         varchar(255) COLLATE utf8mb4_general_ci,
   `activo`         tinyint(1)   NOT NULL DEFAULT 1,
   `fecha_creacion` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_nombreUsuario` (`nombreUsuario`),
-  KEY `fk_usuario_rol` (`rol_id`)
+  UNIQUE KEY `uq_nombreUsuario` (`nombreUsuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- TABLA ROLES USUARIO
+CREATE TABLE IF NOT EXISTS `RolesUsuario` (
+  `usuario` int(11) NOT NULL,
+  `rol`     int(11) NOT NULL,
+  PRIMARY KEY (`usuario`,`rol`),
+  KEY `rol` (`rol`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- TABLA CATEGORIAS
 CREATE TABLE IF NOT EXISTS `Categorias` (
@@ -60,7 +57,6 @@ CREATE TABLE IF NOT EXISTS `Categorias` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_categoria_nombre` (`nombre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 
 -- TABLA PRODUCTOS
 CREATE TABLE IF NOT EXISTS `Productos` (
@@ -77,7 +73,6 @@ CREATE TABLE IF NOT EXISTS `Productos` (
   KEY `fk_producto_categoria` (`categoria_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
 -- TABLA PRODUCTO_IMAGEN
 CREATE TABLE IF NOT EXISTS `ProductoImagen` (
   `id`          int(11)      NOT NULL AUTO_INCREMENT,
@@ -87,7 +82,6 @@ CREATE TABLE IF NOT EXISTS `ProductoImagen` (
   KEY `fk_imagen_producto` (`producto_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
 -- TABLA ESTADOS_PEDIDO
 CREATE TABLE IF NOT EXISTS `EstadosPedido` (
   `id`     int(11)     NOT NULL AUTO_INCREMENT,
@@ -95,7 +89,6 @@ CREATE TABLE IF NOT EXISTS `EstadosPedido` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_estado_nombre` (`nombre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 
 -- TABLA PEDIDOS
 CREATE TABLE IF NOT EXISTS `Pedidos` (

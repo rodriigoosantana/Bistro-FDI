@@ -1,5 +1,4 @@
 /*
-
   Contraseñas de prueba:
     gerente1  -> password123
     cocinero1 -> password123
@@ -15,41 +14,42 @@ TRUNCATE TABLE `Pedidos`;
 TRUNCATE TABLE `EstadosPedido`;
 TRUNCATE TABLE `Productos`;
 TRUNCATE TABLE `Categorias`;
+TRUNCATE TABLE `RolesUsuario`;
 TRUNCATE TABLE `Usuarios`;
 TRUNCATE TABLE `Roles`;
 
--- =========================
 -- ROLES (prioridad: 1=máximo acceso)
--- =========================
 INSERT INTO `Roles` (`id`, `nombre`, `prioridad`) VALUES
 (1, 'gerente',  1),
 (2, 'cocinero', 2),
 (3, 'camarero', 3),
 (4, 'cliente',  4);
 
--- =========================
 -- USUARIOS
 -- password123 -> $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
--- =========================
-INSERT INTO `Usuarios` (`id`, `nombreUsuario`, `email`, `nombre`, `apellidos`, `password`, `rol_id`) VALUES
-(1, 'gerente1',  'gerente@bistrofdi.es',  'Ana',    'García López',    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1),
-(2, 'cocinero1', 'cocinero@bistrofdi.es', 'Carlos', 'Martínez Ruiz',   '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 2),
-(3, 'camarero1', 'camarero@bistrofdi.es', 'Laura',  'Sánchez Pérez',   '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 3),
-(4, 'cliente1',  'cliente1@gmail.com',    'Pedro',  'Fernández Gómez', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 4),
-(5, 'cliente2',  'cliente2@gmail.com',    'María',  'López Díaz',      '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 4);
+INSERT INTO `Usuarios` (`id`, `nombreUsuario`, `email`, `nombre`, `apellidos`, `password`) VALUES
+(1, 'gerente1',  'gerente@bistrofdi.es',  'Ana',    'García López',    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+(2, 'cocinero1', 'cocinero@bistrofdi.es', 'Carlos', 'Martínez Ruiz',   '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+(3, 'camarero1', 'camarero@bistrofdi.es', 'Laura',  'Sánchez Pérez',   '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+(4, 'cliente1',  'cliente1@gmail.com',    'Pedro',  'Fernández Gómez', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
+(5, 'cliente2',  'cliente2@gmail.com',    'María',  'López Díaz',      '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
 
--- =========================
+-- ROLES USUARIO
+INSERT INTO `RolesUsuario` (`usuario`, `rol`) VALUES
+(1, 1),  -- gerente1  -> gerente
+(2, 2),  -- cocinero1 -> cocinero
+(3, 3),  -- camarero1 -> camarero
+(4, 4),  -- cliente1  -> cliente
+(5, 4);  -- cliente2  -> cliente
+
 -- CATEGORIAS
--- =========================
 INSERT INTO `Categorias` (`id`, `nombre`, `descripcion`) VALUES
 (1, 'Bocadillos', 'Bocadillos frescos preparados al momento'),
 (2, 'Bebidas',    'Refrescos, agua, zumos y bebidas calientes'),
 (3, 'Menús',      'Menús completos con primero, segundo y postre'),
 (4, 'Postres',    'Dulces y postres del día');
 
--- =========================
 -- PRODUCTOS (IVA: 10% alimentación, 21% bebidas)
--- =========================
 INSERT INTO `Productos` (`id`, `nombre`, `descripcion`, `categoria_id`, `precio_base`, `iva`) VALUES
 (1, 'Bocadillo de jamón',     'Jamón ibérico con tomate y aceite', 1, 3.50, 10),
 (2, 'Bocadillo de tortilla',  'Tortilla española con cebolla',      1, 3.00, 10),
@@ -61,9 +61,7 @@ INSERT INTO `Productos` (`id`, `nombre`, `descripcion`, `categoria_id`, `precio_
 (8, 'Yogur natural',          'Yogur natural con miel',             4, 1.50, 10),
 (9, 'Fruta del día',          'Pieza de fruta de temporada',        4, 1.00, 10);
 
--- =========================
 -- ESTADOS DE PEDIDO
--- =========================
 INSERT INTO `EstadosPedido` (`id`, `nombre`) VALUES
 (1, 'nuevo'),
 (2, 'recibido'),
