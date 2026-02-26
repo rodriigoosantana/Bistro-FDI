@@ -21,7 +21,10 @@ class Rol
    //endregion
 
    //region Propiedades
-
+   public function __toString() 
+   {
+     return $this->getNombre();
+   }
    public function getId()
    {
       return $this->id;
@@ -41,17 +44,17 @@ class Rol
             
             $conn = Aplicacion::getInstance()->getConexionBd();
             
-            $query = sprintf("SELECT Rol.id, Rol.nombre FROM Rol INNER JOIN RolesUsuario ON Rol.id = RolesUsuario.rol WHERE RolesUsuario.usuario=%d", $idUsuario);
+            $query = sprintf("SELECT Roles.id, Roles.nombre FROM Roles INNER JOIN RolesUsuario ON Roles.id = RolesUsuario.rol WHERE RolesUsuario.usuario=%d", $idUsuario);
 
             $rs = $conn->query($query);
             
             if ($rs) 
             {
-               $rsRol = $rs->fetch_all(MYSQLI_ASSOC);
+               $rsRol = $rs->fetch_assoc();
                
                $rs->free();
 
-               $rol = new Rol(intval($rol['id']), $rol['nombre']);
+               $rol = new Rol(intval($rsRol['id']), $rsRol['nombre']);
 
                return $rol;
             } 

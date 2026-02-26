@@ -4,8 +4,7 @@
     <li><a href="<?php echo RUTA_APP . '/index.php' ?>">Página Principal</a></li>
     <li><a href="<?php echo RUTA_VISTAS . '/pedidoslist.php' ?>">Lista de Pedidos</a></li>
     <li><a href="<?php echo RUTA_VISTAS . '/usuariosdetail.php' ?>">Detalles de Usuario</a></li>
-    <li><a href="<?php echo RUTA_VISTAS . '/usuarioslist.php' ?>">Lista de Usuarios</a></li>
-    <li><a href="<?php echo RUTA_VISTAS . '/procesarLogin.php' ?>">Acceso de Usuario</a></li>
+    <li><a href="<?php echo RUTA_VISTAS . '/listaUsuarios.php' ?>">Lista de Usuarios</a></li>
     <li><a href="<?php echo RUTA_VISTAS . '/masEtiquetas.php' ?>">Página de Prueba 1</a></li>
     <li><a href="<?php echo RUTA_VISTAS . '/listaTablas.php' ?>">Página de Prueba 2</a></li>
     <li><a href="<?php echo RUTA_VISTAS . '/formulario.php' ?>">Página de Prueba de Administración</a></li>

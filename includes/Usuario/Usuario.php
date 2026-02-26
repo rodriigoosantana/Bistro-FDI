@@ -17,8 +17,9 @@ class Usuario
 
    private $email;
 
+   private $avatar;
 
-
+   private $rol;
    //endregion
 
    //region Campos estaticos 
@@ -31,7 +32,7 @@ class Usuario
 
    //region Constructor
 
-   private function __construct($nombreUsuario, $password, $nombre, $apellidos, $email, $id = null)
+   private function __construct($nombreUsuario, $password, $nombre, $apellidos, $email, $rol, $avatar = null, $id = null)
    {
       $this->id = $id;
       $this->nombreUsuario = $nombreUsuario;
@@ -39,6 +40,8 @@ class Usuario
       $this->nombre = $nombre;
       $this->apellidos = $apellidos;
       $this->email = $email;
+      $this->avatar = $avatar;
+      $this->rol = $rol;
    }
 
    //endregion
@@ -68,7 +71,14 @@ class Usuario
    {
       return $this->apellidos;
    }
-
+   public function getRol()
+   {
+      return $this->rol;
+   }
+    public function getAvatar()
+   {
+      return $this->avatar;
+   }
    //endregion
 
    //region Métodos privados
@@ -129,6 +139,29 @@ class Usuario
    //endregion
 
    //region Métodos estáticos
+   
+   public static function getUsuariosfromDB()
+   {
+      $conn = Aplicacion::getInstance()->getConexionBd();
+
+      $query = sprintf("SELECT * FROM Usuarios");
+
+      $rs = $conn->query($query);
+
+      if ($rs) {
+        $usuarios = [];
+         while ($fila = $rs->fetch_assoc()) {
+            $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['id'], $fila["avatar"], Rol::cargarRol($fila["id"]));
+         }
+         $rs->free();
+         return $usuarios;
+      } else {
+         error_log("Error BD ({$conn->errno}): {$conn->error}");
+      }
+
+      return [];
+   }
+
 
    public static function login($nombreUsuario, $password)
    {
