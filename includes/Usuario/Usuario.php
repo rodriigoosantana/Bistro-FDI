@@ -15,8 +15,6 @@ class Usuario
 
    private $apellidos;
 
-   private $roles;
-
    private $email;
 
 
@@ -33,14 +31,13 @@ class Usuario
 
    //region Constructor
 
-   private function __construct($nombreUsuario, $password, $nombre, $apellidos, $email, $id = null, $roles = [])
+   private function __construct($nombreUsuario, $password, $nombre, $apellidos, $email, $id = null)
    {
       $this->id = $id;
       $this->nombreUsuario = $nombreUsuario;
       $this->password = $password;
       $this->nombre = $nombre;
       $this->apellidos = $apellidos;
-      $this->roles = $roles;
       $this->email = $email;
    }
 
@@ -63,15 +60,6 @@ class Usuario
       return $this->nombre;
    }
 
-   public function getRoles()
-   {
-      if (empty($this->roles)) {
-         $this->cargarRoles();
-      }
-
-      return $this->roles;
-   }
-
    public function getEmail()
    {
       return $this->email;
@@ -79,34 +67,6 @@ class Usuario
    public function getApellidos()
    {
       return $this->apellidos;
-   }
-
-      public function getRolId()
-    {
-        $roles = $this->getRoles();
-
-        if ($roles && count($roles) > 0) {
-            return $roles[0]->getId();
-        }
-
-        return null;
-    }
-
-   //endregion
-
-   //region Métodos publicos
-
-   public function tieneRol($role)
-   {
-      $this->cargarRoles();
-
-      if ($this->roles) {
-         return (bool) array_filter($this->roles, function ($o) use ($role) {
-            return $o->getId() === $role;
-         });
-      }
-
-      return false;
    }
 
    //endregion
@@ -121,7 +81,7 @@ class Usuario
 
    private function cargarRoles()
    {
-      $this->roles = Rol::cargarRoles($this->id);
+      $this->rol = Rol::cargarRoles($this->id);
    }
 
    private function insertar()
@@ -158,15 +118,13 @@ class Usuario
 
    private function insertarRoles()
    {
-      foreach ($this->roles as $rol) {
-         $rolesUsuario = new RolesUsuario($this->id, $rol->getId());
+       $rolUsuario = new RolesUsuario($this->id, self::ROL_CLIENTE);
 
-         if (!$rolesUsuario->insertar()) {
-            return false;
-         }
-      }
+       if (!$rolUsuario->insertar()) {
+          return false;
+       }
 
-      return true;
+     return true;
    }
    //endregion
 
@@ -208,11 +166,9 @@ class Usuario
       return false;
    }
 
-   public static function crear($nombreUsuario, $password, $nombre, $apellidos, $email, $rol)
+   public static function crear($nombreUsuario, $password, $nombre, $apellidos, $email)
    {
-      $roles = [new Rol($rol)];
-
-      $user = new Usuario($nombreUsuario, self::hashPassword($password), $nombre, $apellidos, $email, null, $roles);
+      $user = new Usuario($nombreUsuario, self::hashPassword($password), $nombre, $apellidos, $email, null);
 
       if ($user->insertar()) {
          return $user;
