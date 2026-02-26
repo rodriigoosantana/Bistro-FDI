@@ -126,6 +126,22 @@ class Usuario
 
       return $result;
    }
+   private function eliminar()
+   {
+      $result = true;
+
+      $conn = Aplicacion::getInstance()->getConexionBd();
+
+      $query = sprintf(
+         "DELETE FROM Usuarios WHERE usuario.id == '%s'", $this->id);
+
+      if (!$conn->query($query)) {
+        $result = false;
+         error_log("Error BD ({$conn->errno}): {$conn->error}");
+      }
+
+      return $result;
+   }
 
    private function insertarRoles()
    {
