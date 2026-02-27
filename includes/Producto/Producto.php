@@ -1,6 +1,7 @@
 <?php
 
-require_once RAIZ_APP . '/includes/Producto/Categoria.php';
+//Clase Producto
+//Solo contiene propiedades, getters y setters.
 
 class Producto
 {
@@ -17,7 +18,7 @@ class Producto
    //endregion
 
    //region Constructor
-   private function __construct($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo, $id = null)
+   public function __construct($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo, $id = null)
    {
       $this->id = $id;
       $this->nombre = $nombre;
@@ -31,7 +32,7 @@ class Producto
    }
    //endregion
 
-   //region Propiedades
+   //region Getters
    public function getId()
    {
       return $this->id;
@@ -83,221 +84,50 @@ class Producto
    }
    //endregion
 
-   //region Métodos privados
-   private function insertar()
+   //region Setters
+   public function setId($id)
    {
-      $conexion = Aplicacion::getInstance()->getConexionBd();
-
-      $query = sprintf(
-         "INSERT INTO producto (nombre, descripcion, categoria_id, precio_base, iva, disponible, ofertado, activo) 
-       VALUES ('%s', '%s', %d, %f, %f, %d, %d, %d)",
-         $conexion->real_escape_string($this->nombre),
-         $conexion->real_escape_string($this->descripcion),
-         intval($this->categoriaId),
-         floatval($this->precioBase),
-         floatval($this->iva),
-         $this->disponible ? 1 : 0,
-         $this->ofertado ? 1 : 0,
-         $this->activo ? 1 : 0
-      );
-
-      if ($conexion->query($query) == TRUE) {
-         $this->id = $conexion->insert_id;
-         return true;
-      } else {
-         error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-         return false;
-      }
+      $this->id = $id;
    }
 
-   private function actualizar()
+   public function setNombre($nombre)
    {
-      $conexion = Aplicacion::getInstance()->getConexionBd();
-
-      $query = sprintf(
-         "UPDATE Productos
-             SET nombre='%s', descripcion='%s', categoria_id=%d,
-                 precio_base=%.2f, iva=%d, disponible=%d, ofertado=%d, activo=%d
-             WHERE id=%d",
-         $conexion->real_escape_string($this->nombre),
-         $conexion->real_escape_string($this->descripcion),
-         intval($this->categoriaId),
-         floatval($this->precioBase),
-         intval($this->iva),
-         $this->disponible ? 1 : 0,
-         $this->ofertado ? 1 : 0,
-         $this->activo ? 1 : 0,
-         intval($this->id)
-      );
-
-      if ($conexion->query($query)) {
-         return true;
-      } else {
-         error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-         return false;
-      }
+      $this->nombre = $nombre;
    }
 
-   //endregion
-
-   //region Métodos públicos
-   public function guardar()
+   public function setDescripcion($descripcion)
    {
-      if ($this->id === null) {
-         return $this->insertar();
-      } else {
-         return $this->actualizar();
-      }
-   }
-   //endregion
-
-   //region Métodos estáticos
-   public static function crear($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo)
-   {
-      $producto = new Producto($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo);
-      if ($producto->insertar()) {
-         return $producto;
-      } else {
-         return null;
-      }
+      $this->descripcion = $descripcion;
    }
 
-   public static function buscarPorId($id)
+   public function setCategoriaId($categoriaId)
    {
-      $conexion = Aplicacion::getInstance()->getConexionBd();
-
-      $query = sprintf(
-         "SELECT * FROM producto WHERE id=%d",
-         intval($id)
-      );
-
-      $resultado = $conexion->query($query);
-
-      if ($resultado) {
-         $fila = $resultado->fetch_assoc();
-         #fetch_assoc devuelve un array asociativo con los datos de la fila o null si no hay más filas
-         $resultado->free(); #free libera la memoria asociada al resultado
-
-         if ($fila) {
-            return new Producto(
-               $fila['nombre'],
-               $fila['descripcion'],
-               intval($fila['categoria_id']),
-               floatval($fila['precio_base']),
-               intval($fila['iva']),
-               (bool) $fila['disponible'],
-               (bool) $fila['ofertado'],
-               (bool) $fila['activo'],
-               intval($fila['id'])
-            );
-         }
-      } else {
-         error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-         return false;
-      }
+      $this->categoriaId = $categoriaId;
    }
 
-   public static function listarTodos()
+   public function setPrecioBase($precioBase)
    {
-      $conexion = Aplicacion::getInstance()->getConexionBd();
-
-      $query = "SELECT * FROM producto ORDER BY nombre ASC";
-
-      $resultado = $conexion->query($query);
-
-      $productos = [];
-
-      if ($resultado) {
-         while ($fila = $resultado->fetch_assoc()) {
-            $productos[] = new Producto(
-               $fila['nombre'],
-               $fila['descripcion'],
-               intval($fila['categoria_id']),
-               floatval($fila['precio_base']),
-               intval($fila['iva']),
-               (bool) $fila['disponible'],
-               (bool) $fila['ofertado'],
-               (bool) $fila['activo'],
-               intval($fila['id'])
-            );
-         }
-         $resultado->free();
-         return $productos;
-      } else {
-         error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-         return false;
-      }
+      $this->precioBase = $precioBase;
    }
 
-   public static function listarPorCategoria($categoriaId)
+   public function setIva($iva)
    {
-      $conexion = Aplicacion::getInstance()->getConexionBd();
-
-      $query = sprintf(
-         "SELECT * FROM producto WHERE categoria_id=%d ORDER BY nombre ASC",
-         intval($categoriaId)
-      );
-
-      $resultado = $conexion->query($query);
-
-      $productos = [];
-
-      if ($resultado) {
-         while ($fila = $resultado->fetch_assoc()) {
-            $productos[] = new Producto(
-               $fila['nombre'],
-               $fila['descripcion'],
-               intval($fila['categoria_id']),
-               floatval($fila['precio_base']),
-               intval($fila['iva']),
-               (bool) $fila['disponible'],
-               (bool) $fila['ofertado'],
-               (bool) $fila['activo'],
-               intval($fila['id'])
-            );
-         }
-         $resultado->free();
-         return $productos;
-      } else {
-         error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-         return false;
-      }
+      $this->iva = $iva;
    }
 
-   public static function cambiarDisponibilidad($id, $disponible)
+   public function setDisponible($disponible)
    {
-      $conexion = Aplicacion::getInstance()->getConexionBd();
-
-      $query = sprintf(
-         "UPDATE producto SET disponible=%d WHERE id=%d",
-         $disponible ? 1 : 0,
-         intval($id)
-      );
-
-      if ($conexion->query($query)) {
-         return true;
-      } else {
-         error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-         return false;
-      }
+      $this->disponible = $disponible;
    }
 
-   public static function cambiarEstado($id, $activo)
+   public function setOfertado($ofertado)
    {
-      $conexion = Aplicacion::getInstance()->getConexionBd();
+      $this->ofertado = $ofertado;
+   }
 
-      $query = sprintf(
-         "UPDATE producto SET activo=%d WHERE id=%d",
-         $activo ? 1 : 0,
-         intval($id)
-      );
-
-      if ($conexion->query($query)) {
-         return true;
-      } else {
-         error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-         return false;
-      }
+   public function setActivo($activo)
+   {
+      $this->activo = $activo;
    }
    //endregion
 }

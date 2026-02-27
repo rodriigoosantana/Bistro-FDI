@@ -1,10 +1,10 @@
 /*
   Contraseñas de prueba:
-    gerente1  -> password123
-    cocinero1 -> password123
-    camarero1 -> password123
-    cliente1  -> password123
-    cliente2  -> password123
+    gerente1  -> password
+    cocinero1 -> password
+    camarero1 -> password
+    cliente1  -> password
+    cliente2  -> password
 */
 USE `bistro_fdi`;
 
@@ -26,7 +26,7 @@ INSERT INTO `Roles` (`id`, `nombre`, `prioridad`) VALUES
 (4, 'cliente',  4);
 
 -- USUARIOS
--- password123 -> $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
+-- password -> $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
 INSERT INTO `Usuarios` (`id`, `nombreUsuario`, `email`, `nombre`, `apellidos`, `password`) VALUES
 (1, 'gerente1',  'gerente@bistrofdi.es',  'Ana',    'García López',    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
 (2, 'cocinero1', 'cocinero@bistrofdi.es', 'Carlos', 'Martínez Ruiz',   '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
