@@ -75,7 +75,7 @@ class Usuario
    {
       return $this->rol;
    }
-    public function getAvatar()
+   public function getAvatar()
    {
       return $this->avatar;
    }
@@ -119,7 +119,8 @@ class Usuario
          $this->id = $conn->insert_id;
 
          $result = $this->insertarRoles();
-      } else {
+      }
+      else {
          error_log("Error BD ({$conn->errno}): {$conn->error}");
       }
 
@@ -128,18 +129,18 @@ class Usuario
 
    private function insertarRoles()
    {
-       $rolUsuario = new RolesUsuario($this->id, self::ROL_CLIENTE);
+      $rolUsuario = new RolesUsuario($this->id, self::ROL_CLIENTE);
 
-       if (!$rolUsuario->insertar()) {
-          return false;
-       }
+      if (!$rolUsuario->insertar()) {
+         return false;
+      }
 
-     return true;
+      return true;
    }
    //endregion
 
    //region Métodos estáticos
-   
+
    public static function getUsuariosfromDB()
    {
       $conn = Aplicacion::getInstance()->getConexionBd();
@@ -149,13 +150,14 @@ class Usuario
       $rs = $conn->query($query);
 
       if ($rs) {
-        $usuarios = [];
+         $usuarios = [];
          while ($fila = $rs->fetch_assoc()) {
             $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['id'], $fila["avatar"], Rol::cargarRol($fila["id"]));
          }
          $rs->free();
          return $usuarios;
-      } else {
+      }
+      else {
          error_log("Error BD ({$conn->errno}): {$conn->error}");
       }
 
@@ -188,11 +190,13 @@ class Usuario
          $rs->free();
 
          if ($fila) {
-            $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['id']);
+            $rol = Rol::cargarRol($fila['id']);
+            $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $rol, $fila['avatar'] ?? null, $fila['id']);
 
             return $user;
          }
-      } else {
+      }
+      else {
          error_log("Error BD ({$conn->errno}): {$conn->error}");
       }
 
@@ -214,7 +218,7 @@ class Usuario
       return password_hash($password, PASSWORD_DEFAULT);
    }
 
-   //endregion
+//endregion
 }
 
 ?>
