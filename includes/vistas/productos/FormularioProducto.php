@@ -145,7 +145,7 @@ EOF;
 
         // Validar nombre
         $nombre = trim($datos['nombre'] ?? ''); #Se obtiene el nombre del producto (si no existe, se deja vacío)
-        $nombre = filter_var($nombre, FILTER_SANITIZE_FULL_SPECIAL_CHARS); #Se limpia el nombre
+        $nombre = strip_tags($nombre); 
         if (!$nombre || strlen($nombre) < 3) { #Se valida que el nombre tenga al menos 3 caracteres
             $this->errores['nombre'] = 'El nombre debe tener al menos 3 caracteres.';
         }

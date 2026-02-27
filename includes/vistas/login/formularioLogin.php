@@ -6,7 +6,7 @@ class formularioLogin extends formularioBase
 {
    //region Constructor
 
-   public function __construct() 
+   public function __construct()
    {
       parent::__construct('formLogin', ['urlRedireccion' => RUTA_APP . '/index.php']);
    }
@@ -17,12 +17,11 @@ class formularioLogin extends formularioBase
 
    protected function generaCamposFormulario(&$datos)
    {
-     $nombreUsuario = $datos['nombreUsuario'] ?? '';
-    
-     $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
-     $erroresCampos = self::generaErroresCampos(['nombreUsuario', 'password'], $this->errores);
+      $nombreUsuario = $datos['nombreUsuario'] ?? '';
 
-$html = <<<EOF
+      $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
+      $erroresCampos = self::generaErroresCampos(['nombreUsuario', 'password'], $this->errores);
+      $html = <<<EOF
 {$htmlErroresGlobales}
 
 <fieldset>
@@ -59,44 +58,39 @@ EOF;
    protected function procesaFormulario(&$datos)
    {
       $this->errores = [];
-      
+
       $nombreUsuario = trim($datos['nombreUsuario'] ?? '');
-      
+
       $nombreUsuario = filter_var($nombreUsuario, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      
-      if ( ! $nombreUsuario || strlen($nombreUsuario) < 4) 
-      {
-            $this->errores['nombreUsuario'] = 'El nombre de usuario no puede estar vacío o tener logitud menor a 4';
+
+      if (!$nombreUsuario || strlen($nombreUsuario) < 4) {
+         $this->errores['nombreUsuario'] = 'El nombre de usuario no puede estar vacío o tener logitud menor a 4';
       }
 
       $password = trim($datos['password'] ?? '');
-      
+
       $password = filter_var($password, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      
-      if ( ! $password || empty($password) || strlen($password) < 4) 
-      {
-            $this->errores['password'] = 'El password no puede estar vacío.';
+
+      if (!$password || empty($password) || strlen($password) < 4) {
+         $this->errores['password'] = 'El password no puede estar vacío.';
       }
-      
-      if (count($this->errores) === 0) 
-      {
-            $usuario = Usuario::login($nombreUsuario, $password);
-   
-            if (!$usuario) 
-            {
-               $this->errores[] = "El usuario o el password no coinciden";
-            } 
-            else 
-            {
-               $_SESSION['login'] = true;
-               $_SESSION['nombre'] = $usuario->getNombre();
-               $_SESSION['rolId']  = $usuario->getRolId();
-               $_SESSION['userId'] = $usuario->getId();
-            }
+
+      if (count($this->errores) === 0) {
+         $usuario = Usuario::login($nombreUsuario, $password);
+
+         if (!$usuario) {
+            $this->errores[] = "El usuario o el password no coinciden";
+         }
+         else {
+            $_SESSION['login'] = true;
+            $_SESSION['nombre'] = $usuario->getNombre();
+            $_SESSION['rolId'] = $usuario->getRol()->getId();
+            $_SESSION['userId'] = $usuario->getId();
+         }
       }
    }
 
-   //endregion
+//endregion
 }
 
 ?>
