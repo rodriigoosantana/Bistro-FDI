@@ -55,7 +55,7 @@ class UsuarioDB {
       if ($rs) {
          $usuarios = [];
          while ($fila = $rs->fetch_assoc()) {
-            $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['id'], $fila["avatar"], Rol::cargarRol($fila["id"]));
+            $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], Rol::cargarRol($fila["id"]),$fila['avatar'], $fila["id"], );
          }
          $rs->free();
          return $usuarios;
