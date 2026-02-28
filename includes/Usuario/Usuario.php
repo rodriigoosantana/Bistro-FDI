@@ -4,21 +4,13 @@ require_once RAIZ_APP . '/includes/Usuario/Rol.php';
 class Usuario
 {
    //region Campos privados
-
    private $id;
-
    private $nombreUsuario;
-
    private $password;
-
    private $nombre;
-
    private $apellidos;
-
    private $email;
-
    private $avatar;
-
    private $rol;
    //endregion
 
@@ -32,7 +24,7 @@ class Usuario
 
    //region Constructor
 
-   private function __construct($nombreUsuario, $password, $nombre, $apellidos, $email, $rol, $avatar = null, $id = null)
+   public function __construct($nombreUsuario, $password, $nombre, $apellidos, $email, $rol, $avatar = null, $id = null)
    {
       $this->id = $id;
       $this->nombreUsuario = $nombreUsuario;
@@ -79,162 +71,47 @@ class Usuario
    {
       return $this->avatar;
    }
-   //endregion
-
-   //region Métodos privados
-
-   private function compruebaPassword($password)
+   public function getPassword()
    {
-      return password_verify($password, $this->password);
+     return $this->password;
    }
 
-
-   private function cargarRoles()
+   public function setId($id)
    {
-      $this->rol = Rol::cargarRoles($this->id);
+     $this->id = $id;
+   }
+   public function setNombreUsuario($nombreUsuario)
+   {
+     $this->nombreUsuario = $nombreUsuario;
+   }
+   public function setNombre($nombre)
+   {
+     $this->nombre = $nombre;
+   }
+   public function setEmail($email)
+   {
+     $this->email = $email;
+   }
+   public function setApellidos($apellidos)
+   {
+     $this->apellidos = $apellidos;
+   }
+   public function setRol($rol)
+   {
+     $this->rol = $rol;
+   }
+   public function setAvatar($avatar)
+   {
+     $this->avatar = $avatar;
+   }
+   public function setPassword()
+   {
+     $this->password = $password;
    }
 
-   private function insertar()
-   {
-      $result = false;
+   
+  
 
-      $conn = Aplicacion::getInstance()->getConexionBd();
-
-      $query = sprintf(
-         "INSERT INTO Usuarios(nombreUsuario, nombre, apellidos, email, password) 
-         VALUES ('%s', '%s', '%s', '%s', '%s')"
-         ,
-         $conn->real_escape_string($this->nombreUsuario)
-         ,
-         $conn->real_escape_string($this->nombre)
-         ,
-         $conn->real_escape_string($this->apellidos)
-         ,
-         $conn->real_escape_string($this->email)
-         ,
-         $conn->real_escape_string($this->password)
-      );
-
-      if ($conn->query($query)) {
-         $this->id = $conn->insert_id;
-
-         $result = $this->insertarRoles();
-      }
-      else {
-         error_log("Error BD ({$conn->errno}): {$conn->error}");
-      }
-
-      return $result;
-   }
-   private function eliminar()
-   {
-      $result = true;
-
-      $conn = Aplicacion::getInstance()->getConexionBd();
-
-      $query = sprintf(
-         "DELETE FROM Usuarios WHERE usuario.id == '%s'", $this->id);
-
-      if (!$conn->query($query)) {
-        $result = false;
-         error_log("Error BD ({$conn->errno}): {$conn->error}");
-      }
-
-      return $result;
-   }
-
-   private function insertarRoles()
-   {
-      $rolUsuario = new RolesUsuario($this->id, self::ROL_CLIENTE);
-
-      if (!$rolUsuario->insertar()) {
-         return false;
-      }
-
-      return true;
-   }
-   //endregion
-
-   //region Métodos estáticos
-
-   public static function getUsuariosfromDB()
-   {
-      $conn = Aplicacion::getInstance()->getConexionBd();
-
-      $query = sprintf("SELECT * FROM Usuarios");
-
-      $rs = $conn->query($query);
-
-      if ($rs) {
-         $usuarios = [];
-         while ($fila = $rs->fetch_assoc()) {
-            $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['id'], $fila["avatar"], Rol::cargarRol($fila["id"]));
-         }
-         $rs->free();
-         return $usuarios;
-      }
-      else {
-         error_log("Error BD ({$conn->errno}): {$conn->error}");
-      }
-
-      return [];
-   }
-
-
-   public static function login($nombreUsuario, $password)
-   {
-      $usuario = self::buscaUsuario($nombreUsuario);
-
-      if ($usuario && $usuario->compruebaPassword($password)) {
-         return $usuario;
-      }
-
-      return false;
-   }
-
-   public static function buscaUsuario($nombreUsuario)
-   {
-      $conn = Aplicacion::getInstance()->getConexionBd();
-
-      $query = sprintf("SELECT * FROM Usuarios U WHERE U.nombreUsuario='%s'", $conn->real_escape_string($nombreUsuario));
-
-      $rs = $conn->query($query);
-
-      if ($rs) {
-         $fila = $rs->fetch_assoc();
-
-         $rs->free();
-
-         if ($fila) {
-            $rol = Rol::cargarRol($fila['id']);
-            $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $rol, $fila['avatar'] ?? null, $fila['id']);
-
-            return $user;
-         }
-      }
-      else {
-         error_log("Error BD ({$conn->errno}): {$conn->error}");
-      }
-
-      return false;
-   }
-
-   public static function crear($nombreUsuario, $password, $nombre, $apellidos, $email)
-   {
-      $user = new Usuario($nombreUsuario, self::hashPassword($password), $nombre, $apellidos, $email, null);
-
-      if ($user->insertar()) {
-         return $user;
-      }
-
-      return false;
-   }
-   private static function hashPassword($password)
-   {
-      return password_hash($password, PASSWORD_DEFAULT);
-   }
-
-//endregion
 }
 
 ?>

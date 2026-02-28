@@ -1,13 +1,16 @@
 <?php
       require_once RAIZ_APP . '/includes/vistas/common/formularioBase.php';
       require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
+      require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
 
       class FormularioRegistro extends formularioBase
       {
+        private $usuario;
          //region Constructor
 
-         public function __construct() 
+         public function __construct($usuario = null) 
          {
+            $this->usuario = $usuario;
             parent::__construct('formRegistro', ['urlRedireccion' => RUTA_APP . '/index.php']);
          }
          
@@ -136,15 +139,17 @@
 
             if (count($this->errores) === 0) 
             {
-                  $usuario = Usuario::buscaUsuario($nombreUsuario);
+              
+                  $usuario = UsuarioService::buscarPorNombre($nombreUsuario);
          
-                  if ($usuario) 
+                  if ($usuario != NULL) 
                   {
                      $this->errores[] = "El usuario ya existe";
                   } 
                   else 
                   {
-                     $usuario = Usuario::crear($nombreUsuario, $password, $nombre, $apellidos, $email, Usuario::ROL_CLIENTE);
+                     $dto = new Usuario($nombreUsuario, UsuarioService::hashPassword($password), $nombre, $apellidos, $email, Usuario::ROL_CLIENTE);
+                     $usuario = UsuarioService::insertar($dto);
                      
                      if (!$usuario) 
                      {

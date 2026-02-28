@@ -1,0 +1,98 @@
+<?php 
+require_once RAIZ_APP . '/includes/Usuario/Rol.php';
+
+class UsuarioDB {
+  public static function insertar(Usuario $usuario) {
+
+      $conn = Aplicacion::getInstance()->getConexionBd();
+
+      $query = sprintf(
+         "INSERT INTO Usuarios(nombreUsuario, nombre, apellidos, email, password) 
+         VALUES ('%s', '%s', '%s', '%s', '%s')"
+         ,
+         $conn->real_escape_string($usuario->getNombreUsuario())
+         ,
+         $conn->real_escape_string($usuario->getNombre())
+         ,
+         $conn->real_escape_string($usuario->getApellidos())
+         ,
+         $conn->real_escape_string($usuario->getEmail())
+         ,
+         $conn->real_escape_string($usuario->getPassword())
+      );
+
+      if ($conn->query($query)) {
+         $usuario->setId($conn->insert_id);
+         return $usuario;
+      }
+      else {
+         error_log("Error BD ({$conn->errno}): {$conn->error}");
+         return null;
+      }
+  }
+
+  private function eliminar(Usuario $usuario) {
+     $conn = Aplicacion::getInstance()->getConexionBd();
+
+     $query = sprintf(
+        "DELETE FROM Usuarios WHERE usuario.id == '%s'", $usuario->getId());
+
+     if (!$conn->query($query)) {
+        error_log("Error BD ({$conn->errno}): {$conn->error}");
+        return false;
+     }
+
+     return true;
+  }
+
+  public static function listarTodos() {
+      $conn = Aplicacion::getInstance()->getConexionBd();
+
+      $query = sprintf("SELECT * FROM Usuarios");
+
+      $rs = $conn->query($query);
+
+      if ($rs) {
+         $usuarios = [];
+         while ($fila = $rs->fetch_assoc()) {
+            $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['id'], $fila["avatar"], Rol::cargarRol($fila["id"]));
+         }
+         $rs->free();
+         return $usuarios;
+      }
+      else {
+         error_log("Error BD ({$conn->errno}): {$conn->error}");
+      }
+
+      return [];
+  }
+
+
+  public static function buscarPorNombre($nombreUsuario) {
+      $conn = Aplicacion::getInstance()->getConexionBd();
+
+      $query = sprintf("SELECT * FROM Usuarios U WHERE U.nombreUsuario='%s'", $conn->real_escape_string($nombreUsuario));
+
+      $rs = $conn->query($query);
+
+      if ($rs) {
+         $fila = $rs->fetch_assoc();
+
+         $rs->free();
+
+         if ($fila) {
+            $rol = Rol::cargarRol($fila['id']);
+            $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $rol, $fila['avatar'] ?? null, $fila['id']);
+
+            return $user;
+         }
+      }
+      else {
+         error_log("Error BD ({$conn->errno}): {$conn->error}");
+      }
+
+      return null;
+   }
+
+}
+?>
