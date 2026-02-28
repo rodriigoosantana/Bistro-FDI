@@ -11,7 +11,7 @@ class Categoria
     //endregion
 
     //region Constructor
-    private function __construct($nombre, $descripcion, $imagen, $activa, $id = null)
+    public function __construct($nombre, $descripcion, $imagen, $activa, $id = null)
     {
         $this->id = $id;
         $this->nombre = $nombre;

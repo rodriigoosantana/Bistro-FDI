@@ -1,7 +1,8 @@
 <?php
 require_once RAIZ_APP . '/includes/vistas/common/formularioBase.php';
 require_once RAIZ_APP . '/includes/Producto/ProductoService.php';
-require_once RAIZ_APP . '/includes/Producto/Categoria.php';
+require_once RAIZ_APP . '/includes/Producto/CategoriaService.php';
+
 
 class FormularioProducto extends formularioBase
 {
@@ -38,7 +39,7 @@ class FormularioProducto extends formularioBase
         );
 
         // Cargar categorías para el select
-        $categorias = Categoria::listarTodas();
+        $categorias = CategoriaService::listarTodas();
         $opcionesCategorias = '<option value="">-- Selecciona una categoría --</option>';
         if ($categorias) {
             foreach ($categorias as $cat) {
@@ -163,7 +164,7 @@ EOF;
             $this->errores['categoriaId'] = 'Debes seleccionar una categoría.';
         }
         else {
-            $cat = Categoria::buscarPorId($categoriaId);
+            $cat = CategoriaService::buscarPorId($categoriaId);
             if (!$cat) {
                 $this->errores['categoriaId'] = 'La categoría seleccionada no existe.';
             }
@@ -195,23 +196,13 @@ EOF;
                     return;
                 }
                 // Actualizar campos del DTO
-                $this->producto->setNombre($nombre);
-                $this->producto->setDescripcion($descripcion);
-                $this->producto->setCategoriaId($categoriaId);
-                $this->producto->setPrecioBase($precioBase);
-                $this->producto->setIva($iva);
-                $this->producto->setDisponible($disponible);
-                $this->producto->setOfertado($ofertado);
-                $this->producto->setActivo($activo);
-
-                if (!ProductoService::actualizar($this->producto)) {
+                if(!ProductoService::actualizar($this->producto->getId(), $nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo)) {
                     $this->errores[] = 'Error al actualizar el producto.';
                 }
             }
             else {
                 // Crear nuevo producto (DTO)
-                $dto = new Producto($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo);
-                $producto = ProductoService::crear($dto);
+                $producto = ProductoService:: crear($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo);
                 if (!$producto) {
                     $this->errores[] = 'Error al crear el producto.';
                 }

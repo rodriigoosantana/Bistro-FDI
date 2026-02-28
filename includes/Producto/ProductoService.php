@@ -9,15 +9,17 @@ require_once RAIZ_APP . '/includes/Producto/ProductoDB.php';
 
 class ProductoService
 {
-    public static function crear(Producto $producto)
+    public static function crear($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo)
     {
+        $producto = new Producto($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo);
         return ProductoDB::insertar($producto);
         #devuelve el DTO del producto con id asignado si se inserta correctamente, null si falla
     }
 
 
-    public static function actualizar(Producto $producto)
+    public static function actualizar( $id, $nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo)
     {
+        $producto = new Producto($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo, $id);
         return ProductoDB::actualizar($producto);
         #devuelve true si se actualiza correctamente, false si falla
     }

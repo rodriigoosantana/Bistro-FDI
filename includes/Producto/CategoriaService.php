@@ -14,7 +14,7 @@ class CategoriaService
 
     public static function actualizar($id, $nombre, $descripcion, $imagen, $activa)
     {
-        $categoria = new Categoria($nombre, $descripcion, $imagen, $activa);
+        $categoria = new Categoria($nombre, $descripcion, $imagen, $activa, $id);
         return CategoriaDB::actualizar($categoria);
         #devuelve true si se actualiza correctamente, false si falla
     }
