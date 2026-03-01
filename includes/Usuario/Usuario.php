@@ -11,7 +11,6 @@ class Usuario
    private $apellidos;
    private $email;
    private $avatar;
-   private $rol;
    //endregion
 
    //region Campos estaticos 
@@ -24,7 +23,7 @@ class Usuario
 
    //region Constructor
 
-   public function __construct($nombreUsuario, $password, $nombre, $apellidos, $email, $rol, $avatar = null, $id = null)
+   public function __construct($nombreUsuario, $password, $nombre, $apellidos, $email, $avatar = null, $id = null)
    {
       $this->id = $id;
       $this->nombreUsuario = $nombreUsuario;
@@ -33,7 +32,6 @@ class Usuario
       $this->apellidos = $apellidos;
       $this->email = $email;
       $this->avatar = $avatar;
-      $this->rol = $rol;
    }
 
    //endregion
@@ -63,10 +61,6 @@ class Usuario
    {
       return $this->apellidos;
    }
-   public function getRol()
-   {
-      return $this->rol;
-   }
    public function getAvatar()
    {
       return $this->avatar;
@@ -95,10 +89,6 @@ class Usuario
    public function setApellidos($apellidos)
    {
      $this->apellidos = $apellidos;
-   }
-   public function setRol($rol)
-   {
-     $this->rol = $rol;
    }
    public function setAvatar($avatar)
    {

@@ -2,6 +2,7 @@
 
 require_once dirname(__DIR__,2) . '/includes/config.php';
 require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
+require_once RAIZ_APP . '/includes/Usuario/Rol.php';
 
 
 $tituloPagina = 'Lista Usuarios';
@@ -10,6 +11,7 @@ $usuarios = UsuarioService::listarTodos();
 $filas = "";
 
 foreach ($usuarios as $u) {
+   $rol = Rol::cargarRol($u->getId());
    $filas .= "<tr>
       <td>{$u->getId()}</td>
       <td>{$u->getNombreUsuario()}</td>
@@ -17,7 +19,7 @@ foreach ($usuarios as $u) {
       <td>{$u->getApellidos()}</td>
       <td>{$u->getEmail()}</td>
       <td>{$u->getAvatar()}</td>
-      <td>{$u->getRol()}</td>
+      <td>{$rol->getNombre()}</td>
       <td> <a href=\"perfilUsuario.php?nombreUsuario={$u->getNombreUsuario()}\">Ver Perfil</a> </td>
    </tr>";
 }

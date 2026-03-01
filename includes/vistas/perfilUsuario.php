@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 require_once dirname(__DIR__,2) . '/includes/config.php';
 require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
@@ -11,6 +8,7 @@ $usuario = UsuarioService::buscarPorNombre($nombreUsuario);
 
 $tituloPagina = 'Perfil';
 $tituloHeader = "Perfil de {$usuario->getNombreUsuario()}";
+$rol = Rol::cargarRol($usuario->getId());
 $fila = 
    "<tr>
       <td>{$usuario->getId()}</td>
@@ -19,7 +17,8 @@ $fila =
       <td>{$usuario->getApellidos()}</td>
       <td>{$usuario->getEmail()}</td>
       <td>{$usuario->getAvatar()}</td>
-      <td>{$usuario->getRol()}</td>
+      <td>{$rol->getNombre()}</td>
+      <td> <a href=\"modificarUsuario.php?nombreUsuario={$usuario->getNombreUsuario()}\">Modificar Datos</a> </td>
    </tr>";
 
 $contenidoPrincipal = <<<EOS
@@ -34,6 +33,7 @@ $contenidoPrincipal = <<<EOS
        <th>email</th>
        <th>avatar</th>
        <th>rol</th>
+       <th>Modificar</th>
    </tr>
    $fila
    </table>

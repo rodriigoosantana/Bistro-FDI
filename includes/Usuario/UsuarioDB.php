@@ -35,7 +35,7 @@ class UsuarioDB {
      $conn = Aplicacion::getInstance()->getConexionBd();
 
      $query = sprintf(
-        "DELETE FROM Usuarios WHERE usuario.id == '%s'", $usuario->getId());
+        "DELETE FROM Usuarios WHERE id = '%s'", $usuario->getId());
 
      if (!$conn->query($query)) {
         error_log("Error BD ({$conn->errno}): {$conn->error}");
@@ -45,6 +45,24 @@ class UsuarioDB {
      return true;
   }
 
+  public static function actualizar(Usuario $usuario) {
+    $conn = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "UPDATE Usuarios
+      SET nombreUsuario = '%s',
+      nombre = '%s',
+      apellidos = '%s',
+      email = '%s'
+      WHERE id = %d", 
+      $usuario->getNombreUsuario(),  $usuario->getNombre(), $usuario->getApellidos(), $usuario->getEmail(), $usuario->getId());
+
+    if (!$conn->query($query)) {
+        error_log("Error BD ({$conn->errno}): {$conn->error}");
+        return null;
+    }
+    return $usuario;
+  }
   public static function listarTodos() {
       $conn = Aplicacion::getInstance()->getConexionBd();
 
@@ -55,7 +73,7 @@ class UsuarioDB {
       if ($rs) {
          $usuarios = [];
          while ($fila = $rs->fetch_assoc()) {
-            $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], Rol::cargarRol($fila["id"]),$fila['avatar'], $fila["id"], );
+            $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila["id"]);
          }
          $rs->free();
          return $usuarios;
@@ -82,7 +100,7 @@ class UsuarioDB {
 
          if ($fila) {
             $rol = Rol::cargarRol($fila['id']);
-            $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $rol, $fila['avatar'] ?? null, $fila['id']);
+            $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'] ?? null, $fila['id']);
 
             return $user;
          }

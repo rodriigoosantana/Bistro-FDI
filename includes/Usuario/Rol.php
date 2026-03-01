@@ -66,6 +66,22 @@ class Rol
 
       return false;
    }
-}
 
+
+public static function cambiarRol($idUsuario, $idRol) {
+      if ($idUsuario > 0)
+      {
+            
+            $conn = Aplicacion::getInstance()->getConexionBd();
+            
+            $query = sprintf("UPDATE RolesUsuario SET rol=%d WHERE usuario=%d", $idRol, $idUsuario);
+            
+            if (!$conn->query($query)) 
+            {
+               error_log("Error BD ({$conn->errno}): {$conn->error}");
+            }
+      }
+   }
+
+}
 ?>

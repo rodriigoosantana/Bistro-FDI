@@ -3,6 +3,7 @@
 require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
 require_once RAIZ_APP . '/includes/Usuario/UsuarioDB.php';
 require_once RAIZ_APP . '/includes/Usuario/RolesUsuario.php';
+require_once RAIZ_APP . '/includes/Usuario/Rol.php';
 
 class UsuarioService {
   public static function insertar(Usuario $usuario) {
@@ -10,10 +11,13 @@ class UsuarioService {
     self::insertarRoles($usuario);
     return $usuario;
   }
-  /*
+  
   public static function actualizar(Usuario $usuario) {
-    return UsuarioDB::actualizar($usuario);
+    $usuario = UsuarioDB::actualizar($usuario);
+    self::actualizarRoles($usuario);
+    return $usuario;
   }
+  /*
   public static function eliminar(Usuario $usuario) {
     return UsuarioDB::eliminar($usuario);
   }
@@ -41,14 +45,33 @@ class UsuarioService {
   public static function hashPassword($password) {
     return password_hash($password, PASSWORD_DEFAULT);
   }
+  private static function eliminarRoles($usuario) {
+    $rolUsuario = new RolesUsuario($usuario->getId(), Rol::cargarRol($usuario->getId())->getId());
+     if (!$rolUsuario->eliminar()) {
+       return false;
+     }
+  }
   private static function insertarRoles($usuario) {
-    $rolUsuario = new RolesUsuario($usuario->getId(), $usuario->getRol());
+    $rolUsuario = new RolesUsuario($usuario->getId(), Rol::cargarRol($usuario->getId())->getId());
 
     if (!$rolUsuario->insertar()) {
        return false;
     }
 
     return true;
+  }
+  private static function actualizarRoles($usuario) {
+    $rol = Rol::cargarRol($usuario->getId());
+
+    if (!$rol) {
+      // Manejar caso: usuario sin rol
+      error_log("Usuario {$usuario->getId()} no tiene rol asignado");
+      return false; // o lanzar excepción
+    }
+
+    $rolUsuario = new RolesUsuario($usuario->getId(), $rol->getId());
+    $rolUsuario->eliminar();
+    $rolUsuario->insertar();
   }
 }
 ?>

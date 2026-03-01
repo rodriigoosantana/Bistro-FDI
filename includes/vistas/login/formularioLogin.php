@@ -1,6 +1,7 @@
 <?php
 require_once RAIZ_APP . '/includes/vistas/common/formularioBase.php';
 require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
+require_once RAIZ_APP . '/includes/Usuario/Rol.php';
 
 class formularioLogin extends formularioBase
 {
@@ -84,7 +85,7 @@ EOF;
          else {
             $_SESSION['login'] = true;
             $_SESSION['nombre'] = $usuario->getNombre();
-            $_SESSION['rolId'] = $usuario->getRol()->getId();
+            $_SESSION['rolId'] = Rol::cargarRol($usuario->getId())->getId();
             $_SESSION['userId'] = $usuario->getId();
          }
       }
