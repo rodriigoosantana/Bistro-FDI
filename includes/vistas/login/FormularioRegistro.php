@@ -216,6 +216,9 @@ class FormularioRegistro extends formularioBase
                 } else {
                     $_SESSION['login'] = true;
                     $_SESSION['nombre'] = $usuarioInsertado->getNombre();
+                    $_SESSION['rolId'] = Rol::cargarRol($usuarioInsertado->getId())->getId();
+                    $_SESSION['userId'] = $usuarioInsertado->getId();
+                    $_SESSION['nombreUsuario'] = $usuarioInsertado->getNombreUsuario();
                 }
             }
         }
