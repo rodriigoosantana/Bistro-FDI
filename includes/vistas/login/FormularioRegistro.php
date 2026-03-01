@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 require_once RAIZ_APP . '/includes/vistas/common/formularioBase.php';
 require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
 require_once RAIZ_APP . '/includes/Usuario/Rol.php';
@@ -15,6 +12,9 @@ class FormularioRegistro extends formularioBase
     {
         $this->usuario = $usuario;
 
+        if ($this->usuario != null && $_SESSION['rolId'] == Usuario::ROL_GERENTE) {
+            $this->gerente = true;
+        }
         parent::__construct(
             'formRegistro',
             ['urlRedireccion' => RUTA_APP . '/index.php']
@@ -36,7 +36,8 @@ class FormularioRegistro extends formularioBase
             ?? ($this->usuario ? $this->usuario->getEmail() : '');
 
         $rol = $datos['rol']
-            ?? ($this->usuario ? Rol::cargarRol($this->usuario->getId()) : '');
+            ?? ($this->usuario ? Rol::cargarRol($this->usuario->getId())->getNombre() : '');
+
         $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
 
         $erroresCampos = self::generaErroresCampos(
@@ -44,9 +45,6 @@ class FormularioRegistro extends formularioBase
             $this->errores
         );
 
-        if ($_SESSION['rolId'] == Usuario::ROL_GERENTE) {
-            $this->gerente = true;
-        }
 
         $rolHtml = "";
         if ($this->gerente) {
@@ -175,24 +173,26 @@ class FormularioRegistro extends formularioBase
                 'El password debe tener al menos 4 caracteres.';
         }
 
-        $aux = Usuario::ROL_CLIENTE;
         if ($this->gerente) {
-            $aux = trim($datos['rol'] ?? '');
-            $aux = filter_var($aux, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-            if ($aux == "gerente") {
-                $aux = Usuario::ROL_GERENTE;
+            $rol = trim($datos['rol'] ?? '');
+            $rol = filter_var($rol, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            if ($rol == "gerente") {
+                $rol = Usuario::ROL_GERENTE;
             }
-            if ($aux == "cocinero") {
-                $aux = Usuario::ROL_COCINERO;
+            else if ($rol == "cocinero") {
+                $rol = Usuario::ROL_COCINERO;
             }
-            if ($aux == "camarero") {
-                $aux = Usuario::ROL_CAMARERO;
+            else if ($rol == "camarero") {
+                $rol = Usuario::ROL_CAMARERO;
+            }
+            else {
+                $rol = Usuario::ROL_CLIENTE;
             }
         }
 
         if (count($this->errores) === 0) {
-            $usuario = UsuarioService::buscarPorNombre($nombreUsuario);
-            Rol::cambiarRol($usuario->getId(), $aux);
+            $nombreUsuarioOriginal = $_GET['nombreUsuario'] ?? null; 
+            $usuario = UsuarioService::buscarPorNombre($nombreUsuarioOriginal);
             $dto = new Usuario(
                 $nombreUsuario,
                 UsuarioService::hashPassword($password),
@@ -200,15 +200,16 @@ class FormularioRegistro extends formularioBase
                 $apellidos,
                 $email,
                 null,
-                $usuario->getId()
+                $usuario != null? $usuario->getId() : null
             );
             if ($this->usuario != null) {
+                Rol::cambiarRol($usuario->getId(), $rol);
                 if (UsuarioService::actualizar($dto) == null) {
                     $this->errores[] = "Error en la modificación del usuario";
                 }
             } else {
-
                 $usuarioInsertado = UsuarioService::insertar($dto);
+                UsuarioService::insertarRoles($usuarioInsertado, Usuario::ROL_CLIENTE);
 
                 if (!$usuarioInsertado) {
                     $this->errores[] = "Error en la creación del usuario";

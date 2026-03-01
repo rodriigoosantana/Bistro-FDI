@@ -8,7 +8,6 @@ require_once RAIZ_APP . '/includes/Usuario/Rol.php';
 class UsuarioService {
   public static function insertar(Usuario $usuario) {
     $usuario = UsuarioDB::insertar($usuario);
-    self::insertarRoles($usuario);
     return $usuario;
   }
   
@@ -51,8 +50,8 @@ class UsuarioService {
        return false;
      }
   }
-  private static function insertarRoles($usuario) {
-    $rolUsuario = new RolesUsuario($usuario->getId(), Rol::cargarRol($usuario->getId())->getId());
+  public static function insertarRoles($usuario, $idRol) {
+    $rolUsuario = new RolesUsuario($usuario->getId(), $idRol);
 
     if (!$rolUsuario->insertar()) {
        return false;
