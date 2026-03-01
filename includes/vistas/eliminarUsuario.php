@@ -1,43 +1,66 @@
 <?php
 
 require_once dirname(__DIR__,2) . '/includes/config.php';
-require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
+require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
+require_once RAIZ_APP . '/includes/Usuario/Rol.php';
 
+$nombreUsuario = $_GET['nombreUsuario'] ?? null; 
+$usuario = UsuarioService::buscarPorNombre($nombreUsuario);
 
-$tituloPagina = 'Eliminar Usuarios';
-$tituloHeader = 'Eliminar Usuarios';
-$filas = "";
-
-foreach ($usuarios as $u) {
-   $filas .= "<tr>
-      <td>{$u->getRol()}</td>
-      <td>{$u->getNombreUsuario()}</td>
-      <td>{$u->getNombre()}</td>
-      <td>{$u->getApellidos()}</td>
-      <td>{$u->getEmail()}</td>
-      <td>{$u->getAvatar()}</td>
-      <td>{$u->getId()}</td>
-   </tr>";
+if (isset($_POST['eliminar'])) {
+  UsuarioService::eliminar($usuario);
+  if ($nombreUsuario == $_SESSION['nombreUsuario']) {
+    header("Location: logout.php");
+    exit();
+  }
+  else {
+    header("Location: listaUsuarios.php");
+    exit();
+  }
 }
+
+if (isset($_POST['cancelar'])) {
+   header("Location: perfilUsuario.php?nombreUsuario={$usuario->getNombreUsuario()}");
+   exit();
+}
+
+
+$eliminarButton = <<<HTML
+  <form method="POST">
+    <div>
+        <button type="submit" name="eliminar">
+            Si
+        </button>
+    </div>
+</form>
+HTML;
+
+
+$cancelarButton = <<<HTML
+  <form method="POST">
+    <div>
+        <button type="submit" name="cancelar">
+            No
+        </button>
+    </div>
+</form>
+HTML;
+
+$tituloPagina = 'Eliminar Usuario';
+$tituloHeader = 'Eliminar Usuario';
 $contenidoPrincipal = <<<EOS
    <section id="contenido">
-   <h2>Usuarios</h2>
-   <table border="1">
-   <tr>
-       <th>id</th>
-       <th>Nombre de Usuario</th>
-       <th>Nombre</th>
-       <th>Apellidos</th>
-       <th>Email</th>
-       <th>Avatar</th>
-       <th>Rol</th>
-   </tr>
-   $filas
-   </table>
+   <h2>Eliminar</h2>
+   <p> Se van a eliminar los datos de {$usuario->getNombreUsuario()} de forma permanente. ¿Deseas continuar?</p>
+   $eliminarButton
+   $cancelarButton
    </section>
 EOS;
 
 require("common/plantilla.php");
 ?>
+
+
+
 
 

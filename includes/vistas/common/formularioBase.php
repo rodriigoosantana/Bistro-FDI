@@ -91,7 +91,6 @@ abstract class formularioBase
    public function gestiona()
    {
       $datos = &$_POST;
-      
       if (strcasecmp('GET', $this->method) == 0) 
       {
             $datos = &$_GET;

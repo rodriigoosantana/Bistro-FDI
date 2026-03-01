@@ -16,14 +16,10 @@ class UsuarioService {
     self::actualizarRoles($usuario);
     return $usuario;
   }
-  /*
   public static function eliminar(Usuario $usuario) {
-    return UsuarioDB::eliminar($usuario);
+    self::eliminarRoles($usuario);
+    UsuarioDB::eliminar($usuario);
   }
-  public static function mostrar(Usuario $usuario) {
-    return UsuarioDB::mostrar($usuario);
-  }
-  */
   public static function buscarPorNombre($nombreUsuario) {
     return UsuarioDB::buscarPorNombre($nombreUsuario);
   }

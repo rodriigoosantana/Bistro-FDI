@@ -87,6 +87,7 @@ EOF;
             $_SESSION['nombre'] = $usuario->getNombre();
             $_SESSION['rolId'] = Rol::cargarRol($usuario->getId())->getId();
             $_SESSION['userId'] = $usuario->getId();
+            $_SESSION['nombreUsuario'] = $usuario->getNombreUsuario();
          }
       }
    }

@@ -1,9 +1,11 @@
 <?php
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once dirname(__DIR__,2) . '/includes/config.php';
 require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
 
-$nombreUsuario = $_GET['nombreUsuario']; 
+$nombreUsuario = $_GET['nombreUsuario'] ?? null; 
 $usuario = UsuarioService::buscarPorNombre($nombreUsuario);
 
 $tituloPagina = 'Perfil';
@@ -19,6 +21,7 @@ $fila =
       <td>{$usuario->getAvatar()}</td>
       <td>{$rol->getNombre()}</td>
       <td> <a href=\"modificarUsuario.php?nombreUsuario={$usuario->getNombreUsuario()}\">Modificar Datos</a> </td>
+      <td> <a href=\"eliminarUsuario.php?nombreUsuario={$usuario->getNombreUsuario()}\">Eliminar Usuario</a> </td>
    </tr>";
 
 $contenidoPrincipal = <<<EOS
@@ -34,6 +37,7 @@ $contenidoPrincipal = <<<EOS
        <th>avatar</th>
        <th>rol</th>
        <th>Modificar</th>
+       <th>Eliminar</th>
    </tr>
    $fila
    </table>

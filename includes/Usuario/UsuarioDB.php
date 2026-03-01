@@ -31,7 +31,7 @@ class UsuarioDB {
       }
   }
 
-  private function eliminar(Usuario $usuario) {
+  public static function eliminar(Usuario $usuario) {
      $conn = Aplicacion::getInstance()->getConexionBd();
 
      $query = sprintf(
@@ -39,10 +39,7 @@ class UsuarioDB {
 
      if (!$conn->query($query)) {
         error_log("Error BD ({$conn->errno}): {$conn->error}");
-        return false;
      }
-
-     return true;
   }
 
   public static function actualizar(Usuario $usuario) {

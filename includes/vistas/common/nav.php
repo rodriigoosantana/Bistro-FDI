@@ -25,7 +25,7 @@
         <li><a href="<?php echo RUTA_VISTAS . '/pedidoslist.php' ?>">Pedidos</a></li>
       <?php endif; ?>
 
-      <li><a href="<?php echo RUTA_VISTAS . '/usuariosdetail.php' ?>">Mi Perfil</a></li>
+      <li><a href="<?php echo RUTA_VISTAS . '/perfilUsuario.php?nombreUsuario=' . $_SESSION['nombreUsuario']; ?>">Mi Perfil</a></li>
       <li><a href="<?php echo RUTA_VISTAS . '/logout.php' ?>">Cerrar sesión</a></li>
 
     <?php else: ?>
