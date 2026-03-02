@@ -93,8 +93,7 @@ CREATE TABLE IF NOT EXISTS `EstadosPedido` (
 -- TABLA PEDIDOS
 CREATE TABLE IF NOT EXISTS `Pedidos` (
   `id`             int(11)       NOT NULL AUTO_INCREMENT,
-  `numero_dia`     int(11)       NOT NULL,
-  `fecha`          date          NOT NULL,
+  `numero_pedido`  int(11)       NOT NULL,
   `fecha_creacion` datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `estado_id`      int(11)       NOT NULL,
   `tipo`           enum('local','llevar') NOT NULL,
