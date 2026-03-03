@@ -10,7 +10,7 @@ require_once RAIZ_APP . '/includes/Producto/Producto.php';
 class ProductoDB
 {
     //Inserta un nuevo producto en la base de datos.    
-    public static function insertar(Producto $producto)
+    public static function insertar(Producto $producto): ?Producto
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -39,7 +39,7 @@ class ProductoDB
     }
 
     //Actualiza un producto existente en la base de datos.
-    public static function actualizar(Producto $producto)
+    public static function actualizar(Producto $producto): bool
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -71,7 +71,7 @@ class ProductoDB
 
 
     //Busca un producto por su id.
-    public static function buscarPorId($id)
+    public static function buscarPorId($id): ?Producto
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -102,13 +102,13 @@ class ProductoDB
         }
         else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-            return false;
+            return null;
         }
     }
 
 
     //Lista todos los productos ordenados por nombre.
-    public static function listarTodos()
+    public static function listarTodos(): array
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -143,7 +143,7 @@ class ProductoDB
 
 
     //Lista productos filtrados por categoría.
-    public static function listarPorCategoria($categoriaId)
+    public static function listarPorCategoria($categoriaId): array
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -181,7 +181,7 @@ class ProductoDB
 
 
     //Cambia la disponibilidad de un producto.
-    public static function cambiarDisponibilidad($id, $disponible)
+    public static function cambiarDisponibilidad($id, $disponible): bool
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -202,7 +202,7 @@ class ProductoDB
 
 
     //Cambia el estado activo/inactivo de un producto.
-    public static function cambiarEstado($id, $activo)
+    public static function cambiarEstado($id, $activo): bool
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 

@@ -1,6 +1,7 @@
 <?php
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once RAIZ_APP . '/includes/Producto/ProductoService.php';
+require_once RAIZ_APP . '/includes/Producto/CategoriaService.php';
 require_once RAIZ_APP . '/includes/Producto/Categoria.php';
 require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
 
@@ -20,7 +21,7 @@ if ($_SESSION['rolId'] !== Usuario::ROL_GERENTE) {
 $productos = ProductoService::listarTodos();
 
 // Obtener categorías para mostrar nombres
-$categorias = Categoria::listarTodas();
+$categorias = CategoriaService::listarTodas();
 $mapaCategorias = [];
 if ($categorias) {
     foreach ($categorias as $cat) {
