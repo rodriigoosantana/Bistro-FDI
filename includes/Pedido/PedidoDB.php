@@ -9,25 +9,24 @@ require_once RAIZ_APP . '/includes/Pedido/Pedido.php';
 
 class PedidoDB
 {
-	public static function insertar(Pedido $pedido)
+	public static function insert(Pedido $pedido)
 	{
 		$conexion = Aplicacion::getInstance()->getConexionBd();
 
 		$query = sprintf(
-			"INSERT INTO Pedidos (id, numero_dia, fecha_creacion, estado_id, tipo, cliente_id, cocinero_id, total)
-			VALUES ('%d', '%d', %s, %d, %s, %d, %d, %f)",
+			"INSERT INTO Pedidos (numero_dia, fecha_creacion, estado, tipo, cliente_id, cocinero_id, total)
+			VALUES (%d, %s, %s, %s, %d, %d, %f)",
 
-			intval($pedido->getId()),
 			intval($pedido->getNumeroPedido()),
-			$conexion->real_escape_string($pedido->getFechaCreacion().format("Y-m-d H:i:s")), // TODO now?
-			intval($pedido->getEstadoId()),
-			$conexion->real_escape_string($pedido->getTipo()),
+			$conexion->real_escape_string($pedido->getFechaCreacion()->format("Y-m-d H:i:s")), // TODO now?
+			$conexion->real_escape_string($pedido->getEstado()->value),
+			$conexion->real_escape_string($pedido->getTipo()->value),
 			intval($pedido->getClienteId()),
 			intval($pedido->getCocineroId()),
 			floatval($pedido->getTotal()),
 		);
 
-		if ($conexion->query($query) == TRUE) {
+		if ($conexion->query($query) == true) {
 			$pedido->setId($conexion->insert_id); # Asignar el id al pedido
 			return $pedido;
 		}
@@ -37,7 +36,7 @@ class PedidoDB
 		}
 	}
 
-	public static function actualizar(Pedido $pedido)
+	public static function update(Pedido $pedido): bool
 	{
 		$conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -48,26 +47,26 @@ class PedidoDB
 			WHERE id=%d",
 
 			intval($pedido->getNumeroPedido()),
-			$conexion->real_escape_string($pedido->getFechaCreacion().format("Y-m-d H:i:s")), // TODO now?
-			intval($pedido->getEstadoId()),
-			$conexion->real_escape_string($pedido->getTipo()),
+			$conexion->real_escape_string($pedido->getFechaCreacion()->format("Y-m-d H:i:s")), // TODO now?
+			$conexion->real_escape_string($pedido->getEstado()->value),
+			$conexion->real_escape_string($pedido->getTipo()->value),
 			intval($pedido->getClienteId()),
 			intval($pedido->getCocineroId()),
 			floatval($pedido->getTotal()),
 			intval($pedido->getId())
 		);
 
-			if ($conexion->query($query)) {
-				return true;
-			}
-			else {
-				error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-				return false;
-			}
+		if ($conexion->query($query)) {
+			return true;
+		}
+		else {
+			error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+			return false;
+		}
 	}
 
 
-	public static function buscarPorId($id)
+	public static function buscarPorId(int $id)
 	{
 		$conexion = Aplicacion::getInstance()->getConexionBd();
 
