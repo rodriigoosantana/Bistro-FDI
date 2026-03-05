@@ -3,14 +3,14 @@
 //Capa de acceso a datos para la tabla ProductoImagen
 class ProductoImagenDB
 {
-    public static function insertar(int $productoId, string $ruta): int|false
+    public static function insertar(int $productoId, string $rutaImagen): int|false
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
         $query = sprintf(
-            "INSERT INTO ProductoImagen (producto_id, ruta) VALUES (%d, '%s')",
+            "INSERT INTO ProductoImagen (producto_id, ruta_imagen) VALUES (%d, '%s')",
             $productoId,
-            $conexion->real_escape_string($ruta)
+            $conexion->real_escape_string($rutaImagen)
         );
 
         if ($conexion->query($query)) {
@@ -34,7 +34,6 @@ class ProductoImagenDB
         }
     }
 
-
     public static function listarPorProducto($productoId): array
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
@@ -44,12 +43,9 @@ class ProductoImagenDB
         $resultado = $conexion->query($query);
 
         if ($resultado) {
-            $imagenes = [];
-            while ($fila = $resultado->fetch_assoc()) {
-                $imagenes[] = ['id' => $fila['id'], 'ruta' => $fila['ruta']];
-            }
+            $imagenes = $resultado->fetch_all(MYSQLI_ASSOC);
             $resultado->free();
-            return $imagenes; #devuelve array de imágenes del producto, o array vacío si no tiene imágenes
+            return $imagenes;
         } else {
             error_log("Error al listar imágenes de producto: " . $conexion->error);
             return []; #falla la consulta, devuelve array vacío

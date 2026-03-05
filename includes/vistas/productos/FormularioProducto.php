@@ -154,7 +154,7 @@ class FormularioProducto extends formularioBase
           <div>
                 {$htmlImagenesActuales}
                 <label for="imagenes">Imágenes del producto (jpg, png, webp):</label><br>
-                <input id="imagenes" type="file" name="imagenes[]" accept="image/* multiple" />
+                <input id="imagenes" type="file" name="imagenes[]" accept="image/*" multiple />
           </div>
           <br>
 

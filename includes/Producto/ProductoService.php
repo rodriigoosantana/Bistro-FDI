@@ -10,8 +10,8 @@ class ProductoService
 {
     public static function crear($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo, ?array $imagenes): ?Producto
     {
-        $producto = new Producto($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo);
-        return ProductoDB::insertar($producto); #devuelve el DTO del producto con id asignado si se inserta correctamente, null si falla
+        $dto = new Producto($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo);
+        $producto = ProductoDB::insertar($dto); #devuelve el DTO del producto con id asignado si se inserta correctamente, null si falla
 
         if ($producto && $imagenes) {
             self::guardarImagenes($producto->getId(), $imagenes);
@@ -44,6 +44,23 @@ class ProductoService
         }
 
         return $ok;
+    }
+
+    // Elimina un producto y todas sus imágenes (BD y disco).
+    // Devuelve true si se elimina correctamente, false si falla.
+    public static function eliminar(int $id): bool
+    {
+        // Borrar imágenes del disco antes de eliminar el registro
+        $imagenes = ProductoImagenDB::listarPorProducto($id);
+        foreach ($imagenes as $img) {
+            $rutaFisica = RAIZ_APP . $img['ruta_imagen'];
+            if (file_exists($rutaFisica)) {
+                unlink($rutaFisica);
+            }
+        }
+        ProductoImagenDB::borrarPorProducto($id);
+
+        return ProductoDB::eliminar($id);
     }
 
     public static function listarImagenes(int $productoId): array

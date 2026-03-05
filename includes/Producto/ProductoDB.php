@@ -31,8 +31,7 @@ class ProductoDB
         if ($conexion->query($query) == TRUE) {
             $producto->setId($conexion->insert_id); #Asignar el id al producto
             return $producto;
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
             return null;
         }
@@ -62,13 +61,27 @@ class ProductoDB
 
         if ($conexion->query($query)) {
             return true;
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
             return false;
         }
     }
 
+    // Elimina un producto por su id. Devuelve true si se elimina, false si falla.
+    public static function eliminar(int $id): bool
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
+
+        $query = sprintf("DELETE FROM Productos WHERE id=%d", $id);
+
+        if ($conexion->query($query)) {
+            return true;
+        }
+
+
+        error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+        return false;
+    }
 
     //Busca un producto por su id.
     public static function buscarPorId($id): ?Producto
@@ -93,14 +106,13 @@ class ProductoDB
                     intval($fila['categoria_id']),
                     floatval($fila['precio_base']),
                     intval($fila['iva']),
-                    (bool)$fila['disponible'],
-                    (bool)$fila['ofertado'],
-                    (bool)$fila['activo'],
+                    (bool) $fila['disponible'],
+                    (bool) $fila['ofertado'],
+                    (bool) $fila['activo'],
                     intval($fila['id'])
-                    );
+                );
             }
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
             return null;
         }
@@ -126,15 +138,14 @@ class ProductoDB
                     intval($fila['categoria_id']),
                     floatval($fila['precio_base']),
                     intval($fila['iva']),
-                    (bool)$fila['disponible'],
-                    (bool)$fila['ofertado'],
-                    (bool)$fila['activo'],
+                    (bool) $fila['disponible'],
+                    (bool) $fila['ofertado'],
+                    (bool) $fila['activo'],
                     intval($fila['id'])
-                    );
+                );
             }
             $resultado->free();
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
         }
 
@@ -164,15 +175,14 @@ class ProductoDB
                     intval($fila['categoria_id']),
                     floatval($fila['precio_base']),
                     intval($fila['iva']),
-                    (bool)$fila['disponible'],
-                    (bool)$fila['ofertado'],
-                    (bool)$fila['activo'],
+                    (bool) $fila['disponible'],
+                    (bool) $fila['ofertado'],
+                    (bool) $fila['activo'],
                     intval($fila['id'])
-                    );
+                );
             }
             $resultado->free();
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
         }
 
@@ -193,8 +203,7 @@ class ProductoDB
 
         if ($conexion->query($query)) {
             return true;
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
             return false;
         }
@@ -214,8 +223,7 @@ class ProductoDB
 
         if ($conexion->query($query)) {
             return true;
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
             return false;
         }
