@@ -6,61 +6,64 @@ require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
 
 class FormularioRegistro extends formularioBase
 {
-    private $usuario;
-    private $gerente = false;
-    public function __construct($usuario = null)
-    {
-        $this->usuario = $usuario;
+  private $usuario;
+  private $gerente = false; //True cuando el usuario que accede es un gerente
+  public function __construct($usuario = null)
+  {
+    //$this->usuario = null indica que se registra un nuevo usuario
+    //$this->usuario != null indica que se está modificando un usuario
 
-        if ($this->usuario != null && $_SESSION['rolId'] == Usuario::ROL_GERENTE) {
-            $this->gerente = true;
-        }
-        parent::__construct(
-            'formRegistro',
-            ['urlRedireccion' => RUTA_APP . '/index.php']
-        );
+    $this->usuario = $usuario;
+
+    if ($this->usuario != null && $_SESSION['rolId'] == Usuario::ROL_GERENTE) {
+      $this->gerente = true;
     }
+    parent::__construct(
+      'formRegistro',
+      ['urlRedireccion' => RUTA_APP . '/index.php']
+    );
+  }
 
-    protected function generaCamposFormulario(&$datos)
-    {
-        $nombreUsuario = $datos['nombreUsuario']
-            ?? ($this->usuario ? $this->usuario->getNombreUsuario() : '');
+  protected function generaCamposFormulario(&$datos)
+  {
+    $nombreUsuario = $datos['nombreUsuario']
+      ?? ($this->usuario ? $this->usuario->getNombreUsuario() : '');
 
-        $nombre = $datos['nombre']
-            ?? ($this->usuario ? $this->usuario->getNombre() : '');
+    $nombre = $datos['nombre']
+      ?? ($this->usuario ? $this->usuario->getNombre() : '');
 
-        $apellidos = $datos['apellidos']
-            ?? ($this->usuario ? $this->usuario->getApellidos() : '');
+    $apellidos = $datos['apellidos']
+      ?? ($this->usuario ? $this->usuario->getApellidos() : '');
 
-        $email = $datos['email']
-            ?? ($this->usuario ? $this->usuario->getEmail() : '');
+    $email = $datos['email']
+      ?? ($this->usuario ? $this->usuario->getEmail() : '');
 
-        $rol = $datos['rol']
-            ?? ($this->usuario ? Rol::cargarRol($this->usuario->getId())->getNombre() : '');
+    $rol = $datos['rol']
+      ?? ($this->usuario ? Rol::cargarRol($this->usuario->getId())->getNombre() : '');
 
-        $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
+    $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
 
-        $erroresCampos = self::generaErroresCampos(
-            ['nombreUsuario', 'nombre', 'email', 'apellidos', 'password', 'password2'],
-            $this->errores
-        );
+    $erroresCampos = self::generaErroresCampos(
+      ['nombreUsuario', 'nombre', 'email', 'apellidos', 'password', 'password2'],
+      $this->errores
+    );
 
 
-        $rolHtml = "";
-        if ($this->gerente) {
-            $rolHtml = <<<HTML
+    $rolHtml = "";
+    if ($this->gerente) { //Solo aparece el campo para cambiar el rol si el usuario es un gerente
+      $rolHtml = <<<HTML
             <br>
             <div>
                 <label for="rol">Rol:</label><br>
                 <input id="rol" type="text" name="rol" value="$rol"/>
             </div>
             HTML;
-        }
+    }
 
-        $password2Html = '';
+    $password2Html = '';
 
-        if ($this->usuario == null) {
-            $password2Html = <<<HTML
+    if ($this->usuario == null) { //Solo aparece el campo de confirmación de constraseña en un registro, no en una modificación
+      $password2Html = <<<HTML
             <br>
             <div>
                 <label for="password2">Reintroduce el password:</label><br>
@@ -68,9 +71,9 @@ class FormularioRegistro extends formularioBase
                 {$erroresCampos['password2']}
             </div>
             HTML;
-        }
-        
-        $html = <<<EOF
+    }
+
+    $html = <<<EOF
         {$htmlErroresGlobales}
         <fieldset>
             <legend>Rellena los campos</legend>
@@ -119,109 +122,105 @@ class FormularioRegistro extends formularioBase
         </fieldset>
         EOF;
 
-        return $html;
+    return $html;
+  }
+
+  protected function procesaFormulario(&$datos)
+  {
+    $this->errores = [];
+
+    $nombreUsuario = trim($datos['nombreUsuario'] ?? '');
+    $nombreUsuario = filter_var($nombreUsuario, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+    if (!$nombreUsuario || strlen($nombreUsuario) < 4) {
+      $this->errores['nombreUsuario'] =
+        'El nombre de usuario debe tener al menos 4 caracteres.';
+    }
+    $usuarioExistente = UsuarioService::buscarPorNombre($nombreUsuario);
+
+    if (($this->usuario == null && $usuarioExistente != null) ||
+      ($this->usuario != null && $usuarioExistente != null && $usuarioExistente->getNombreUsuario() !== $this->usuario->getNombreUsuario())
+    ) {
+      $this->errores['nombreUsuario'] = "El nombre de usuario ya existe";
     }
 
-    protected function procesaFormulario(&$datos)
-    {
-        $this->errores = [];
+    $nombre = trim($datos['nombre'] ?? '');
+    $nombre = filter_var($nombre, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-        $nombreUsuario = trim($datos['nombreUsuario'] ?? '');
-        $nombreUsuario = filter_var($nombreUsuario, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-        if (!$nombreUsuario || strlen($nombreUsuario) < 4) {
-            $this->errores['nombreUsuario'] =
-                'El nombre de usuario debe tener al menos 4 caracteres.';
-        }
-        $usuarioExistente = UsuarioService::buscarPorNombre($nombreUsuario);
-
-        if (($this->usuario == null && $usuarioExistente != null) ||
-          ($this->usuario != null && $usuarioExistente != null && $usuarioExistente->getNombreUsuario() !== $this->usuario->getNombreUsuario())) 
-        {
-          $this->errores['nombreUsuario'] = "El nombre de usuario ya existe";
-        }
-
-        $nombre = trim($datos['nombre'] ?? '');
-        $nombre = filter_var($nombre, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-        if (!$nombre || strlen($nombre) < 4) {
-            $this->errores['nombre'] =
-                'El nombre debe tener al menos 4 caracteres.';
-       }
-
-        $apellidos = trim($datos['apellidos'] ?? '');
-        $apellidos = filter_var($apellidos, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-        if (!$apellidos || strlen($apellidos) < 4) {
-            $this->errores['apellidos'] =
-                'Los apellidos deben tener al menos 4 caracteres.';
-        }
-
-        $email = trim($datos['email'] ?? '');
-        $email = filter_var($email, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-        if (!$email || strlen($email) < 4) {
-            $this->errores['email'] =
-                'No es una dirección de correo válida.';
-        }
-
-        $password = trim($datos['password'] ?? '');
-        $password = filter_var($password, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-        if (!$password || mb_strlen($password) < 4) {
-            $this->errores['password'] =
-                'El password debe tener al menos 4 caracteres.';
-        }
-
-        if ($this->gerente) {
-            $rol = trim($datos['rol'] ?? '');
-            $rol = filter_var($rol, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-            if ($rol == "gerente") {
-                $rol = Usuario::ROL_GERENTE;
-            }
-            else if ($rol == "cocinero") {
-                $rol = Usuario::ROL_COCINERO;
-            }
-            else if ($rol == "camarero") {
-                $rol = Usuario::ROL_CAMARERO;
-            }
-            else {
-                $rol = Usuario::ROL_CLIENTE;
-            }
-        }
-
-        if (count($this->errores) === 0) {
-            $nombreUsuarioOriginal = $_GET['nombreUsuario'] ?? null; 
-            $usuario = UsuarioService::buscarPorNombre($nombreUsuarioOriginal);
-            $dto = new Usuario(
-                $nombreUsuario,
-                UsuarioService::hashPassword($password),
-                $nombre,
-                $apellidos,
-                $email,
-                null,
-                $usuario != null? $usuario->getId() : null
-            );
-            if ($this->usuario != null) {
-                Rol::cambiarRol($usuario->getId(), $rol);
-                if (UsuarioService::actualizar($dto) == null) {
-                    $this->errores[] = "Error en la modificación del usuario";
-                }
-            } else {
-                $usuarioInsertado = UsuarioService::insertar($dto);
-                UsuarioService::insertarRoles($usuarioInsertado, Usuario::ROL_CLIENTE);
-
-                if (!$usuarioInsertado) {
-                    $this->errores[] = "Error en la creación del usuario";
-                } else {
-                    $_SESSION['login'] = true;
-                    $_SESSION['nombre'] = $usuarioInsertado->getNombre();
-                    $_SESSION['rolId'] = Rol::cargarRol($usuarioInsertado->getId())->getId();
-                    $_SESSION['userId'] = $usuarioInsertado->getId();
-                    $_SESSION['nombreUsuario'] = $usuarioInsertado->getNombreUsuario();
-                }
-            }
-        }
+    if (!$nombre || strlen($nombre) < 4) {
+      $this->errores['nombre'] =
+        'El nombre debe tener al menos 4 caracteres.';
     }
+
+    $apellidos = trim($datos['apellidos'] ?? '');
+    $apellidos = filter_var($apellidos, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+    if (!$apellidos || strlen($apellidos) < 4) {
+      $this->errores['apellidos'] =
+        'Los apellidos deben tener al menos 4 caracteres.';
+    }
+
+    $email = trim($datos['email'] ?? '');
+    $email = filter_var($email, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+    if (!$email || strlen($email) < 4) {
+      $this->errores['email'] =
+        'No es una dirección de correo válida.';
+    }
+
+    $password = trim($datos['password'] ?? '');
+    $password = filter_var($password, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+    if ($this->usuario == null && (!$password || mb_strlen($password) < 4)) {
+      $this->errores['password'] =
+        'El password debe tener al menos 4 caracteres.';
+    }
+
+    if ($this->gerente) {
+      $rol = trim($datos['rol'] ?? '');
+      $rol = filter_var($rol, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+      if ($rol == "gerente") {
+        $rol = Usuario::ROL_GERENTE;
+      } else if ($rol == "cocinero") {
+        $rol = Usuario::ROL_COCINERO;
+      } else if ($rol == "camarero") {
+        $rol = Usuario::ROL_CAMARERO;
+      } else {
+        $rol = Usuario::ROL_CLIENTE;
+      }
+    }
+
+    if (count($this->errores) === 0) {
+      $nombreUsuarioOriginal = $_GET['nombreUsuario'] ?? null;
+      $usuario = UsuarioService::buscarPorNombre($nombreUsuarioOriginal);
+      $dto = new Usuario(
+        $nombreUsuario,
+        UsuarioService::hashPassword($password),
+        $nombre,
+        $apellidos,
+        $email,
+        null,
+        $usuario != null ? $usuario->getId() : null
+      );
+      if ($this->usuario != null) {
+        Rol::cambiarRol($usuario->getId(), $rol);
+        if (UsuarioService::actualizar($dto) == null) {
+          $this->errores[] = "Error en la modificación del usuario";
+        }
+      } else {
+        $usuarioInsertado = UsuarioService::insertar($dto);
+        UsuarioService::insertarRoles($usuarioInsertado, Usuario::ROL_CLIENTE);
+
+        if (!$usuarioInsertado) {
+          $this->errores[] = "Error en la creación del usuario";
+        } else {
+          $_SESSION['login'] = true;
+          $_SESSION['nombre'] = $usuarioInsertado->getNombre();
+          $_SESSION['rolId'] = Rol::cargarRol($usuarioInsertado->getId())->getId();
+          $_SESSION['userId'] = $usuarioInsertado->getId();
+          $_SESSION['nombreUsuario'] = $usuarioInsertado->getNombreUsuario();
+        }
+      }
+    }
+  }
 }
-?>

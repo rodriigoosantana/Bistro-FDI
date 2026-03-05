@@ -1,9 +1,12 @@
 <?php
-require_once __DIR__.'/includes/config.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+require_once __DIR__ . '/includes/config.php';
 
 $tituloPagina = 'Bistro FDI';
 $tituloHeader = 'Bistro FDI';
-$contenidoPrincipal=<<<EOS
+$contenidoPrincipal = <<<EOS
     <div id="contenedor">
         <!-- Contenido principal -->
         <main>
@@ -31,13 +34,13 @@ $contenidoPrincipal=<<<EOS
     </div>
 EOS;
 
+$acceso = true;
 $listaCaracteristicas = [
-   "📦 Sistema de pedidos online",
-   "⏱️ Seguimiento en tiempo real",
-   "👨‍🍳 Gestión para el personal",
-   "🎁 Programa de fidelización",
-   "🏷️ Ofertas y descuentos"
+  "📦 Sistema de pedidos online",
+  "⏱️ Seguimiento en tiempo real",
+  "👨‍🍳 Gestión para el personal",
+  "🎁 Programa de fidelización",
+  "🏷️ Ofertas y descuentos"
 ];
 
 require("includes/vistas/common/plantilla.php");
-?>

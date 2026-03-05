@@ -1,8 +1,9 @@
 <?php
 
-require_once dirname(__DIR__,2) . '/includes/config.php';
+require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
 require_once RAIZ_APP . '/includes/Usuario/Rol.php';
+require_once RAIZ_APP . '/includes/Aplicacion.php';
 
 
 $tituloPagina = 'Lista Usuarios';
@@ -11,8 +12,8 @@ $usuarios = UsuarioService::listarTodos();
 $filas = "";
 
 foreach ($usuarios as $u) {
-   $rol = Rol::cargarRol($u->getId());
-   $filas .= "<tr>
+  $rol = Rol::cargarRol($u->getId());
+  $filas .= "<tr>
       <td>{$u->getId()}</td>
       <td>{$u->getNombreUsuario()}</td>
       <td>{$u->getNombre()}</td>
@@ -23,6 +24,8 @@ foreach ($usuarios as $u) {
       <td> <a href=\"perfilUsuario.php?nombreUsuario={$u->getNombreUsuario()}\">Ver Perfil</a> </td>
    </tr>";
 }
+
+$acceso = Aplicacion::getInstance()::puedeListarUsuarios();
 $contenidoPrincipal = <<<EOS
    <section id="contenido">
    <h2>Usuarios</h2>
@@ -43,6 +46,3 @@ $contenidoPrincipal = <<<EOS
 EOS;
 
 require("common/plantilla.php");
-?>
-
-
