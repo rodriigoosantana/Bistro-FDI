@@ -84,9 +84,9 @@ class PedidoDB
 			if ($fila) {
 				return new Pedido(
 					intval($fila['numero_pedido']),
-					$fila['fecha_creacion'],
-					intval($fila['estado_id']),
-					$fila['tipo'],
+					new DateTime($fila['fecha_creacion']),
+					Estado::from($fila['estado']), // Cast de string al enum
+					Tipo::from($fila['tipo']), // Cast de string al enum
 					intval($fila['cliente_id']),
 					intval($fila['cocinero_id']),
 					floatval($fila['total']),
@@ -105,7 +105,7 @@ class PedidoDB
 	{
 		$conexion = Aplicacion::getInstance()->getConexionBd();
 
-		$query = "SELECT * FROM Pedidos ORDER BY nombre ASC";
+		$query = "SELECT * FROM Pedidos ORDER BY id ASC";
 
 		$resultado = $conexion->query($query);
 
@@ -116,8 +116,8 @@ class PedidoDB
 				$pedidos [] = new Pedido(
 					intval($fila['numero_pedido']),
 					$fila['fecha_creacion'],
-					intval($fila['estado_id']),
-					$fila['tipo'],
+					Estado::from($fila['estado']),
+					Tipo::from($fila['tipo']),
 					intval($fila['cliente_id']),
 					intval($fila['cocinero_id']),
 					floatval($fila['total']),
@@ -152,8 +152,8 @@ class PedidoDB
 				$pedido = new Pedido(
 					intval($fila['numero_pedido']),
 					$fila['fecha_creacion'],
-					intval($fila['estado_id']),
-					$fila['tipo'],
+					Estado::from($fila['estado_id']),
+					Tipo::from($fila['tipo']),
 					intval($fila['cliente_id']),
 					intval($fila['cocinero_id']),
 					floatval($fila['total']),
@@ -168,74 +168,13 @@ class PedidoDB
 		return null;
 	}
 
-	// TODO figure out what we need here
-	public static function listarPorCategoria($categoriaId)
+	public static function cambiarEstado(int $id, Estado $estado)
 	{
 		$conexion = Aplicacion::getInstance()->getConexionBd();
 
 		$query = sprintf(
-			"SELECT * FROM Pedidos WHERE categoria_id=%d ORDER BY nombre ASC",
-			intval($categoriaId)
-		);
-
-		$resultado = $conexion->query($query);
-
-		$productos = [];
-
-		if ($resultado) {
-			while ($fila = $resultado->fetch_assoc()) {
-				$productos[] = new Producto(
-					$fila['nombre'],
-					$fila['descripcion'],
-					intval($fila['categoria_id']),
-					floatval($fila['precio_base']),
-					intval($fila['iva']),
-					(bool)$fila['disponible'],
-					(bool)$fila['ofertado'],
-					(bool)$fila['activo'],
-					intval($fila['id'])
-				);
-			}
-			$resultado->free();
-		}
-		else {
-			error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-		}
-
-		return $productos;
-	}
-
-
-	//Cambia la disponibilidad de un producto.
-	// TODO Estado?
-	public static function cambiarDisponibilidad($id, $disponible)
-	{
-		$conexion = Aplicacion::getInstance()->getConexionBd();
-
-		$query = sprintf(
-			"UPDATE Productos SET disponible=%d WHERE id=%d",
-			$disponible ? 1 : 0,
-			intval($id)
-		);
-
-		if ($conexion->query($query)) {
-			return true;
-		}
-		else {
-			error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-			return false;
-		}
-	}
-
-
-	//Cambia el estado activo/inactivo de un producto.
-	public static function cambiarEstado($id, $activo)
-	{
-		$conexion = Aplicacion::getInstance()->getConexionBd();
-
-		$query = sprintf(
-			"UPDATE Productos SET activo=%d WHERE id=%d",
-			$activo ? 1 : 0,
+			"UPDATE Productos SET estado=%s WHERE id=%d",
+			$estado,
 			intval($id)
 		);
 

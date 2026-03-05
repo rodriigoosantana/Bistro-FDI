@@ -1,7 +1,6 @@
 <?php
 require_once RAIZ_APP . '/includes/vistas/common/formularioBase.php';
 require_once RAIZ_APP . '/includes/Pedido/PedidoService.php';
-require_once RAIZ_APP . '/includes/Pedido/Categoria.php';
 
 class FormularioPedido extends formularioBase
 {
