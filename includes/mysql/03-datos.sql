@@ -61,6 +61,17 @@ INSERT INTO `Productos` (`id`, `nombre`, `descripcion`, `categoria_id`, `precio_
 (8, 'Yogur natural',          'Yogur natural con miel',             4, 1.50, 10),
 (9, 'Fruta del día',          'Pieza de fruta de temporada',        4, 1.00, 10);
 
+-- IMÁGENES DE PRODUCTOS (Por defecto, para que aparezca algo)
+INSERT INTO `ProductoImagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
+(1, 4, '/img/seed/productos/producto_4_69a94d9a16216.jpg'),
+(2, 3, '/img/seed/productos/producto_3_69a94dc0c35b5.jpg'),
+(3, 1, '/img/seed/productos/producto_1_69a94ddcb011a.jpg'),
+(4, 5, '/img/seed/productos/producto_5_69a94e670a738.jpg'),
+(5, 5, '/img/seed/productos/producto_5_69a94e670bb78.jpg'),
+(6, 5, '/img/seed/productos/producto_5_69a94e670d5db.jpg'),
+(7, 5, '/img/seed/productos/producto_5_69a94e670e668.png');
+
+
 -- ESTADOS DE PEDIDO
 INSERT INTO `EstadosPedido` (`id`, `nombre`) VALUES
 (1, 'nuevo'),

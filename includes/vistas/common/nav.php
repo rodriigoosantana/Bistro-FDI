@@ -22,15 +22,15 @@
       <?php endif; ?>
 
       <?php if ($_SESSION['rolId'] === Usuario::ROL_CLIENTE): ?>
-        <li><a href="<?php echo RUTA_VISTAS . '/pedidoslist.php' ?>">Pedidos</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/nuevo_pedido.php' ?>">Nuevo Pedido</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/pedidoslist.php' ?>">Ver Pedidos</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/ofertaslist.php' ?>">Ver Ofertas</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/recompensas.php' ?>">Recompensas</a></li>
       <?php endif; ?>
 
-      <li><a href="<?php echo RUTA_VISTAS . '/nuevo_pedido.php' ?>">Nuevo Pedido</a></li>
-      <li><a href="<?php echo RUTA_VISTAS . '/pedidoslist.php' ?>">Ver Pedidos</a></li>
-      <li><a href="<?php echo RUTA_VISTAS . '/ofertaslist.php' ?>">Ver Ofertas</a></li>
-      <li><a href="<?php echo RUTA_VISTAS . '/recompensas.php' ?>">Recompensas</a></li>
 
-      <li><a href="<?php echo RUTA_VISTAS . '/usuariosdetail.php' ?>">Mi Perfil</a></li>
+
+      <li><a href="<?php echo RUTA_VISTAS . '/perfilUsuario.php?nombreUsuario=' . $_SESSION['nombreUsuario']; ?>">Mi Perfil</a></li>
       <li><a href="<?php echo RUTA_VISTAS . '/logout.php' ?>">Cerrar sesión</a></li>
 
     <?php else: ?>

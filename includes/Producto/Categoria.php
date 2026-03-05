@@ -11,7 +11,7 @@ class Categoria
     //endregion
 
     //region Constructor
-    private function __construct($nombre, $descripcion, $imagen, $activa, $id = null)
+    public function __construct($nombre, $descripcion, $imagen, $activa, $id = null)
     {
         $this->id = $id;
         $this->nombre = $nombre;
@@ -48,129 +48,32 @@ class Categoria
     }
     //endregion
 
-    //region Métodos privados
-    private function insertar()
+    //region setters
+    public function setNombre($nombre)
     {
-        $conexion = Aplicacion::getInstance()->getConexionBd();
-
-        $query = sprintf(
-            "INSERT INTO Categorias (nombre, descripcion, imagen, activa)
-            VALUES ('%s', '%s', '%s', %d)",
-            $conexion->real_escape_string($this->nombre),
-            $conexion->real_escape_string($this->descripcion),
-            $conexion->real_escape_string($this->imagen),
-            $this->activa ? 1 : 0
-        );
-
-        if ($conexion->query($query)) {
-            $this->id = $conexion->insert_id; # Asignar el ID generado por la base de datos
-            return true;
-        } else {
-            error_log("Error al insertar categoría: " . $conexion->error);
-            return false;
-        }
+        $this->nombre = $nombre;
     }
 
-    private function actualizar()
+    public function setDescripcion($descripcion)
     {
-        $conexion = Aplicacion::getInstance()->getConexionBd();
+        $this->descripcion = $descripcion;
+    }
 
-        $query = sprintf(
-            "UPDATE Categorias SET nombre='%s', descripcion='%s', imagen='%s', activa=%d WHERE id=%d",
-            $conexion->real_escape_string($this->nombre),
-            $conexion->real_escape_string($this->descripcion),
-            $conexion->real_escape_string($this->imagen),
-            $this->activa ? 1 : 0,
-            intval($this->id)
-        );
+    public function setImagen($imagen)
+    {
+        $this->imagen = $imagen;
+    }
 
-        if ($conexion->query($query)) {
-            return true;
-        } else {
-            error_log("Error al actualizar categoría: " . $conexion->error);
-            return false;
-        }
+    public function setActiva($activa)
+    {
+        $this->activa = $activa;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
     }
     //endregion
-
-    //region Métodos públicos
-    public function guardar()
-    {
-        if ($this->id) {
-            return $this->actualizar();
-        } else {
-            return $this->insertar();
-        }
-    }
-    //endregion
-
-    //region Métodos estáticos
-    public static function crear($nombre, $descripcion, $imagen, $activa)
-    {
-        $categoria = new Categoria($nombre, $descripcion, $imagen, $activa);
-
-        if ($categoria->insertar()) {
-            return $categoria;
-        }
-        return false;
-    }
-    public static function buscarPorId($id)
-    {
-        $conexion = Aplicacion::getInstance()->getConexionBd();
-
-        $query = sprintf(
-            "SELECT * FROM Categorias WHERE id=%d",
-            intval($id)
-        );
-
-        $resultado = $conexion->query($query);
-
-        if ($resultado) {
-            $fila = $resultado->fetch_assoc();
-            $resultado->free();
-
-            if ($fila) {
-                return new Categoria(
-                    $fila['nombre'],
-                    $fila['descripcion'],
-                    $fila['imagen'],
-                    (bool) $fila['activa'],
-                    $fila['id']
-                );
-            } else {
-                error_log("No se encontró la categoría con ID: " . $id);
-                return false;
-            }
-        }
-    }
-
-    public static function listarTodas()
-    {
-        $conexion = Aplicacion::getInstance()->getConexionBd();
-
-        $query = "SELECT * FROM Categorias ORDER BY nombre ASC";
-
-        $resultado = $conexion->query($query);
-
-        if ($resultado) {
-            $categorias = [];
-
-            while ($fila = $resultado->fetch_assoc()) {
-                $categorias[] = new Categoria(
-                    $fila['nombre'],
-                    $fila['descripcion'],
-                    $fila['imagen'],
-                    (bool) $fila['activa'],
-                    $fila['id']
-                );
-            }
-            $resultado->free();
-            return $categorias;
-        } else {
-            error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-            return false;
-        }
-    }
 }
 
 ?>

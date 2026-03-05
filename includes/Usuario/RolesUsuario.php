@@ -53,6 +53,22 @@
          return true;
       }
 
+      public function eliminar()
+      {
+         $conn = Aplicacion::getInstance()->getConexionBd();
+
+         $query = sprintf("DELETE FROM RolesUsuario WHERE usuario=%d", $this->idUsuario);
+
+         if ( ! $conn->query($query) ) 
+         {
+               error_log("Error BD ({$conn->errno}): {$conn->error}");
+         
+               return false;
+         }
+
+         return true;
+      }
+
    }
 
 ?>

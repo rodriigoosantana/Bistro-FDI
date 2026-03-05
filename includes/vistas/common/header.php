@@ -3,12 +3,12 @@ function mostrarSaludo()
 {
     if (isset($_SESSION['login']) && ($_SESSION['login'] === true)) 
     {
-        return "Bienvenido, {$_SESSION['nombre']} <a href=' " . RUTA_VISTAS . "/logout.php'>(salir)</a>";
+        return "Bienvenido, {$_SESSION['nombre']}";
         
     } 
     else 
     {
-        return "Usuario desconocido. <a href='" . RUTA_VISTAS . "/login.php'>Login</a> <a href=' " . RUTA_VISTAS . "/registro.php'>Registro</a>";
+        return "Usuario desconocido. Inicia sesión para acceder a las funcionalidades.";
     }
 }
 ?>

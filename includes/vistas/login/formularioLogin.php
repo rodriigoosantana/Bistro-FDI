@@ -1,6 +1,7 @@
 <?php
 require_once RAIZ_APP . '/includes/vistas/common/formularioBase.php';
-require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
+require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
+require_once RAIZ_APP . '/includes/Usuario/Rol.php';
 
 class formularioLogin extends formularioBase
 {
@@ -76,7 +77,7 @@ EOF;
       }
 
       if (count($this->errores) === 0) {
-         $usuario = Usuario::login($nombreUsuario, $password);
+         $usuario = UsuarioService::login($nombreUsuario, $password);
 
          if (!$usuario) {
             $this->errores[] = "El usuario o el password no coinciden";
@@ -84,8 +85,9 @@ EOF;
          else {
             $_SESSION['login'] = true;
             $_SESSION['nombre'] = $usuario->getNombre();
-            $_SESSION['rolId'] = $usuario->getRol()->getId();
+            $_SESSION['rolId'] = Rol::cargarRol($usuario->getId())->getId();
             $_SESSION['userId'] = $usuario->getId();
+            $_SESSION['nombreUsuario'] = $usuario->getNombreUsuario();
          }
       }
    }

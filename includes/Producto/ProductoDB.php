@@ -10,7 +10,7 @@ require_once RAIZ_APP . '/includes/Producto/Producto.php';
 class ProductoDB
 {
     //Inserta un nuevo producto en la base de datos.    
-    public static function insertar(Producto $producto)
+    public static function insertar(Producto $producto): ?Producto
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -31,15 +31,14 @@ class ProductoDB
         if ($conexion->query($query) == TRUE) {
             $producto->setId($conexion->insert_id); #Asignar el id al producto
             return $producto;
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
             return null;
         }
     }
 
     //Actualiza un producto existente en la base de datos.
-    public static function actualizar(Producto $producto)
+    public static function actualizar(Producto $producto): bool
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -62,16 +61,30 @@ class ProductoDB
 
         if ($conexion->query($query)) {
             return true;
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
             return false;
         }
     }
 
+    // Elimina un producto por su id. Devuelve true si se elimina, false si falla.
+    public static function eliminar(int $id): bool
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
+
+        $query = sprintf("DELETE FROM Productos WHERE id=%d", $id);
+
+        if ($conexion->query($query)) {
+            return true;
+        }
+
+
+        error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+        return false;
+    }
 
     //Busca un producto por su id.
-    public static function buscarPorId($id)
+    public static function buscarPorId($id): ?Producto
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -93,22 +106,21 @@ class ProductoDB
                     intval($fila['categoria_id']),
                     floatval($fila['precio_base']),
                     intval($fila['iva']),
-                    (bool)$fila['disponible'],
-                    (bool)$fila['ofertado'],
-                    (bool)$fila['activo'],
+                    (bool) $fila['disponible'],
+                    (bool) $fila['ofertado'],
+                    (bool) $fila['activo'],
                     intval($fila['id'])
-                    );
+                );
             }
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-            return false;
+            return null;
         }
     }
 
 
     //Lista todos los productos ordenados por nombre.
-    public static function listarTodos()
+    public static function listarTodos(): array
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -126,15 +138,14 @@ class ProductoDB
                     intval($fila['categoria_id']),
                     floatval($fila['precio_base']),
                     intval($fila['iva']),
-                    (bool)$fila['disponible'],
-                    (bool)$fila['ofertado'],
-                    (bool)$fila['activo'],
+                    (bool) $fila['disponible'],
+                    (bool) $fila['ofertado'],
+                    (bool) $fila['activo'],
                     intval($fila['id'])
-                    );
+                );
             }
             $resultado->free();
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
         }
 
@@ -143,7 +154,7 @@ class ProductoDB
 
 
     //Lista productos filtrados por categoría.
-    public static function listarPorCategoria($categoriaId)
+    public static function listarPorCategoria($categoriaId): array
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -164,15 +175,14 @@ class ProductoDB
                     intval($fila['categoria_id']),
                     floatval($fila['precio_base']),
                     intval($fila['iva']),
-                    (bool)$fila['disponible'],
-                    (bool)$fila['ofertado'],
-                    (bool)$fila['activo'],
+                    (bool) $fila['disponible'],
+                    (bool) $fila['ofertado'],
+                    (bool) $fila['activo'],
                     intval($fila['id'])
-                    );
+                );
             }
             $resultado->free();
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
         }
 
@@ -181,7 +191,7 @@ class ProductoDB
 
 
     //Cambia la disponibilidad de un producto.
-    public static function cambiarDisponibilidad($id, $disponible)
+    public static function cambiarDisponibilidad($id, $disponible): bool
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -193,8 +203,7 @@ class ProductoDB
 
         if ($conexion->query($query)) {
             return true;
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
             return false;
         }
@@ -202,7 +211,7 @@ class ProductoDB
 
 
     //Cambia el estado activo/inactivo de un producto.
-    public static function cambiarEstado($id, $activo)
+    public static function cambiarEstado($id, $activo): bool
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -214,8 +223,7 @@ class ProductoDB
 
         if ($conexion->query($query)) {
             return true;
-        }
-        else {
+        } else {
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
             return false;
         }
