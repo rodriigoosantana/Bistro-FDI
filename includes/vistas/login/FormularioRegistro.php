@@ -1,4 +1,5 @@
 <?php
+
 require_once RAIZ_APP . '/includes/vistas/common/formularioBase.php';
 require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
 require_once RAIZ_APP . '/includes/Usuario/Rol.php';
@@ -39,7 +40,7 @@ class FormularioRegistro extends formularioBase
       ?? ($this->usuario ? $this->usuario->getEmail() : '');
 
     $rol = $datos['rol']
-      ?? ($this->usuario ? Rol::cargarRol($this->usuario->getId())->getNombre() : '');
+      ?? ($this->usuario ? Rol::cargarRol($this->usuario->getId())->getId() : '');
 
     $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
 
@@ -48,16 +49,24 @@ class FormularioRegistro extends formularioBase
       $this->errores
     );
 
-
-    $rolHtml = "";
-    if ($this->gerente) { //Solo aparece el campo para cambiar el rol si el usuario es un gerente
-      $rolHtml = <<<HTML
-            <br>
-            <div>
-                <label for="rol">Rol:</label><br>
-                <input id="rol" type="text" name="rol" value="$rol"/>
-            </div>
-            HTML;
+    $opcionesRoles = '';
+    if ($this->gerente) {
+      $selCliente = $rol == Usuario::ROL_CLIENTE ? 'selected' : '';
+      $selCamarero = $rol == Usuario::ROL_CAMARERO ? 'selected' : '';
+      $selCocinero = $rol == Usuario::ROL_COCINERO ? 'selected' : '';
+      $selGerente = $rol == Usuario::ROL_GERENTE ? 'selected' : '';
+      $opcionesRoles = <<<HTML
+      <br>
+      <div>
+          <label for="rol">Rol:</label><br>
+          <select name="rol" id="rol">
+              <option value="4" $selCliente>Cliente</option>
+              <option value="3" $selCamarero>Camarero</option>
+              <option value="2" $selCocinero>Cocinero</option>
+              <option value="1" $selGerente>Gerente</option>
+          </select>
+      </div>
+      HTML;
     }
 
     $password2Html = '';
@@ -105,7 +114,7 @@ class FormularioRegistro extends formularioBase
                 <input id="email" type="text" name="email" value="$email"/>
                 {$erroresCampos['email']}
             </div>
-            $rolHtml
+            $opcionesRoles
             <br>
             <div>
                 <label for="password">Password:</label><br>
@@ -177,17 +186,7 @@ class FormularioRegistro extends formularioBase
     }
 
     if ($this->gerente) {
-      $rol = trim($datos['rol'] ?? '');
-      $rol = filter_var($rol, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-      if ($rol == "gerente") {
-        $rol = Usuario::ROL_GERENTE;
-      } else if ($rol == "cocinero") {
-        $rol = Usuario::ROL_COCINERO;
-      } else if ($rol == "camarero") {
-        $rol = Usuario::ROL_CAMARERO;
-      } else {
-        $rol = Usuario::ROL_CLIENTE;
-      }
+      $rol = intval($datos['rol']);
     }
 
     if (count($this->errores) === 0) {
