@@ -92,7 +92,6 @@ CREATE TABLE IF NOT EXISTS `Pedidos` (
   `cocinero_id`    int(11),
   `total`          decimal(10,2) NOT NULL DEFAULT 0.00,
   PRIMARY KEY (`id`),
-  KEY `fk_pedido_estado`   (`estado_id`),
   KEY `fk_pedido_cliente`  (`cliente_id`),
   KEY `fk_pedido_cocinero` (`cocinero_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
