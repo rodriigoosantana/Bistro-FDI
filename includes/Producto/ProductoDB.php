@@ -9,38 +9,39 @@ require_once RAIZ_APP . '/includes/Producto/Producto.php';
 
 class ProductoDB
 {
-  //Inserta un nuevo producto en la base de datos.    
-  public static function insertar(Producto $producto)
-  {
-    $conexion = Aplicacion::getInstance()->getConexionBd();
+    //Inserta un nuevo producto en la base de datos.    
+    public static function insertar(Producto $producto): ?Producto
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
       "INSERT INTO Productos (nombre, descripcion, categoria_id, precio_base, iva, disponible, ofertado, activo) 
             VALUES ('%s', '%s', %d, %f, %f, %d, %d, %d)",
 
-      $conexion->real_escape_string($producto->getNombre()),
-      $conexion->real_escape_string($producto->getDescripcion()),
-      intval($producto->getCategoriaId()),
-      floatval($producto->getPrecioBase()),
-      floatval($producto->getIva()),
-      $producto->isDisponible() ? 1 : 0,
-      $producto->isOfertado() ? 1 : 0,
-      $producto->isActivo() ? 1 : 0
-    );
+            $conexion->real_escape_string($producto->getNombre()),
+            $conexion->real_escape_string($producto->getDescripcion()),
+            intval($producto->getCategoriaId()),
+            floatval($producto->getPrecioBase()),
+            floatval($producto->getIva()),
+            $producto->isDisponible() ? 1 : 0,
+            $producto->isOfertado() ? 1 : 0,
+            $producto->isActivo() ? 1 : 0
+        );
 
-    if ($conexion->query($query) == TRUE) {
-      $producto->setId($conexion->insert_id); #Asignar el id al producto
-      return $producto;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return null;
+        if ($conexion->query($query) == TRUE) {
+            $producto->setId($conexion->insert_id); #Asignar el id al producto
+            return $producto;
+        } else {
+            error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+            return null;
+        }
     }
   }
 
-  //Actualiza un producto existente en la base de datos.
-  public static function actualizar(Producto $producto)
-  {
-    $conexion = Aplicacion::getInstance()->getConexionBd();
+    //Actualiza un producto existente en la base de datos.
+    public static function actualizar(Producto $producto): bool
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
       "UPDATE Productos
@@ -96,61 +97,144 @@ class ProductoDB
           (bool)$fila['activo'],
           intval($fila['id'])
         );
-      }
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
+
+        if ($conexion->query($query)) {
+            return true;
+        } else {
+            error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+            return false;
+        }
     }
   }
 
+    // Elimina un producto por su id. Devuelve true si se elimina, false si falla.
+    public static function eliminar(int $id): bool
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
 
-  //Lista todos los productos ordenados por nombre.
-  public static function listarTodos()
-  {
-    $conexion = Aplicacion::getInstance()->getConexionBd();
+        $query = sprintf("DELETE FROM Productos WHERE id=%d", $id);
+
+        if ($conexion->query($query)) {
+            return true;
+        }
+
+
+        error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+        return false;
+    }
+
+    //Busca un producto por su id.
+    public static function buscarPorId($id): ?Producto
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = "SELECT * FROM Productos ORDER BY nombre ASC";
 
-    $resultado = $conexion->query($query);
+        $resultado = $conexion->query($query);
+
+        if ($resultado) {
+            $fila = $resultado->fetch_assoc();
+            $resultado->free();
+
+            if ($fila) {
+                return new Producto(
+                    $fila['nombre'],
+                    $fila['descripcion'],
+                    intval($fila['categoria_id']),
+                    floatval($fila['precio_base']),
+                    intval($fila['iva']),
+                    (bool) $fila['disponible'],
+                    (bool) $fila['ofertado'],
+                    (bool) $fila['activo'],
+                    intval($fila['id'])
+                );
+            }
+        } else {
+            error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+            return null;
+        }
+    }
 
     $productos = [];
 
-    if ($resultado) {
-      while ($fila = $resultado->fetch_assoc()) {
-        $productos[] = new Producto(
-          $fila['nombre'],
-          $fila['descripcion'],
-          intval($fila['categoria_id']),
-          floatval($fila['precio_base']),
-          intval($fila['iva']),
-          (bool)$fila['disponible'],
-          (bool)$fila['ofertado'],
-          (bool)$fila['activo'],
-          intval($fila['id'])
-        );
-      }
-      $resultado->free();
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    //Lista todos los productos ordenados por nombre.
+    public static function listarTodos(): array
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
+
+        $query = "SELECT * FROM Productos ORDER BY nombre ASC";
+
+        $resultado = $conexion->query($query);
+
+        $productos = [];
+
+        if ($resultado) {
+            while ($fila = $resultado->fetch_assoc()) {
+                $productos[] = new Producto(
+                    $fila['nombre'],
+                    $fila['descripcion'],
+                    intval($fila['categoria_id']),
+                    floatval($fila['precio_base']),
+                    intval($fila['iva']),
+                    (bool) $fila['disponible'],
+                    (bool) $fila['ofertado'],
+                    (bool) $fila['activo'],
+                    intval($fila['id'])
+                );
+            }
+            $resultado->free();
+        } else {
+            error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+        }
+
+        return $productos; #En este caso si hay error devuelve array vacío en vez de false
     }
 
     return $productos; #En este caso si hay error devuelve array vacío en vez de false
   }
 
+    //Lista productos filtrados por categoría.
+    public static function listarPorCategoria($categoriaId): array
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
 
   //Lista productos filtrados por categoría.
   public static function listarPorCategoria($categoriaId)
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf(
-      "SELECT * FROM Productos WHERE categoria_id=%d ORDER BY nombre ASC",
-      intval($categoriaId)
-    );
+        $resultado = $conexion->query($query);
+
+        $productos = [];
+
+        if ($resultado) {
+            while ($fila = $resultado->fetch_assoc()) {
+                $productos[] = new Producto(
+                    $fila['nombre'],
+                    $fila['descripcion'],
+                    intval($fila['categoria_id']),
+                    floatval($fila['precio_base']),
+                    intval($fila['iva']),
+                    (bool) $fila['disponible'],
+                    (bool) $fila['ofertado'],
+                    (bool) $fila['activo'],
+                    intval($fila['id'])
+                );
+            }
+            $resultado->free();
+        } else {
+            error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+        }
+
+        return $productos;
+    }
 
     $resultado = $conexion->query($query);
 
-    $productos = [];
+    //Cambia la disponibilidad de un producto.
+    public static function cambiarDisponibilidad($id, $disponible): bool
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
 
     if ($resultado) {
       while ($fila = $resultado->fetch_assoc()) {
@@ -175,30 +259,20 @@ class ProductoDB
   }
 
 
-  //Cambia la disponibilidad de un producto.
-  public static function cambiarDisponibilidad($id, $disponible)
-  {
-    $conexion = Aplicacion::getInstance()->getConexionBd();
-
-    $query = sprintf(
-      "UPDATE Productos SET disponible=%d WHERE id=%d",
-      $disponible ? 1 : 0,
-      intval($id)
-    );
-
-    if ($conexion->query($query)) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
+        if ($conexion->query($query)) {
+            return true;
+        } else {
+            error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+            return false;
+        }
     }
   }
 
 
-  //Cambia el estado activo/inactivo de un producto.
-  public static function cambiarEstado($id, $activo)
-  {
-    $conexion = Aplicacion::getInstance()->getConexionBd();
+    //Cambia el estado activo/inactivo de un producto.
+    public static function cambiarEstado($id, $activo): bool
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
       "UPDATE Productos SET activo=%d WHERE id=%d",
@@ -206,11 +280,13 @@ class ProductoDB
       intval($id)
     );
 
-    if ($conexion->query($query)) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
+        if ($conexion->query($query)) {
+            return true;
+        } else {
+            error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+            return false;
+        }
     }
   }
 }
+?>
