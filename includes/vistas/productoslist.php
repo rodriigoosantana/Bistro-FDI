@@ -35,10 +35,32 @@ if ($productos && count($productos) > 0) {
         // Primera imagen del producto si tiene
         $imagenes = ProductoService::listarImagenes($p->getId());
         if ($imagenes) {
-            $rutaImg = htmlspecialchars(RUTA_APP . $imagenes[0]['ruta_imagen']);
-            $htmlImg = "<img src=\"{$rutaImg}\" alt=\"{$nombre}\">";
+            $primeraRuta = htmlspecialchars(RUTA_APP . $imagenes[0]['ruta_imagen']);
+            if (count($imagenes) > 1) {
+                // Slider automático en tarjeta
+                $rutas = array_map(function($img) {
+                    return htmlspecialchars(RUTA_APP . $img['ruta_imagen']);
+                }, $imagenes);
+                $dataImagenes = htmlspecialchars(json_encode($rutas));
+
+                $dotsHtml = '';
+                foreach ($imagenes as $i => $img) {
+                    $active    = $i === 0 ? ' active' : '';
+                    $dotsHtml .= "<span class=\"slider-dot{$active}\"></span>";
+                }
+
+                $htmlImg = <<<SLDR
+                <div class="slider-wrap tarjeta-slider" data-imagenes="{$dataImagenes}" data-auto="true">
+                    <img class="slider-img" src="{$primeraRuta}" alt="{$nombre}">
+                    <div class="slider-dots">{$dotsHtml}</div>
+                </div>
+                SLDR;
+            } else {
+                // Una sola imagen, sin slider
+                $htmlImg = "<img class=\"tarjeta-img-unica\" src=\"{$primeraRuta}\" alt=\"{$nombre}\">";
+            }
         } else {
-            $htmlImg = "<div><em>Sin imagen</em></div>";
+            $htmlImg = "<div class=\"tarjeta-sin-imagen\"><em>Sin imagen</em></div>";
         }
 
         $tarjetas .= <<<TARJETA

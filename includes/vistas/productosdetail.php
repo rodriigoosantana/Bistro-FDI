@@ -63,7 +63,6 @@ if ($esGerente && ($modoEdicion || !$producto)) {
     #MODO VISTA (Para todos los usuarios)
     $categoria = CategoriaService::buscarPorId($producto->getCategoriaId());
     $nombreCat = $categoria ? htmlspecialchars($categoria->getNombre()) : 'Sin categoría';
-
     $nombre = htmlspecialchars($producto->getNombre());
     $descripcion = htmlspecialchars($producto->getDescripcion());
     $precioBase = number_format($producto->getPrecioBase(), 2, ',', '.');
@@ -75,57 +74,34 @@ if ($esGerente && ($modoEdicion || !$producto)) {
 
     // Imágenes del producto
     $imagenes = ProductoService::listarImagenes($producto->getId());
-    $htmlImagenes = '';
-    if ($imagenes) {
-        // Generar array JS con las rutas
-        $rutasJS = [];
-        foreach ($imagenes as $img) { #Se recorren las imágenes para generar un array de rutas para el slider
-            $rutasJS[] = '"' . htmlspecialchars(RUTA_APP . $img['ruta_imagen']) . '"';
-        }
-        $rutasJSStr = '[' . implode(',', $rutasJS) . ']'; #Se convierte el array PHP a un string JS para usarlo en el script del slider
-        $total      = count($imagenes); #Número total de imágenes
+    $htmlImagenes = '<em>Sin imágenes</em>';
 
-        // Primera imagen visible por defecto
+    if ($imagenes) {
+        // Array de rutas para el atributo data-imagenes (JSON)
+        $rutas = array_map(function ($img) {
+            return htmlspecialchars(RUTA_APP . $img['ruta_imagen']);
+        }, $imagenes);
+        $dataImagenes = htmlspecialchars(json_encode($rutas));
+
         $primeraRuta = htmlspecialchars(RUTA_APP . $imagenes[0]['ruta_imagen']);
 
-        // Generar puntos
-        $dotsHtml = ''; 
-        for ($i = 0; $i < $total; $i++) {
-            $active    = $i === 0 ? ' active' : '';
-            $dotsHtml .= "<span class=\"slider-dot{$active}\" onclick=\"sliderGoto({$i})\"></span>";
+        // Puntos de navegación (solo si hay más de 1 imagen)
+        $dotsHtml = '';
+        if (count($imagenes) > 1) {
+            foreach ($imagenes as $i => $img) {
+                $active = $i === 0 ? ' active' : '';
+                $dotsHtml .= "<span class=\"slider-dot{$active}\"></span>";
+            }
+            $dotsHtml = "<div class=\"slider-dots\">{$dotsHtml}</div>";
         }
 
-        $htmlImagenes = <<<SLIDER
-        <div class="slider-wrap">
-            <img id="sliderImg" src="{$primeraRuta}" alt="{$nombre}">
-            <div class="slider-dots">{$dotsHtml}</div>
+         $htmlImagenes = <<<SLIDER
+        <div class="slider-wrap" data-imagenes="{$dataImagenes}" data-auto="true">
+            <img class="slider-img" src="{$primeraRuta}" alt="{$nombre}">
+            {$dotsHtml}
         </div>
-        <script>
-        (function() {
-            var imagenes = {$rutasJSStr};
-            var actual   = 0;
-            var total    = imagenes.length;
-            var img      = document.getElementById('sliderImg');
-            var dots     = document.querySelectorAll('.slider-dot');
-
-            function goto(n) {
-                actual = (n + total) % total;
-                img.src = imagenes[actual];
-                dots.forEach(function(d, i) {
-                    d.classList.toggle('active', i === actual);
-                });
-            }
-
-            window.sliderGoto = goto;
-
-            // Avance automático cada 3 segundos si hay más de 1 imagen
-            if (total > 1) {
-                setInterval(function() { goto(actual + 1); }, 3000);
-            }
-        })();
-        </script>
-        SLIDER;    
-        } else {
+        SLIDER;
+    } else {
         $htmlImagenes = '<em>Sin imágenes</em>';
     }
 

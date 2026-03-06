@@ -28,6 +28,9 @@
     <?php include(RAIZ_APP . '/includes/vistas/common/aside.php'); ?>
   </div>
   <?php include(RAIZ_APP . '/includes/vistas/common/footer.php'); ?>
+  <!-- JS al final del body para que el DOM esté listo -->
+  <script src="<?php echo RUTA_JS . '/slider.js' ?>"></script>
+  <script src="<?php echo RUTA_JS . '/confirmar.js' ?>"></script>
 </body>
 
 </html>

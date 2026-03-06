@@ -126,7 +126,8 @@ class ProductoService
             }
 
             #generar nombre único
-            $nombreArchivo = 'producto_' . $productoId . '_' . uniqid() . '.' . $extension;
+            //$nombreArchivo = 'producto_' . $productoId . '_' . uniqid() . '.' . $extension;
+            $nombreArchivo = password_hash(('producto_' . $productoId . '_' . uniqid()), PASSWORD_DEFAULT) . $extension;
             $rutaDestino = $dir . $nombreArchivo;
             $rutaBD = '/img/uploads/productos/' . $nombreArchivo; #ruta relativa para almacenar en BD
 

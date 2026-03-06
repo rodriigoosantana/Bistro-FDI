@@ -177,18 +177,12 @@ th, td {
   margin-bottom: 30px;
 }
 
-/* En móvil: 1 columna */
 @media (max-width: 600px) {
-  .lista-productos {
-    grid-template-columns: 1fr;
-  }
+  .lista-productos { grid-template-columns: 1fr; }
 }
 
-/* En tablet: 2 columnas */
 @media (max-width: 900px) and (min-width: 601px) {
-  .lista-productos {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .lista-productos { grid-template-columns: repeat(2, 1fr); }
 }
 
 .tarjeta-producto {
@@ -205,28 +199,49 @@ th, td {
   box-shadow: 0 4px 14px rgba(148, 150, 245, 0.35);
 }
 
-.tarjeta-imagen img,
-.tarjeta-imagen div {
+/* Zona de imagen en tarjeta: altura fija, fondo neutro */
+.tarjeta-imagen {
   width: 100%;
   height: 160px;
-  object-fit: cover;
+  background: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f1f1f1;
+  overflow: hidden;
+}
+
+/* Imagen única en tarjeta: cabe entera sin recorte */
+.tarjeta-imagen .tarjeta-img-unica {
+  max-width: 100%;
+  max-height: 160px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Placeholder sin imagen */
+.tarjeta-sin-imagen {
+  width: 100%;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #999;
   font-size: 0.85rem;
+  background: white;
 }
 
 .tarjeta-info {
   padding: 12px 14px;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .tarjeta-info strong {
-  display: block;
   font-size: 1rem;
-  margin-bottom: 4px;
 }
 
 .tarjeta-info span,
@@ -236,11 +251,10 @@ th, td {
 }
 
 .tarjeta-precio {
-  display: block;
-  margin-top: 6px;
   font-weight: 600;
   color: #4f46e5;
   font-size: 0.95rem;
+  margin-top: 4px;
 }
 
 .tarjeta-acciones {
@@ -259,40 +273,18 @@ th, td {
   text-decoration: none;
   cursor: pointer;
   border: none;
-  transition: background-color 0.15s, opacity 0.15s;
+  transition: opacity 0.15s;
 }
 
-.btn:hover {
-  opacity: 0.85;
-  text-decoration: none;
-}
+.btn:hover { opacity: 0.85; text-decoration: none; }
 
-.btn-ver {
-  background-color: #9496f5;
-  color: white;
-}
+.btn-ver    { background-color: #9496f5; color: white; }
+.btn-nuevo  { background-color: #22c55e; color: white; }
+.btn-editar { background-color: #f59e0b; color: white; }
+.btn-borrar { background-color: #ef4444; color: white; }
+.btn-volver { background-color: #6b7280; color: white; }
 
-.btn-nuevo {
-  background-color: #22c55e;
-  color: white;
-}
-
-.btn-editar {
-  background-color: #f59e0b;
-  color: white;
-}
-
-.btn-borrar {
-  background-color: #ef4444;
-  color: white;
-}
-
-.btn-volver {
-  background-color: #6b7280;
-  color: white;
-}
-
-/* ── ACCIONES AL PIE DE PÁGINA ────────────────────────────────────── */
+/* ── ACCIONES AL PIE ──────────────────────────────────────────────── */
 
 .acciones-pagina {
   display: flex;
@@ -316,11 +308,6 @@ th, td {
   width: 300px;
 }
 
-.detalle-imagenes img {
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
 .detalle-info {
   flex: 1;
   min-width: 220px;
@@ -331,32 +318,52 @@ th, td {
   text-align: left;
 }
 
-/* ── SLIDER DE IMÁGENES ───────────────────────────────────────────── */
+/* ── SLIDER ───────────────────────────────────────────────────────── */
 
+/* Slider en detalle de producto */
 .slider-wrap {
   width: 300px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.slider-wrap img {
+.slider-wrap .slider-img {
   width: 300px;
   height: 220px;
-  object-fit: cover;
+  object-fit: contain;   /* imagen entera, sin recorte */
+  display: block;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
-  display: block;
-  transition: opacity 0.3s;
 }
 
+/* Slider en tarjeta de lista */
+.tarjeta-slider {
+  width: 100%;
+  height: 160px;
+  border-radius: 0;
+}
+
+.tarjeta-slider .slider-img {
+  width: 100%;
+  height: 160px;
+  object-fit: contain;
+  border-radius: 0;
+  border: none;
+}
+
+/* Puntos de navegación */
 .slider-dots {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px;
+  padding: 6px 0;
+  background: #f5f5f5;
 }
 
 .slider-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #ccc;
   cursor: pointer;
@@ -366,4 +373,16 @@ th, td {
 
 .slider-dot.active {
   background: #9496f5;
+}
+
+.tarjeta-imagen {
+  background: transparent;
+}
+
+.slider-wrap {
+  background: transparent;
+}
+
+.slider-dots {
+  background: transparent;
 }
