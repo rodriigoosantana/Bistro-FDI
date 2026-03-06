@@ -12,13 +12,13 @@ class UsuarioService
     $usuario = UsuarioDB::insertar($usuario);
     return $usuario;
   }
-
-  public static function actualizar(Usuario $usuario)
+  public static function actualizar(Usuario $usuario, $idRol)
   {
     $usuario = UsuarioDB::actualizar($usuario);
-    self::actualizarRoles($usuario);
+    Rol::cambiarRol($usuario->getId(), $idRol);
     return $usuario;
   }
+
   public static function eliminar(Usuario $usuario)
   {
     self::eliminarRoles($usuario);
@@ -66,35 +66,18 @@ class UsuarioService
 
     return true;
   }
-  private static function actualizarRoles($usuario)
-  {
-    $rol = Rol::cargarRol($usuario->getId());
-
-    if (!$rol) {
-      // Manejar caso: usuario sin rol
-      error_log("Usuario {$usuario->getId()} no tiene rol asignado");
-      return false; // o lanzar excepción
-    }
-
-    $rolUsuario = new RolesUsuario($usuario->getId(), $rol->getId());
-    $rolUsuario->eliminar();
-    $rolUsuario->insertar();
-  }
 
   // Procesa un archivo y devuelve la ruta para la BD
-  public static function procesarAvatar($usuario_id, $avatar_file)
+  public static function procesarAvatar($avatar_file)
   {
     error_log('Avatar recibido: ' . print_r($avatar_file, true));
-    $dir = RUTA_IMGS . '/seed/avatares/';
+    $dir = RUTA_IMGS . '/uploads/avatares/';
+    $dir = $_SERVER['DOCUMENT_ROOT'] . RUTA_IMGS . '/uploads/avatares/';
 
-    if (!is_dir($dir)) {
-      mkdir($dir, 0755, true); #crea el directorio si no existe
-    }
     $extension = strtolower(pathinfo($avatar_file['name'], PATHINFO_EXTENSION));
-    $nombreArchivo = 'avatar_' . $usuario_id . '_' . uniqid() . '.' . $extension;
+    $nombreArchivo = 'avatar_' . uniqid() . '.' . $extension;
     $rutaBD = '/img/uploads/avatares/' . $nombreArchivo;
     $rutaDestino = $dir . $nombreArchivo;
-
     if (!move_uploaded_file($avatar_file['tmp_name'], $rutaDestino)) {
       error_log("Error al mover archivo subido: " . $avatar_file['name']);
     }

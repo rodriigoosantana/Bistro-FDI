@@ -211,6 +211,10 @@ class FormularioRegistro extends formularioBase
 
     if ($this->gerente) {
       $rol = intval($datos['rol']);
+    } else if ($usuarioExistente != null) {
+      $rol = Rol::cargarRol($usuarioExistente->getId())->getId();
+    } else {
+      $rol = Usuario::ROL_CLIENTE;
     }
 
     if (count($this->errores) === 0) {
@@ -224,12 +228,12 @@ class FormularioRegistro extends formularioBase
         $nombre,
         $apellidos,
         $email,
-        UsuarioService::procesarAvatar($usuario_id, $avatar),
+        UsuarioService::procesarAvatar($avatar),
         $usuario_id
       );
+
       if ($this->usuario != null) {
-        Rol::cambiarRol($usuario->getId(), $rol);
-        if (UsuarioService::actualizar($dto) == null) {
+        if (UsuarioService::actualizar($dto, $rol) == null) {
           $this->errores[] = "Error en la modificación del usuario";
         }
       } else {

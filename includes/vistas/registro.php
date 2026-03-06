@@ -1,5 +1,8 @@
 <?php
-require_once dirname(__DIR__,2) . '/includes/config.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+require_once dirname(__DIR__, 2) . '/includes/config.php';
 require_once RAIZ_APP . '/includes/vistas/login/FormularioRegistro.php';
 
 $form = new FormularioRegistro();
@@ -16,5 +19,3 @@ $contenidoPrincipal = <<<EOS
 EOS;
 
 require("common/plantilla.php");
-
-?>

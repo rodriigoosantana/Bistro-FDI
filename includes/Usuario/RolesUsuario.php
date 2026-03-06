@@ -1,74 +1,70 @@
 <?php
 
-   class RolesUsuario
-   {
-      //region Campos privados
+class RolesUsuario
+{
+  //region Campos privados
 
-      private $idUsuario;
+  private $idUsuario;
 
-      private $idRol;
+  private $idRol;
 
-      //endregion
+  //endregion
 
-      //region Constructor
+  //region Constructor
 
-      public function __construct($idUsuario, $idRol)
-      {
-         $this->idUsuario = $idUsuario;
-         $this->idRol = $idRol;
-      }
+  public function __construct($idUsuario, $idRol)
+  {
+    $this->idUsuario = $idUsuario;
+    $this->idRol = $idRol;
+  }
 
-      //endregion
+  //endregion
 
-      //region Propiedades
+  //region Propiedades
 
-      public function getIdUsuario()
-      {
-         return $this->idUsuario;
-      }
+  public function getIdUsuario()
+  {
+    return $this->idUsuario;
+  }
 
-      public function getIdRol()
-      {
-         return $this->idRol;
-      }
+  public function getIdRol()
+  {
+    return $this->idRol;
+  }
 
-      //endregion
+  //endregion
 
-      public function Insertar()
-      {
-         $conn = Aplicacion::getInstance()->getConexionBd();
+  public function insertar()
+  {
+    $conn = Aplicacion::getInstance()->getConexionBd();
 
-         $query = sprintf("INSERT INTO RolesUsuario(usuario, rol) VALUES (%d, %d)"
-                  , $this->idUsuario
-                  , $this->idRol
-               );
+    $query = sprintf(
+      "INSERT INTO RolesUsuario(usuario, rol) VALUES (%d, %d)",
+      $this->idUsuario,
+      $this->idRol
+    );
 
-         if ( ! $conn->query($query) ) 
-         {
-               error_log("Error BD ({$conn->errno}): {$conn->error}");
-         
-               return false;
-         }
+    if (! $conn->query($query)) {
+      error_log("Error BD ({$conn->errno}): {$conn->error}");
 
-         return true;
-      }
+      return false;
+    }
 
-      public function eliminar()
-      {
-         $conn = Aplicacion::getInstance()->getConexionBd();
+    return true;
+  }
 
-         $query = sprintf("DELETE FROM RolesUsuario WHERE usuario=%d", $this->idUsuario);
+  public function eliminar()
+  {
+    $conn = Aplicacion::getInstance()->getConexionBd();
 
-         if ( ! $conn->query($query) ) 
-         {
-               error_log("Error BD ({$conn->errno}): {$conn->error}");
-         
-               return false;
-         }
+    $query = sprintf("DELETE FROM RolesUsuario WHERE usuario=%d", $this->idUsuario);
 
-         return true;
-      }
+    if (! $conn->query($query)) {
+      error_log("Error BD ({$conn->errno}): {$conn->error}");
 
-   }
+      return false;
+    }
 
-?>
+    return true;
+  }
+}
