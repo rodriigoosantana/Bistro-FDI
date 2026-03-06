@@ -70,12 +70,16 @@ class UsuarioService
   // Procesa un archivo y devuelve la ruta para la BD
   public static function procesarAvatar($avatar_file)
   {
-    error_log('Avatar recibido: ' . print_r($avatar_file, true));
     $dir = RUTA_IMGS . '/uploads/avatares/';
     $dir = $_SERVER['DOCUMENT_ROOT'] . RUTA_IMGS . '/uploads/avatares/';
 
     $extension = strtolower(pathinfo($avatar_file['name'], PATHINFO_EXTENSION));
-    $nombreArchivo = 'avatar_' . uniqid() . '.' . $extension;
+
+    if ($avatar_file['name'] != 'default.jpg') {
+      $nombreArchivo = 'avatar_' . uniqid() . '.' . $extension;
+    } else {
+      $nombreArchivo = $avatar_file['name'];
+    }
     $rutaBD = '/img/uploads/avatares/' . $nombreArchivo;
     $rutaDestino = $dir . $nombreArchivo;
     if (!move_uploaded_file($avatar_file['tmp_name'], $rutaDestino)) {
@@ -85,5 +89,8 @@ class UsuarioService
   }
 
   // Coge una ruta y devuelve el archivo en si 
-  public static function cargarAvatar($avatar) {}
+  public static function cargarAvatar($avatar)
+  {
+    return "<img src=" . RUTA_APP . $avatar . " alt='Imagen no disponible'>";
+  }
 }

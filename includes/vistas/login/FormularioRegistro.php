@@ -194,11 +194,29 @@ class FormularioRegistro extends formularioBase
         'No es una dirección de correo válida.';
     }
 
-    //Cambiar null por imagen por defecto
-    $avatar = $_FILES['avatar'] ?? null;
+    $avatar_file = $_FILES['avatar'] ?? null;
     $extensiones = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!$avatar || $avatar['error'] !== UPLOAD_ERR_OK || $avatar['size'] <= 0 || !in_array(mime_content_type($avatar['tmp_name']), $extensiones)) {
-      $this->errores['avatar'] = 'Error al subir el archivo.';
+
+    if ($avatar_file && $avatar_file['error'] === UPLOAD_ERR_OK) {
+
+      if ($avatar_file['size'] <= 0 || !in_array(mime_content_type($avatar_file['tmp_name']), $extensiones)) {
+        $this->errores['avatar'] = 'Error al subir el archivo.';
+      }
+    }
+
+    if (!($avatar_file && $avatar_file['error'] === UPLOAD_ERR_OK)) { //Si no se ha subido avatar
+      if ($this->usuario == null) { //Si es un registro
+        $avatar_file = $_FILES['avatar'] = [ //Se usa el default
+          'name' => 'default.jpg',
+          'type' => 'image/jpg',
+          'tmp_name' => '/opt/lampp/htdocs/Bistro-FDI/img/uploads/default.jpg',
+        ];
+        $avatar = UsuarioService::procesarAvatar($avatar_file);
+      } else { //Si es una modificacion
+        $avatar = $this->usuario->getAvatar(); //Se usa el que ya se tenía
+      }
+    } else {
+      $avatar = UsuarioService::procesarAvatar($avatar_file);
     }
 
     $password = trim($datos['password'] ?? '');
@@ -222,13 +240,14 @@ class FormularioRegistro extends formularioBase
       $usuario = UsuarioService::buscarPorNombre($nombreUsuarioOriginal);
       $usuario_id = $usuario != null ? $usuario->getId() : null;
 
+
       $dto = new Usuario(
         $nombreUsuario,
         UsuarioService::hashPassword($password),
         $nombre,
         $apellidos,
         $email,
-        UsuarioService::procesarAvatar($avatar),
+        $avatar,
         $usuario_id
       );
 
