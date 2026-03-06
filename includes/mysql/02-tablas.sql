@@ -7,7 +7,6 @@ USE `bistro_fdi`;
 DROP TABLE IF EXISTS `PedidoProducto`;
 DROP TABLE IF EXISTS `ProductoImagen`;
 DROP TABLE IF EXISTS `Pedidos`;
-DROP TABLE IF EXISTS `EstadosPedido`;
 DROP TABLE IF EXISTS `Productos`;
 DROP TABLE IF EXISTS `Categorias`;
 DROP TABLE IF EXISTS `RolesUsuario`;
@@ -82,27 +81,17 @@ CREATE TABLE IF NOT EXISTS `ProductoImagen` (
   KEY `fk_imagen_producto` (`producto_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- TABLA ESTADOS_PEDIDO
-CREATE TABLE IF NOT EXISTS `EstadosPedido` (
-  `id`     int(11)     NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_estado_nombre` (`nombre`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 -- TABLA PEDIDOS
 CREATE TABLE IF NOT EXISTS `Pedidos` (
   `id`             int(11)       NOT NULL AUTO_INCREMENT,
-  `numero_dia`     int(11)       NOT NULL,
-  `fecha`          date          NOT NULL,
+  `numero_pedido`  int(11)       NOT NULL,
   `fecha_creacion` datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `estado_id`      int(11)       NOT NULL,
+  `estado`         enum('nuevo', 'recibido', 'en preparacion', 'cocinando', 'listo cocina', 'entregado', 'cancelado') NOT NULL DEFAULT 'Nuevo',
   `tipo`           enum('local','llevar') NOT NULL,
   `cliente_id`     int(11)       NOT NULL,
   `cocinero_id`    int(11),
   `total`          decimal(10,2) NOT NULL DEFAULT 0.00,
   PRIMARY KEY (`id`),
-  KEY `fk_pedido_estado`   (`estado_id`),
   KEY `fk_pedido_cliente`  (`cliente_id`),
   KEY `fk_pedido_cocinero` (`cocinero_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

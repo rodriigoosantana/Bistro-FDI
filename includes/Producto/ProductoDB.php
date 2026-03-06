@@ -15,7 +15,7 @@ class ProductoDB
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
         $query = sprintf(
-            "INSERT INTO Productos (nombre, descripcion, categoria_id, precio_base, iva, disponible, ofertado, activo) 
+            "INSERT INTO Productos (nombre, descripcion, categoria_id, precio_base, iva, disponible, ofertado, activo)
             VALUES ('%s', '%s', %d, %f, %f, %d, %d, %d)",
 
             $conexion->real_escape_string($producto->getNombre()),
@@ -229,4 +229,4 @@ class ProductoDB
         }
     }
 }
-?>
+?>>
