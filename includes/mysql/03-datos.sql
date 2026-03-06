@@ -82,3 +82,27 @@ INSERT INTO `EstadosPedido` (`id`, `nombre`) VALUES
 (6, 'terminado'),
 (7, 'entregado'),
 (8, 'cancelado');
+
+-- NUEVOS PEDIDOS DE PRUEBA
+-- Pedido 1: Cliente 1 (Koke) pide un Bocadillo de Jamón y un Refresco.
+INSERT INTO `Pedidos` (`id`, `numero_pedido`, `estado`, `tipo`, `cliente_id`, `cocinero_id`, `total`) 
+VALUES (1, 101, 'nuevo', 'local', 4, 2, 5.00);
+
+INSERT INTO `PedidoProducto` (`pedido_id`, `producto_id`, `cantidad`, `precio_unitario`) 
+VALUES (1, 1, 1, 3.50), -- Bocadillo de jamón
+       (1, 5, 1, 1.50); -- Refresco
+
+-- Pedido 2: Cliente 2 (Antoine) pide el Menú del día.
+INSERT INTO `Pedidos` (`id`, `numero_pedido`, `estado`, `tipo`, `cliente_id`, `cocinero_id`, `total`) 
+VALUES (2, 102, 'en preparacion', 'local', 5, 2, 8.50);
+
+INSERT INTO `PedidoProducto` (`pedido_id`, `producto_id`, `cantidad`, `precio_unitario`) 
+VALUES (2, 7, 1, 8.50); -- Menú del día
+
+-- Pedido 3: Cliente 1 (Koke) pide para llevar dos bocadillos de calamares y dos aguas.
+INSERT INTO `Pedidos` (`id`, `numero_pedido`, `estado`, `tipo`, `cliente_id`, `cocinero_id`, `total`) 
+VALUES (3, 103, 'nuevo', 'llevar', 4, NULL, 10.00);
+
+INSERT INTO `PedidoProducto` (`pedido_id`, `producto_id`, `cantidad`, `precio_unitario`) 
+VALUES (3, 3, 2, 4.00), -- 2x Bocadillo de calamares
+       (3, 4, 2, 1.00); -- 2x Agua mineral
