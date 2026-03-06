@@ -21,7 +21,10 @@ class FormularioRegistro extends formularioBase
     }
     parent::__construct(
       'formRegistro',
-      ['urlRedireccion' => RUTA_APP . '/index.php']
+      [
+        'urlRedireccion' => RUTA_APP . '/index.php',
+        'enctype' => 'multipart/form-data'
+      ]
     );
   }
 
@@ -39,13 +42,16 @@ class FormularioRegistro extends formularioBase
     $email = $datos['email']
       ?? ($this->usuario ? $this->usuario->getEmail() : '');
 
+    $avatar = $datos['avatar']
+      ?? ($this->usuario ? $this->usuario->getAvatar() : '');
+
     $rol = $datos['rol']
       ?? ($this->usuario ? Rol::cargarRol($this->usuario->getId())->getId() : '');
 
     $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
 
     $erroresCampos = self::generaErroresCampos(
-      ['nombreUsuario', 'nombre', 'email', 'apellidos', 'password', 'password2'],
+      ['nombreUsuario', 'nombre', 'email', 'avatar', 'apellidos', 'password', 'password2'],
       $this->errores
     );
 
@@ -56,7 +62,6 @@ class FormularioRegistro extends formularioBase
       $selCocinero = $rol == Usuario::ROL_COCINERO ? 'selected' : '';
       $selGerente = $rol == Usuario::ROL_GERENTE ? 'selected' : '';
       $opcionesRoles = <<<HTML
-      <br>
       <div>
           <label for="rol">Rol:</label><br>
           <select name="rol" id="rol">
@@ -66,6 +71,7 @@ class FormularioRegistro extends formularioBase
               <option value="1" $selGerente>Gerente</option>
           </select>
       </div>
+      <br>
       HTML;
     }
 
@@ -73,7 +79,6 @@ class FormularioRegistro extends formularioBase
 
     if ($this->usuario == null) { //Solo aparece el campo de confirmación de constraseña en un registro, no en una modificación
       $password2Html = <<<HTML
-            <br>
             <div>
                 <label for="password2">Reintroduce el password:</label><br>
                 <input id="password2" type="password" name="password2" />
@@ -114,15 +119,27 @@ class FormularioRegistro extends formularioBase
                 <input id="email" type="text" name="email" value="$email"/>
                 {$erroresCampos['email']}
             </div>
-            $opcionesRoles
             <br>
+
+            <div>
+              <label for="avatar">Avatar:</label><br>
+              <input id="avatar" type="file" name="avatar" value="$avatar"/>
+              {$erroresCampos['avatar']}
+            </div>
+            <br>
+
+            $opcionesRoles
+
             <div>
                 <label for="password">Password:</label><br>
                 <input id="password" type="password" name="password"/>
                 {$erroresCampos['password']}
             </div>
+            <br>
+
             $password2Html
             <br>
+
             <div>
                 <button type="submit" name="registro">
                     Aceptar
@@ -177,6 +194,13 @@ class FormularioRegistro extends formularioBase
         'No es una dirección de correo válida.';
     }
 
+    //Cambiar null por imagen por defecto
+    $avatar = $_FILES['avatar'] ?? null;
+    $extensiones = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!$avatar || $avatar['error'] !== UPLOAD_ERR_OK || $avatar['size'] <= 0 || !in_array(mime_content_type($avatar['tmp_name']), $extensiones)) {
+      $this->errores['avatar'] = 'Error al subir el archivo.';
+    }
+
     $password = trim($datos['password'] ?? '');
     $password = filter_var($password, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
@@ -192,14 +216,16 @@ class FormularioRegistro extends formularioBase
     if (count($this->errores) === 0) {
       $nombreUsuarioOriginal = $_GET['nombreUsuario'] ?? null;
       $usuario = UsuarioService::buscarPorNombre($nombreUsuarioOriginal);
+      $usuario_id = $usuario != null ? $usuario->getId() : null;
+
       $dto = new Usuario(
         $nombreUsuario,
         UsuarioService::hashPassword($password),
         $nombre,
         $apellidos,
         $email,
-        null,
-        $usuario != null ? $usuario->getId() : null
+        UsuarioService::procesarAvatar($usuario_id, $avatar),
+        $usuario_id
       );
       if ($this->usuario != null) {
         Rol::cambiarRol($usuario->getId(), $rol);
