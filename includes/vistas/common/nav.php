@@ -10,11 +10,11 @@
         <li><a href="<?php echo RUTA_VISTAS . '/productoslist.php' ?>">Productos</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/categoriaslist.php' ?>">Categorías</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/listaUsuarios.php' ?>">Usuarios</a></li>
-        <li><a href="<?php echo RUTA_VISTAS . '/pedidoslist.php' ?>">Pedidos</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/pedidos/pedidoslist.php' ?>">Pedidos</a></li>
       <?php endif; ?>
 
       <?php if ($_SESSION['rolId'] === 2): ?>
-        <li><a href="<?php echo RUTA_VISTAS . '/pedidoslist.php' ?>">Pedidos</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/pedido/pedidoslist.php' ?>">Pedidos</a></li>
       <?php endif; ?>
 
       <?php if ($_SESSION['rolId'] === 3): ?>

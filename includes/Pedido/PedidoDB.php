@@ -213,4 +213,55 @@ class PedidoDB
 
     $pedido->setProductos($productos);
   }
+
+
+  public static function listarPorEstados(array $estados = null, int $clienteId = null)
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = "SELECT * FROM Pedidos";
+    $condiciones = [];
+
+    if ($estados && count($estados) > 0) {
+      $estadosStr = implode(",", array_map(function ($e) use ($conexion) {
+        $valor = ($e instanceof Estado) ? $e->value : $e;
+        return "'" . $conexion->real_escape_string($valor) . "'";
+      }, $estados));
+      $condiciones[] = "estado IN ($estadosStr)";
+    }
+
+    if ($clienteId !== null) {
+      $condiciones[] = "cliente_id = " . intval($clienteId);
+    }
+
+    if (count($condiciones) > 0) {
+      $query .= " WHERE " . implode(" AND ", $condiciones);
+    }
+
+    $query .= " ORDER BY id ASC";
+
+    $resultado = $conexion->query($query);
+
+    $pedidos = [];
+
+    if ($resultado) {
+      while ($fila = $resultado->fetch_assoc()) {
+        $pedidos[] = new Pedido(
+          intval($fila['numero_pedido']),
+          new DateTime($fila['fecha_creacion']),
+          Estado::from($fila['estado']), // Cast de string al enum
+          Tipo::from($fila['tipo']), // Cast de string al enum
+          intval($fila['cliente_id']),
+          intval($fila['cocinero_id']),
+          floatval($fila['total']),
+          intval($fila['id'])
+        );
+      }
+      $resultado->free();
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    }
+
+    return $pedidos;
+  }
 }

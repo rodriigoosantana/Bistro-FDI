@@ -63,4 +63,10 @@ class PedidoService
     PedidoDB::getPedidoDesglosado($pd);
     return $pd;
   }
+
+  public static function listarPorEstados(array $estados = null, int $clienteId = null): array
+  {
+    return PedidoDB::listarPorEstados($estados, $clienteId);
+    # devuelve array de pedidos que coinciden con los estados indicados (si se pasan), o todos los pedidos si estados es null
+  }
 }
