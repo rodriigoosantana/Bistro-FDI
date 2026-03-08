@@ -13,7 +13,7 @@ $tituloHeader = "Perfil de {$usuario->getNombreUsuario()}";
 $rol = Rol::cargarRol($usuario->getId());
 $avatar_img = UsuarioService::cargarAvatar($usuario->getAvatar());
 $fila =
-  "<tr>
+   "<tr>
       <td>{$usuario->getId()}</td>
       <td>{$usuario->getNombreUsuario()}</td>
       <td>{$usuario->getNombre()}</td>
@@ -44,5 +44,17 @@ $contenidoPrincipal = <<<EOS
    </table>
    </section>
 EOS;
+
+$modUrl = "modificarUsuario.php?nombreUsuario=" . urlencode($usuario->getNombreUsuario());
+$logoutUrl = RUTA_VISTAS . '/logout.php';
+
+$contenidoAside = <<<ASIDE
+<section>
+    <h3>Accesos rápidos</h3>
+</section>
+<a href="{$modUrl}" class="aside-link"> Modificar datos</a>
+<br>
+<a href="{$logoutUrl}" class="aside-link">Cerrar sesión</a>
+ASIDE;
 
 require("common/plantilla.php");

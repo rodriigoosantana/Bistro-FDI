@@ -16,4 +16,13 @@ $contenidoPrincipal = <<<EOS
    </section>
 EOS;
 
+$registroUrl = RUTA_VISTAS . '/registro.php';
+$contenidoAside = <<<ASIDE
+<section>
+    <h3>Bienvenido</h3>
+    <p class="aside-mensaje">Accede al sistema para gestionar productos, pedidos y mucho más.</p>
+</section>
+<a href="{$registroUrl}" class="aside-link">¿No tienes cuenta? Regístrate</a>
+ASIDE;
+
 require("common/plantilla.php");
