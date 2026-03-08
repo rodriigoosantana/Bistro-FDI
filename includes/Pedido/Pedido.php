@@ -3,9 +3,9 @@
 enum Estado: string {
 	case Nuevo = "nuevo"; // En proceso de creacion, aun poniendo productos
 	case Recibido = "recibido"; // El pedido se ha terminado, pero no pagado
-	case EnPreparacion = "en_preparacion"; // El pedido se ha pagado, a la espera de un camarero
+	case EnPreparacion = "en preparacion"; // El pedido se ha pagado, a la espera de un camarero
 	case Cocinando = "cocinando"; // Los productos se estan preparando por un cocinero
-	case ListoCocina = "listo_cocina"; // Los productos se han terminado de preparar por la cocina, falta que lo prepare un camarero
+	case ListoCocina = "listo cocina"; // Los productos se han terminado de preparar por la cocina, falta que lo prepare un camarero
 	case Terminado = "terminado"; // Pedido completado, esperando que lo recoga un cliente
 	case Entregado = "entregado"; // Pedido entregado a cliente (DONE)
 	case Cancelado = "cancelado"; // Se puede cancelar en Nuevo o Recibido

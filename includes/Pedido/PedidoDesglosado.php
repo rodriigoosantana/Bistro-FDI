@@ -14,7 +14,8 @@ class PedidoDesglosado extends Pedido
       $p->getTipo(),
       $p->getClienteId(),
       $p->getCocineroId(),
-      $p->getTotal()
+      $p->getTotal(),
+      $p->getId()
     );
     $this->productos = $productos;
   }

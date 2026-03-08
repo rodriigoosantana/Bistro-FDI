@@ -1,5 +1,10 @@
 <?php
-require_once dirname(__DIR__, 2) . '/includes/config.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+
+require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once RAIZ_APP . '/includes/Pedido/PedidoService.php';
 require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
 
@@ -15,17 +20,17 @@ $esCocinero = ($_SESSION['rolId'] === Usuario::ROL_COCINERO);
 
 // Se requiere id para ver un pedido
 if (!isset($_GET['id'])) {
-    header('Location: ' . RUTA_VISTAS . '/pedidoslist.php');
+    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
     exit();
 }
 
 $pedidoDesglosado = PedidoService::buscarDesglosadoPorId(intval($_GET['id']));
 if (!$pedidoDesglosado) {
-    header('Location: ' . RUTA_VISTAS . '/pedidoslist.php');
+    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
     exit();
 }
 
-$volverUrl = RUTA_VISTAS . '/pedidoslist.php';
+$volverUrl = RUTA_VISTAS . '/pedidos/pedidoslist.php';
 
 // Mapa de etiquetas legibles
 $etiquetasEstado = [
@@ -200,5 +205,5 @@ $contenidoPrincipal = <<<EOS
     </section>
 EOS;
 
-require('common/plantilla.php');
+require(RAIZ_APP . '/includes/vistas/common/plantilla.php');
 ?>

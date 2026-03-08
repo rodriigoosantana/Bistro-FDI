@@ -2,6 +2,7 @@
 
 require_once RAIZ_APP . '/includes/Pedido/Pedido.php';
 require_once RAIZ_APP . '/includes/Pedido/PedidoDB.php';
+require_once RAIZ_APP . '/includes/Pedido/PedidoDesglosado.php';
 
 // Clase PedidoService (Lógica de negocio)
 // Capa intermedia
@@ -53,9 +54,10 @@ class PedidoService
     # devuelve true si se actualiza correctamente, false si falla
   }
 
-  public static function getPedidoDesglosado(Pedido $pedido): PedidoDesglosado
+  public static function buscarDesglosadoPorId(int $id): PedidoDesglosado
   {
-    if (PedidoDB::buscarPorId($pedido->getId()) === null) {
+    $pedido = PedidoDB::buscarPorId($id);
+    if ($pedido === null) {
       throw new Exception("Pedido con id {$pedido->getId()} no encontrado");
     }
 

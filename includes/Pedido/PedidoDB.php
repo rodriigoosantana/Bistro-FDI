@@ -1,6 +1,7 @@
 <?php
 
 require_once RAIZ_APP . '/includes/Pedido/Pedido.php';
+require_once RAIZ_APP . '/includes/Pedido/PedidoDesglosado.php';
 
 // Clase PedidoDB
 // Capa de acceso a datos para Pedido.
@@ -187,8 +188,8 @@ class PedidoDB
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
-      "SELECT p.nombre, pp.precio, pp.cantidad
-      FROM ProductosEnPedidos pp
+      "SELECT p.nombre, pp.precio_unitario, pp.cantidad
+      FROM PedidoProducto  pp
       JOIN Productos p ON pp.producto_id = p.id
       WHERE pp.pedido_id = %d",
       intval($pedido->getId())
@@ -202,7 +203,7 @@ class PedidoDB
       while ($fila = $resultado->fetch_assoc()) {
         $productos[] = new ProductoEnPedido(
           $fila['nombre'],
-          floatval($fila['precio']),
+          floatval($fila['precio_unitario']),
           intval($fila['cantidad'])
         );
       }
