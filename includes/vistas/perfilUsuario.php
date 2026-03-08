@@ -11,9 +11,9 @@ $usuario = UsuarioService::buscarPorNombre($nombreUsuario);
 $tituloPagina = 'Perfil';
 $tituloHeader = "Perfil de {$usuario->getNombreUsuario()}";
 $rol = Rol::cargarRol($usuario->getId());
-$avatar_img = UsuarioService::cargarAvatar($usuario->getAvatar());
+$avatar_img = "<img src='" . RUTA_APP . $usuario->getAvatar() . "' width='80' height='80'>";
 $fila =
-   "<tr>
+  "<tr>
       <td>{$usuario->getId()}</td>
       <td>{$usuario->getNombreUsuario()}</td>
       <td>{$usuario->getNombre()}</td>

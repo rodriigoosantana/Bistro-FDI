@@ -87,10 +87,4 @@ class UsuarioService
     }
     return $rutaBD;
   }
-
-  // Coge una ruta y devuelve el archivo en si 
-  public static function cargarAvatar($avatar)
-  {
-    return "<img src=" . RUTA_APP . $avatar . " alt='Imagen no disponible'>";
-  }
 }

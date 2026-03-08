@@ -84,7 +84,32 @@ class FormularioRegistro extends formularioBase
                 <input id="password2" type="password" name="password2" />
                 {$erroresCampos['password2']}
             </div>
-            HTML;
+    HTML;
+    }
+
+    $htmlAvatarActual = '';
+    if ($this->usuario) {
+      $htmlAvatarActual .= '<p><strong>Avatar Actual:</strong></p>';
+      $htmlAvatarActual .= "<img src='" . RUTA_APP . $avatar . "' width='80' height='80'>";
+    }
+
+    $avataresPredeterminados = [
+      '/img/uploads/avatares/default.jpg',
+      '/img/uploads/avatares/avatar_predeterminado_1.jpeg',
+      '/img/uploads/avatares/avatar_predeterminado_2.jpeg'
+    ];
+
+    $htmlAvataresPredeterminados = '<div><p>O escoge un avatar predeterminado:</p>';
+
+    foreach ($avataresPredeterminados as $ruta) {
+      $checked = ($avatar === $ruta) ? 'checked' : '';
+      $ruta_img = RUTA_APP . $ruta;
+      $htmlAvataresPredeterminados .= <<<HTML
+        <label>
+            <input type="radio" name="avatarPredeterminado" value="$ruta" $checked>
+            <img src="$ruta_img" width="50" height="50" alt="Avatar">
+        </label>
+    HTML;
     }
 
     $html = <<<EOF
@@ -119,15 +144,18 @@ class FormularioRegistro extends formularioBase
                 <input id="email" type="text" name="email" value="$email"/>
                 {$erroresCampos['email']}
             </div>
-            <br>
+
+            $htmlAvatarActual
 
             <div>
-              <label for="avatar">Avatar:</label><br>
-              <input id="avatar" type="file" name="avatar" value="$avatar"/>
+              <label for="avatar">Añade un Avatar:</label><br>
+              <input id="avatar" type="file" name="avatar"/>
               {$erroresCampos['avatar']}
             </div>
-            <br>
 
+            $htmlAvataresPredeterminados 
+
+            <br>
             $opcionesRoles
 
             <div>
@@ -146,7 +174,7 @@ class FormularioRegistro extends formularioBase
                 </button>
             </div>
         </fieldset>
-        EOF;
+EOF;
 
     return $html;
   }
@@ -197,7 +225,9 @@ class FormularioRegistro extends formularioBase
     $avatar_file = $_FILES['avatar'] ?? null;
     $extensiones = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-    if ($avatar_file && $avatar_file['error'] === UPLOAD_ERR_OK) {
+    $avatar_predeterminado = trim($datos['avatarPredeterminado'] ?? null);
+
+    if ($avatar_file && $avatar_file['error'] === UPLOAD_ERR_OK) { //Control de errores si se ha subido un avatar
 
       if ($avatar_file['size'] <= 0 || !in_array(mime_content_type($avatar_file['tmp_name']), $extensiones)) {
         $this->errores['avatar'] = 'Error al subir el archivo.';
@@ -205,18 +235,17 @@ class FormularioRegistro extends formularioBase
     }
 
     if (!($avatar_file && $avatar_file['error'] === UPLOAD_ERR_OK)) { //Si no se ha subido avatar
-      if ($this->usuario == null) { //Si es un registro
-        $avatar_file = $_FILES['avatar'] = [ //Se usa el default
-          'name' => 'default.jpg',
-          'type' => 'image/jpg',
-          'tmp_name' => '/opt/lampp/htdocs/Bistro-FDI/img/uploads/default.jpg',
-        ];
-        $avatar = UsuarioService::procesarAvatar($avatar_file);
-      } else { //Si es una modificacion
-        $avatar = $this->usuario->getAvatar(); //Se usa el que ya se tenía
+      if (!$avatar_predeterminado) { //Ni predeterminado
+        if ($this->usuario == null) { //Si es un registro
+          $avatar = "/img/uploads/avatares/default.jpg";
+        } else { //Si es una modificacion
+          $avatar = $this->usuario->getAvatar(); //Se usa el que ya se tenía
+        }
+      } else { //Si se ha subido predeterminado
+        $avatar = $avatar_predeterminado;
       }
-    } else {
-      $avatar = UsuarioService::procesarAvatar($avatar_file);
+    } else { //Si se ha subido avatar 
+      $avatar = UsuarioService::procesarAvatar($avatar_file); //Se usa el subido
     }
 
     $password = trim($datos['password'] ?? '');

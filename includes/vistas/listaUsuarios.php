@@ -15,7 +15,7 @@ $filas = "";
 
 foreach ($usuarios as $u) {
   $rol = Rol::cargarRol($u->getId());
-  $avatar_img = UsuarioService::cargarAvatar($u->getAvatar());
+  $avatar_img = "<img src='" . RUTA_APP . $u->getAvatar() . "' width='80' height='80'>";
 
   $filas .= "<tr>
       <td>{$u->getId()}</td>
