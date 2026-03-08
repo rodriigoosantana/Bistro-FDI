@@ -17,10 +17,10 @@ class FormularioProducto extends formularioBase
         #Redirección a la lista de productos
         parent::__construct(
             'formProducto',
-            [
-                'urlRedireccion' => RUTA_VISTAS . '/productoslist.php',
-                'enctype' => 'multipart/form-data'
-            ]
+        [
+            'urlRedireccion' => RUTA_VISTAS . '/productoslist.php',
+            'enctype' => 'multipart/form-data'
+        ]
         ); #enctype necesario para subir archivos (imágenes)
     }
     //endregion
@@ -41,7 +41,7 @@ class FormularioProducto extends formularioBase
         // Generar errores
         $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
         $erroresCampos = self::generaErroresCampos(
-            ['nombre', 'descripcion', 'categoriaId', 'precioBase', 'iva'],
+        ['nombre', 'descripcion', 'categoriaId', 'precioBase', 'iva'],
             $this->errores
         );
 
@@ -67,12 +67,12 @@ class FormularioProducto extends formularioBase
         if ($this->producto) {
             $imagenes = ProductoService::listarImagenes($this->producto->getId());
             if ($imagenes) {
-                $htmlImagenesActuales .= '<p><strong>Imágenes actuales:</strong></p>';
+                $htmlImagenesActuales .= '<p><strong>Imágenes actuales:</strong></p><div style="display:flex; gap:10px; flex-wrap:wrap;">';
                 foreach ($imagenes as $img) {
                     $ruta = htmlspecialchars(RUTA_APP . $img['ruta_imagen']);
-                    $htmlImagenesActuales .= "<img src=\"{$ruta}\" width=\"100\" style=\"margin:4px\"> ";
+                    $htmlImagenesActuales .= "<figure style=\"margin:0;\"><img src=\"{$ruta}\" width=\"100\" alt=\"Imagen actual\"><figcaption style=\"font-size:0.8em; text-align:center;\">Actual</figcaption></figure>";
                 }
-                $htmlImagenesActuales .= '<p><small>Si subes imágenes nuevas, las actuales serán reemplazadas.</small></p>';
+                $htmlImagenesActuales .= '</div><p><small>Si subes imágenes nuevas, las actuales serán reemplazadas.</small></p>';
             }
         }
 
@@ -188,7 +188,8 @@ EOF;
         $categoriaId = intval($datos['categoriaId'] ?? 0);
         if ($categoriaId <= 0) {
             $this->errores['categoriaId'] = 'Debes seleccionar una categoría.';
-        } else {
+        }
+        else {
             $cat = CategoriaService::buscarPorId($categoriaId);
             if (!$cat) {
                 $this->errores['categoriaId'] = 'La categoría seleccionada no existe.';
@@ -227,7 +228,8 @@ EOF;
                 if (!ProductoService::actualizar($this->producto->getId(), $nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo, $imagenes)) {
                     $this->errores[] = 'Error al actualizar el producto.';
                 }
-            } else {
+            }
+            else {
                 // Crear nuevo producto (DTO)
                 $producto = ProductoService::crear($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo, $imagenes);
                 if (!$producto) {
@@ -237,6 +239,6 @@ EOF;
         }
     }
 
-    //endregion
+//endregion
 }
 ?>
