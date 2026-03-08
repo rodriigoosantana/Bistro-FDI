@@ -104,6 +104,7 @@ class ProductoService
     private static function guardarImagenes(int $productoId, array $imagenes): void
     { # $imagenesSubidas es $_FILES['imagenes'] con múltiples ficheros.
         $dir = RAIZ_APP . '/img/uploads/productos/';
+        #$dir = RAIZ_APP . '/img/original/productos/';
 
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true); #crea el directorio si no existe
@@ -126,12 +127,15 @@ class ProductoService
             }
 
             #generar nombre único
-            //$nombreArchivo = 'producto_' . $productoId . '_' . uniqid() . '.' . $extension;
-            $nombreArchivo = password_hash(('producto_' . $productoId . '_' . uniqid()), PASSWORD_DEFAULT) . $extension;
+            $nombreArchivo = 'producto_' . $productoId . '_' . uniqid() . '.' . $extension;
+            #$nombreArchivo = password_hash(('producto_' . $productoId . '_' . uniqid()), PASSWORD_DEFAULT) . '.' . $extension;
+            
             $rutaDestino = $dir . $nombreArchivo;
-            $rutaBD = '/img/uploads/productos/' . $nombreArchivo; #ruta relativa para almacenar en BD
+            
+            $rutaBD = '/img/uploads/productos/' . $nombreArchivo; #ruta relativa para almacenar en BD imagenes subidas por el usuario
+            #$rutaBD = '/img/original/productos/' . $nombreArchivo; #ruta relativa para develop para que la web ytenga
 
-            if (move_uploaded_file($imagenes['tmp_name'][$i], $rutaDestino)) {
+            if (move_uploaded_file($imagenes['tmp_name'][$i], $rutaDestino)) { #mueve el archivo subido a la carpeta destino
                 ProductoImagenDB::insertar($productoId, $rutaBD); #guarda ruta en BD
             } else {
                 error_log("Error al mover archivo subido: " . $imagenes['name'][$i]);

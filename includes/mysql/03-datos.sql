@@ -62,15 +62,22 @@ INSERT INTO `Productos` (`id`, `nombre`, `descripcion`, `categoria_id`, `precio_
 (9, 'Fruta del día',          'Pieza de fruta de temporada',        4, 1.00, 10);
 
 -- IMÁGENES DE PRODUCTOS (Por defecto, para que aparezca algo)
-INSERT INTO `ProductoImagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
-(1, 4, '/img/seed/productos/producto_4_69a94d9a16216.jpg'),
-(2, 3, '/img/seed/productos/producto_3_69a94dc0c35b5.jpg'),
-(3, 1, '/img/seed/productos/producto_1_69a94ddcb011a.jpg'),
-(4, 5, '/img/seed/productos/producto_5_69a94e670a738.jpg'),
-(5, 5, '/img/seed/productos/producto_5_69a94e670bb78.jpg'),
-(6, 5, '/img/seed/productos/producto_5_69a94e670d5db.jpg'),
-(7, 5, '/img/seed/productos/producto_5_69a94e670e668.png');
-
+INSERT INTO `productoimagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
+(1, 4, '/img/original/productos/producto_4_69a94d9a16216.jpg'),
+(2, 3, '/img/original/productos/producto_3_69a94dc0c35b5.jpg'),
+(3, 1, '/img/original/productos/producto_1_69a94ddcb011a.jpg'),
+(4, 5, '/img/original/productos/producto_5_69a94e670a738.jpg'),
+(5, 5, '/img/original/productos/producto_5_69a94e670bb78.jpg'),
+(6, 5, '/img/original/productos/producto_5_69a94e670d5db.jpg'),
+(7, 5, '/img/original/productos/producto_5_69a94e670e668.png'),
+(8, 2, '/img/original/productos/producto_2_69aca82278e9b.jpg'),
+(9, 6, '/img/original/productos/producto_6_69aca82e05aba.jpg'),
+(10, 9, '/img/original/productos/producto_9_69aca8c9ac2b6.jpg'),
+(11, 9, '/img/original/productos/producto_9_69aca8c9ad337.jpg'),
+(12, 9, '/img/original/productos/producto_9_69aca8c9aec73.jpg'),
+(13, 9, '/img/original/productos/producto_9_69aca8c9af735.jpg'),
+(14, 8, '/img/original/productos/producto_8_69aca91ca2bfc.jpg'),
+(15, 7, '/img/original/productos/producto_7_69aca97eaa07b.jpg');
 
 -- ESTADOS DE PEDIDO
 INSERT INTO `EstadosPedido` (`id`, `nombre`) VALUES

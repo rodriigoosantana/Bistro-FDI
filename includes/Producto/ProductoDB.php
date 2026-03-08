@@ -124,7 +124,7 @@ class ProductoDB
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
-        $query = "SELECT * FROM Productos ORDER BY nombre ASC";
+        $query = "SELECT * FROM Productos ORDER BY categoria_id ASC, nombre ASC";
 
         $resultado = $conexion->query($query);
 

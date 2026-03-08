@@ -6,7 +6,7 @@
 class Producto
 {
    //region Campos privados
-   private int $id;
+   private ?int $id;
    private string $nombre;
    private string $descripcion;
    private int $categoriaId;
@@ -33,7 +33,7 @@ class Producto
    //endregion
 
    //region Getters
-   public function getId(): int
+   public function getId(): ?int
    {
       return $this->id;
    }
