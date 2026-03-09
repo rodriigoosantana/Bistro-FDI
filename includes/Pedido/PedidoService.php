@@ -12,14 +12,14 @@ class PedidoService
 {
   public static function crear(Pedido $pedido): Pedido
   {
-    return PedidoDB::insertar($pedido);
+    return PedidoDB::insert($pedido);
     # devuelve el DTO del pedido con id asignado si se inserta correctamente, null si falla
   }
 
 
   public static function actualizar(Pedido $pedido): bool
   {
-    return PedidoDB::actualizar($pedido);
+    return PedidoDB::update($pedido);
   }
 
   public static function buscarPorId(int $id): Pedido
