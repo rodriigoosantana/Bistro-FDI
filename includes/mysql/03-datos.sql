@@ -27,20 +27,36 @@ INSERT INTO `Roles` (`id`, `nombre`, `prioridad`) VALUES
 
 -- USUARIOS
 -- password -> $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
-INSERT INTO `Usuarios` (`id`, `nombreUsuario`, `email`, `nombre`, `apellidos`, `password`) VALUES
-(1, 'gerente1',  'gerente@bistrofdi.es',  'Diego Pablo',    'Simeone',    '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
-(2, 'cocinero1', 'cocinero@bistrofdi.es', 'Carmen', 'Berzatto',   '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
-(3, 'camarero1', 'camarero@bistrofdi.es', 'Sydney',  'Adamu',   '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
-(4, 'cliente1',  'cliente1@gmail.com',    'Koke',  'Resurrección', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'),
-(5, 'cliente2',  'cliente2@gmail.com',    'Antoine',  'Griezmann',      '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+INSERT INTO `Usuarios` (`id`, `nombreUsuario`, `email`, `nombre`, `apellidos`, `password`, `avatar`, `activo`, `fecha_creacion`) VALUES
+(1, 'gerente1', 'gerente@bistrofdi.es', 'Diego Pablo', 'Simeone', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/avatar_69aee9905917d.jpg', 1, '2026-03-09 16:38:09'),
+(2, 'cocinero1', 'cocinero@bistrofdi.es', 'Carmen', 'Berzatto', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/avatar_69aeea65aa24e.webp', 1, '2026-03-09 16:38:09'),
+(3, 'cocinera2', 'cocinera1@bistrofdi.es', 'Sydney', 'Adamu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/avatar_69aeea1fd1896.webp', 1, '2026-03-09 16:38:09'),
+(4, 'camarero1', 'kokegoat@gmail.com', 'Koke', 'Resurrecci&oacute;n', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/avatar_69aeea882ac66.jpg', 1, '2026-03-09 16:38:09'),
+(5, 'camarero2', 'cliente2@gmail.com', 'Antoine', 'Griezmann', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/avatar_69aeeae40e227.jpg', 1, '2026-03-09 16:38:09'),
+(75, 'cliente1', 'cliente1@gmail.com', 'Big AKA &#039;Double B&#039;', 'Baut', '$2y$10$JFqijqWVXeVIDS6.Ro0ldudDc7FE/DbTmJdsDGa6svNVMMVg8DyCy', '/img/uploads/avatares/default.jpg', 1, '2026-03-06 22:54:13'),
+(76, 'cliente2', 'cliente2@gmail.com', 'Dudu', 'Tous', '$2y$10$thEnACcoFWUMryVMDIzIquA/wiaJxE.Lyjol7rU8aO8HtGsljMpby', '/img/uploads/avatares/default.jpg', 1, '2026-03-08 14:33:54'),
+(77, '4444', '4444', '4444', '4444', '$2y$10$GW/QTB66w3YXpXyIw1fqMOUsMN7WvZSkKfk4sGgYLgSsZWnmD14EC', '/img/uploads/avatares/avatar_69adb436dea48.jpeg', 1, '2026-03-08 18:39:03'),
+(78, '1212', '1212', '1122', '1212', '$2y$10$CSxv1OVR5POsCUz2znVIeezJmEtmI9HrKhQbM.SDVEHkXs/19LmUG', '/img/uploads/avatares/default.jpg', 1, '2026-03-08 18:45:22'),
+(83, '3333', '3333', '3333', '3333', '$2y$10$yJoRHATJCDwjGBbPc6o5k.IHafa7bAkzc9RBOjPM.NhOIbbICB.1S', '/img/uploads/avatares/avatar_predeterminado_2.jpeg', 1, '2026-03-08 19:29:49'),
+(84, '6666', '6666', '6666', '6666', '$2y$10$lnyvskkOjFF.ItFo8Tq5tODWm6SoWet8Y689IkTr/QIw3CgRdFY8i', '/img/uploads/avatares/avatar_predeterminado_1.jpeg', 1, '2026-03-08 19:37:31'),
+(87, 'webo', 'webo', 'webo', 'webo', '$2y$10$DWVwlvw/Td7StEgcNbhgI.waziunMbCFDK8ZQirx4wOFtpK/3wwyu', '/img/uploads/avatares/avatar_69aed8afbcc1b.jpeg', 1, '2026-03-09 15:25:30');
+
 
 -- ROLES USUARIO
 INSERT INTO `RolesUsuario` (`usuario`, `rol`) VALUES
-(1, 1),  -- gerente1  -> gerente
-(2, 2),  -- cocinero1 -> cocinero
-(3, 3),  -- camarero1 -> camarero
-(4, 4),  -- cliente1  -> cliente
-(5, 4);  -- cliente2  -> cliente
+(1, 1),
+(2, 2),
+(3, 2),
+(4, 3),
+(5, 3),
+(75, 4),
+(76, 4),
+(77, 4),
+(78, 4),
+(83, 4),
+(84, 4),
+(87, 1);
+
 
 -- CATEGORIAS
 INSERT INTO `Categorias` (`id`, `nombre`, `descripcion`) VALUES
