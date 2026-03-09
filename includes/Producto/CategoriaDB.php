@@ -56,6 +56,17 @@ class CategoriaDB
         }
     }
 
+    public static function actualizarImagen(int $id, string $rutaImagen): bool
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
+
+        $query = sprintf(
+            "UPDATE Categorias SET imagen='%s' WHERE id=%d",
+            $conexion->real_escape_string($rutaImagen),
+            $id
+        );
+        return $conexion->query($query) ? true : false;
+    }
     // Busca una categoría por su ID
     public static function buscarPorId($id)
     {
