@@ -205,12 +205,49 @@ class PedidoDB
     }
   }
 
+  public static function actualizarProductoPedido(int $pedidoId, int $productoId, int $cantidad): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "UPDATE PedidoProducto SET cantidad = %d WHERE pedido_id = %d AND producto_id = %d",
+      intval($cantidad),
+      intval($pedidoId),
+      intval($productoId)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
+
+  public static function eliminarProductoPedido(int $pedidoId, int $productoId): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "DELETE FROM PedidoProducto WHERE pedido_id = %d AND producto_id = %d",
+      intval($pedidoId),
+      intval($productoId)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
+
   public static function getPedidoDesglosado(PedidoDesglosado $pedido)
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
-      "SELECT p.nombre, pp.precio_unitario, pp.cantidad
+      "SELECT p.id as producto_id, p.nombre, pp.precio_unitario, pp.cantidad
       FROM PedidoProducto pp
       JOIN Productos p ON pp.producto_id = p.id
       WHERE pp.pedido_id = %d",
@@ -226,7 +263,8 @@ class PedidoDB
         $productos[] = new ProductoEnPedido(
           $fila['nombre'],
           floatval($fila['precio_unitario']),
-          intval($fila['cantidad'])
+          intval($fila['cantidad']),
+          intval($fila['producto_id'])
         );
       }
       $resultado->free();

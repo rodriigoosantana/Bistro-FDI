@@ -54,6 +54,21 @@ class PedidoService
     # devuelve true si se actualiza correctamente, false si falla
   }
 
+  public static function insertarProductoPedido(int $pedidoId, int $productoId, int $cantidad, float $precioUnitario): bool
+  {
+    return PedidoDB::insertarProductoPedido($pedidoId, $productoId, $cantidad, $precioUnitario);
+  }
+
+  public static function actualizarProductoPedido(int $pedidoId, int $productoId, int $cantidad): bool
+  {
+    return PedidoDB::actualizarProductoPedido($pedidoId, $productoId, $cantidad);
+  }
+
+  public static function eliminarProductoPedido(int $pedidoId, int $productoId): bool
+  {
+    return PedidoDB::eliminarProductoPedido($pedidoId, $productoId);
+  }
+
   public static function buscarDesglosadoPorId(int $id): PedidoDesglosado
   {
     $pedido = PedidoDB::buscarPorId($id);

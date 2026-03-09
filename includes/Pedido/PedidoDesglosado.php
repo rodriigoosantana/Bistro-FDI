@@ -36,12 +36,14 @@ class ProductoEnPedido
   private string $nombre;
   private float $precio;
   private int $cantidad;
+  private int $productoId;
 
-  public function __construct(string $n, float $p, int $c)
+  public function __construct(string $n, float $p, int $c, int $id = 0)
   {
     $this->nombre = $n;
     $this->precio = $p;
     $this->cantidad = $c;
+    $this->productoId = $id;
   }
 
   public function getNombre(): string
@@ -59,6 +61,11 @@ class ProductoEnPedido
     return $this->cantidad;
   }
 
+  public function getProductoId(): int
+  {
+    return $this->productoId;
+  }
+
   public function setNombre(string $n): void
   {
     $this->nombre = $n;
@@ -72,5 +79,10 @@ class ProductoEnPedido
   public function setCantidad(int $c): void
   {
     $this->cantidad = $c;
+  }
+
+  public function setProductoId(int $id): void
+  {
+    $this->productoId = $id;
   }
 }
