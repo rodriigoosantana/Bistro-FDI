@@ -1,3 +1,4 @@
+<?php require_once RAIZ_APP . '/includes/Usuario/Usuario.php'; ?>
 <nav>
   <h3>Navegación</h3>
   <ul>
