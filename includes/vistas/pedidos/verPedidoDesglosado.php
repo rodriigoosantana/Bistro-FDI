@@ -80,8 +80,10 @@ $tipoVal      = $pedidoDesglosado->getTipo()->value;
 $tipoLabel    = $tipoVal === 'local' ? 'Para tomar' : 'Para llevar';
 $tipoClase    = $tipoVal === 'local' ? 'tipo-local' : 'tipo-llevar';
 $total        = number_format($pedidoDesglosado->getTotal(), 2, ',', '.');
-$clienteId    = htmlspecialchars($pedidoDesglosado->getClienteId());
-$cocineroId   = htmlspecialchars($pedidoDesglosado->getCocineroId());
+$clienteId    = htmlspecialchars((string)$pedidoDesglosado->getClienteId());
+$cocineroId   = ($pedidoDesglosado->getCocineroId() !== null) 
+                ? htmlspecialchars((string)$pedidoDesglosado->getCocineroId()) 
+                : 'Sin asignar';
 
 // ── Tabla de productos del pedido ─────────────────────────────────────────────
 $productos         = $pedidoDesglosado->getProductos();
