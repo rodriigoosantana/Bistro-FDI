@@ -14,15 +14,17 @@ class PedidoDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
+    $cocinero_id = $pedido->getCocineroId() !== null ? intval($pedido->getCocineroId()) : "NULL";
+
     $query = sprintf(
       "INSERT INTO Pedidos (numero_pedido, fecha_creacion, estado, tipo, cliente_id, cocinero_id, total)
-			VALUES (%d, '%s', '%s', '%s', %d, %d, %f)",
+			VALUES (%d, '%s', '%s', '%s', %d, %s, %f)",
       intval($pedido->getNumeroPedido()),
       $conexion->real_escape_string($pedido->getFechaCreacion()->format("Y-m-d H:i:s")),
       $conexion->real_escape_string($pedido->getEstado()->value),
       $conexion->real_escape_string($pedido->getTipo()->value),
       intval($pedido->getClienteId()),
-      intval($pedido->getCocineroId()),
+      $cocinero_id,
       floatval($pedido->getTotal())
     );
 
@@ -39,17 +41,19 @@ class PedidoDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
+    $cocinero_id = $pedido->getCocineroId() !== null ? intval($pedido->getCocineroId()) : "NULL";
+
     $query = sprintf(
       "UPDATE Pedidos
 			SET numero_pedido=%d, fecha_creacion='%s', estado='%s',
-			tipo='%s', cliente_id=%d, cocinero_id=%d, total=%f
+			tipo='%s', cliente_id=%d, cocinero_id=%s, total=%f
 			WHERE id=%d",
       intval($pedido->getNumeroPedido()),
       $conexion->real_escape_string($pedido->getFechaCreacion()->format("Y-m-d H:i:s")),
       $conexion->real_escape_string($pedido->getEstado()->value),
       $conexion->real_escape_string($pedido->getTipo()->value),
       intval($pedido->getClienteId()),
-      intval($pedido->getCocineroId()),
+      $cocinero_id,
       floatval($pedido->getTotal()),
       intval($pedido->getId())
     );
@@ -85,7 +89,7 @@ class PedidoDB
           Estado::from($fila['estado']),
           Tipo::from($fila['tipo']),
           intval($fila['cliente_id']),
-          intval($fila['cocinero_id']),
+          $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
           floatval($fila['total']),
           intval($fila['id'])
         );
@@ -115,7 +119,7 @@ class PedidoDB
           Estado::from($fila['estado']),
           Tipo::from($fila['tipo']),
           intval($fila['cliente_id']),
-          intval($fila['cocinero_id']),
+          $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
           floatval($fila['total']),
           intval($fila['id'])
         );
@@ -150,7 +154,7 @@ class PedidoDB
           Estado::from($fila['estado']),
           Tipo::from($fila['tipo']),
           intval($fila['cliente_id']),
-          intval($fila['cocinero_id']),
+          $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
           floatval($fila['total']),
           intval($fila['id'])
         );
@@ -250,7 +254,7 @@ class PedidoDB
           Estado::from($fila['estado']),
           Tipo::from($fila['tipo']),
           intval($fila['cliente_id']),
-          intval($fila['cocinero_id']),
+          $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
           floatval($fila['total']),
           intval($fila['id'])
         );

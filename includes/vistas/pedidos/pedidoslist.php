@@ -16,7 +16,7 @@ $esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
 $esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
 $esCocinero = ($_SESSION['rolId'] === Usuario::ROL_COCINERO);
 $esCliente  = ($_SESSION['rolId'] === Usuario::ROL_CLIENTE);
-$clienteId  = $esCliente ? $_SESSION['usuarioId'] : null;
+$clienteId  = $esCliente ? $_SESSION['userId'] : null;
 
 $modos = [
     'activos' => [

@@ -22,18 +22,18 @@ enum Tipo: string {
 class Pedido
 {
 	// region Campos privados
-	private int $id;
+	private ?int $id;
 	private int $numero_pedido;
 	private DateTime $fecha_creacion;
 	private Estado $estado;
 	private Tipo $tipo;
 	private int $cliente_id;
-	private int $cocinero_id;
+	private ?int $cocinero_id;
 	private float $total;
 	// endregion
 
 	// region Constructor
-	public function __construct(int $numero_pedido, DateTime $fecha_creacion, Estado $estado, Tipo $tipo, int $cliente_id, int $cocinero_id, float $total, int $id = null)
+	public function __construct(int $numero_pedido, DateTime $fecha_creacion, Estado $estado, Tipo $tipo, int $cliente_id, ?int $cocinero_id, float $total, ?int $id = null)
 	{
 		$this->id = $id;
 		$this->numero_pedido = $numero_pedido;
@@ -47,7 +47,7 @@ class Pedido
 	// endregion
 
 	// region Getters
-	public function getId(): int
+	public function getId(): ?int
 	{
 		return $this->id;
 	}
@@ -77,7 +77,7 @@ class Pedido
 		return $this->cliente_id;
 	}
 
-	public function getCocineroId(): int
+	public function getCocineroId(): ?int
 	{
 		return $this->cocinero_id;
 	}
@@ -120,7 +120,7 @@ class Pedido
 		$this->cliente_id = $cliente_id;
 	}
 
-	public function setCocineroId(int $cocinero_id)
+	public function setCocineroId(?int $cocinero_id)
 	{
 		$this->cocinero_id = $cocinero_id;
 	}

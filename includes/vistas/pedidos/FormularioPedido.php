@@ -89,8 +89,8 @@ EOF;
                 }
 
                 $estado = Estado::Nuevo;
-                $cliente_id = $_SESSION['usuarioId'];
-                $cocinero_id = 0; // O un valor que represente "ninguno"
+                $cliente_id = $_SESSION['userId'];
+                $cocinero_id = null; // Aún no tiene cocinero asignado
                 $total = 0.0;
 
                 $dto = new Pedido($numero_pedido, $fecha_creacion, $estado, $tipo, $cliente_id, $cocinero_id, $total);
