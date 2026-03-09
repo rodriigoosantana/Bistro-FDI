@@ -98,7 +98,7 @@ EOF;
                 if (!$pedido) {
                     $this->errores[] = 'Error al crear el pedido.';
                 } else {
-                    $this->opciones['urlRedireccion'] = RUTA_VISTAS . '/pedidos/anadir_productos.php?id=' . $pedido->getId();
+                    $this->urlRedireccion = RUTA_VISTAS . '/pedidos/anadir_productos.php?id=' . $pedido->getId();
                 }
             }
         }
