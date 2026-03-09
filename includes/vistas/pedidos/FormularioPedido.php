@@ -12,7 +12,7 @@ class FormularioPedido extends formularioBase
     public function __construct($pedido = null)
     {
         $this->pedido = $pedido; # Si es null es crear, si es Pedido es editar
-        parent::__construct('formPedido', ['urlRedireccion' => RUTA_VISTAS . '/pedidos/pedidoslist.php']); # Redirección a la lista de pedidos
+        parent::__construct('formPedido'); 
     }
     // endregion
 
@@ -78,6 +78,8 @@ EOF;
                 $this->pedido->setTipo($tipo);
                 if (!PedidoService::actualizar($this->pedido)) {
                     $this->errores[] = 'Error al actualizar el pedido.';
+                } else {
+                    $this->urlRedireccion = RUTA_VISTAS . '/pedidos/pedidoslist.php';
                 }
             } else {
                 // Crear nuevo pedido
@@ -95,8 +97,8 @@ EOF;
 
                 $dto = new Pedido($numero_pedido, $fecha_creacion, $estado, $tipo, $cliente_id, $cocinero_id, $total);
                 $pedido = PedidoService::crear($dto);
-                if (!$pedido) {
-                    $this->errores[] = 'Error al crear el pedido.';
+                if (!$pedido || !$pedido->getId()) {
+                    $this->errores[] = 'Error al crear el pedido o obtener su ID.';
                 } else {
                     $this->urlRedireccion = RUTA_VISTAS . '/pedidos/anadir_productos.php?id=' . $pedido->getId();
                 }
