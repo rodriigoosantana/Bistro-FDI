@@ -98,8 +98,7 @@ EOF;
                 if (!$pedido) {
                     $this->errores[] = 'Error al crear el pedido.';
                 } else {
-                    // Si se creó correctamente, podríamos redirigir a una vista de añadir productos
-                    // $this->opciones['urlRedireccion'] = RUTA_VISTAS . '/pedidos/anadir_productos.php?id=' . $pedido->getId();
+                    $this->opciones['urlRedireccion'] = RUTA_VISTAS . '/pedidos/anadir_productos.php?id=' . $pedido->getId();
                 }
             }
         }

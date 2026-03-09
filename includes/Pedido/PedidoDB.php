@@ -184,6 +184,27 @@ class PedidoDB
     }
   }
 
+  public static function insertarProductoPedido(int $pedidoId, int $productoId, int $cantidad, float $precioUnitario): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "INSERT INTO PedidoProducto (pedido_id, producto_id, cantidad, precio_unitario)
+      VALUES (%d, %d, %d, %f)",
+      intval($pedidoId),
+      intval($productoId),
+      intval($cantidad),
+      floatval($precioUnitario)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
+
   public static function getPedidoDesglosado(PedidoDesglosado $pedido)
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();

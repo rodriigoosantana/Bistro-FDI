@@ -386,3 +386,85 @@ th, td {
 .slider-dots {
   background: transparent;
 }
+
+/* Estilos para el formulario de añadir productos */
+.categoria-productos {
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.categoria-productos legend {
+  font-weight: bold;
+  font-size: 1.2em;
+  padding: 0 10px;
+  color: #333;
+}
+
+.producto-seleccion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  background-color: white;
+  margin-bottom: 5px;
+  border-radius: 4px;
+}
+
+.producto-seleccion:last-child {
+  border-bottom: none;
+}
+
+.producto-nombre {
+  flex: 2;
+  font-weight: 500;
+}
+
+.producto-precio {
+  flex: 1;
+  text-align: center;
+  color: #666;
+}
+
+.producto-cantidad {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.producto-cantidad label {
+  margin-right: 10px;
+  font-size: 0.9em;
+}
+
+.input-cantidad {
+  width: 60px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.acciones-formulario {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-confirmar {
+  padding: 10px 25px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: background-color 0.2s;
+}
+
+.btn-confirmar:hover {
+  background-color: #218838;
+}
