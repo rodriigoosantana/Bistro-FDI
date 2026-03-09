@@ -5,17 +5,17 @@ class PedidoDesglosado extends Pedido
   /** @var ProductoEnPedido[] */
   private array $productos = [];
 
-  public function __construct(Pedido $p, array $productos)
+  public function __construct(Pedido $pedido, array $productos)
   {
     parent::__construct(
-      $p->getNumeroPedido(),
-      $p->getFechaCreacion(),
-      $p->getEstado(),
-      $p->getTipo(),
-      $p->getClienteId(),
-      $p->getCocineroId(),
-      $p->getTotal(),
-      $p->getId()
+      $pedido->getNumeroPedido(),
+      $pedido->getFechaCreacion(),
+      $pedido->getEstado(),
+      $pedido->getTipo(),
+      $pedido->getClienteId(),
+      $pedido->getCocineroId(),
+      $pedido->getTotal(),
+      $pedido->getId()
     );
     $this->productos = $productos;
   }
@@ -38,12 +38,12 @@ class ProductoEnPedido
   private int $cantidad;
   private int $productoId;
 
-  public function __construct(string $n, float $p, int $c, int $id = 0)
+  public function __construct(string $nombre, float $precio, int $cantidad, int $productoId = 0)
   {
-    $this->nombre = $n;
-    $this->precio = $p;
-    $this->cantidad = $c;
-    $this->productoId = $id;
+    $this->nombre = $nombre;
+    $this->precio = $precio;
+    $this->cantidad = $cantidad;
+    $this->productoId = $productoId;
   }
 
   public function getNombre(): string
@@ -66,23 +66,23 @@ class ProductoEnPedido
     return $this->productoId;
   }
 
-  public function setNombre(string $n): void
+  public function setNombre(string $nombre): void
   {
-    $this->nombre = $n;
+    $this->nombre = $nombre;
   }
 
-  public function setPrecio(float $p): void
+  public function setPrecio(float $precio): void
   {
-    $this->precio = $p;
+    $this->precio = $precio;
   }
 
-  public function setCantidad(int $c): void
+  public function setCantidad(int $cantidad): void
   {
-    $this->cantidad = $c;
+    $this->cantidad = $cantidad;
   }
 
-  public function setProductoId(int $id): void
+  public function setProductoId(int $productoId): void
   {
-    $this->productoId = $id;
+    $this->productoId = $productoId;
   }
 }

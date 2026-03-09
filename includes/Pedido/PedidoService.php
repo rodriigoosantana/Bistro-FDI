@@ -33,52 +33,52 @@ class PedidoService
   }
 
   // TODO
-  public static function listarPorCategoria($categoriaId)
+  public static function listarPorCategoria($idCategoria)
   {
-    return PedidoDB::listarPorCategoria($categoriaId);
+    return PedidoDB::listarPorCategoria($idCategoria);
     # devuelve array de pedidos que pertenecen a la categoría indicada, o array vacío 
   }
 
 
-  public static function cambiarDisponibilidad($id, $disponible)
+  public static function cambiarDisponibilidad($idPedido, $disponible)
   {
     # id del pedido, nuevo valor de disponibilidad
-    return PedidoDB::cambiarDisponibilidad($id, $disponible);
+    return PedidoDB::cambiarDisponibilidad($idPedido, $disponible);
     # devuelve true si se actualiza correctamente, false si falla
   }
 
-  public static function cambiarEstado($id, $activo)
+  public static function cambiarEstado($idPedido, $activo)
   {
     # id del pedido, nuevo estado activo/inactivo
-    return PedidoDB::cambiarEstado($id, $activo);
+    return PedidoDB::cambiarEstado($idPedido, $activo);
     # devuelve true si se actualiza correctamente, false si falla
   }
 
-  public static function insertarProductoPedido(int $pedidoId, int $productoId, int $cantidad, float $precioUnitario): bool
+  public static function insertarProductoPedido(int $idPedido, int $idProducto, int $cantidad, float $precioUnitario): bool
   {
-    return PedidoDB::insertarProductoPedido($pedidoId, $productoId, $cantidad, $precioUnitario);
+    return PedidoDB::insertarProductoPedido($idPedido, $idProducto, $cantidad, $precioUnitario);
   }
 
-  public static function actualizarProductoPedido(int $pedidoId, int $productoId, int $cantidad): bool
+  public static function actualizarProductoPedido(int $idPedido, int $idProducto, int $cantidad): bool
   {
-    return PedidoDB::actualizarProductoPedido($pedidoId, $productoId, $cantidad);
+    return PedidoDB::actualizarProductoPedido($idPedido, $idProducto, $cantidad);
   }
 
-  public static function eliminarProductoPedido(int $pedidoId, int $productoId): bool
+  public static function eliminarProductoPedido(int $idPedido, int $idProducto): bool
   {
-    return PedidoDB::eliminarProductoPedido($pedidoId, $productoId);
+    return PedidoDB::eliminarProductoPedido($idPedido, $idProducto);
   }
 
-  public static function buscarDesglosadoPorId(int $id): PedidoDesglosado
+  public static function buscarDesglosadoPorId(int $idPedido): PedidoDesglosado
   {
-    $pedido = PedidoDB::buscarPorId($id);
+    $pedido = PedidoDB::buscarPorId($idPedido);
     if ($pedido === null) {
-      throw new Exception("Pedido con id {$pedido->getId()} no encontrado");
+      throw new Exception("Pedido con id {$idPedido} no encontrado");
     }
 
-    $pd = new PedidoDesglosado($pedido, []);
-    PedidoDB::getPedidoDesglosado($pd);
-    return $pd;
+    $pedidoDesglosado = new PedidoDesglosado($pedido, []);
+    PedidoDB::getPedidoDesglosado($pedidoDesglosado);
+    return $pedidoDesglosado;
   }
 
   public static function listarPorEstados(array $estados = null, int $clienteId = null): array

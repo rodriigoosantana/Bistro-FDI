@@ -14,7 +14,7 @@ class PedidoDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $cocinero_id = $pedido->getCocineroId() !== null ? intval($pedido->getCocineroId()) : "NULL";
+    $cocineroId = $pedido->getCocineroId() !== null ? intval($pedido->getCocineroId()) : "NULL";
 
     $query = sprintf(
       "INSERT INTO Pedidos (numero_pedido, fecha_creacion, estado, tipo, cliente_id, cocinero_id, total)
@@ -24,7 +24,7 @@ class PedidoDB
       $conexion->real_escape_string($pedido->getEstado()->value),
       $conexion->real_escape_string($pedido->getTipo()->value),
       intval($pedido->getClienteId()),
-      $cocinero_id,
+      $cocineroId,
       floatval($pedido->getTotal())
     );
 
@@ -41,7 +41,7 @@ class PedidoDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $cocinero_id = $pedido->getCocineroId() !== null ? intval($pedido->getCocineroId()) : "NULL";
+    $cocineroId = $pedido->getCocineroId() !== null ? intval($pedido->getCocineroId()) : "NULL";
 
     $query = sprintf(
       "UPDATE Pedidos
@@ -53,7 +53,7 @@ class PedidoDB
       $conexion->real_escape_string($pedido->getEstado()->value),
       $conexion->real_escape_string($pedido->getTipo()->value),
       intval($pedido->getClienteId()),
-      $cocinero_id,
+      $cocineroId,
       floatval($pedido->getTotal()),
       intval($pedido->getId())
     );
@@ -242,7 +242,7 @@ class PedidoDB
     }
   }
 
-  public static function getPedidoDesglosado(PedidoDesglosado $pedido)
+  public static function getPedidoDesglosado(PedidoDesglosado $pedidoDesglosado)
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -251,7 +251,7 @@ class PedidoDB
       FROM PedidoProducto pp
       JOIN Productos p ON pp.producto_id = p.id
       WHERE pp.pedido_id = %d",
-      intval($pedido->getId())
+      intval($pedidoDesglosado->getId())
     );
 
     $resultado = $conexion->query($query);
@@ -272,7 +272,7 @@ class PedidoDB
       error_log("Error BD ({$conexion->errno}): {$conexion->error}");
     }
 
-    $pedido->setProductos($productos);
+    $pedidoDesglosado->setProductos($productos);
   }
 
 
@@ -284,8 +284,8 @@ class PedidoDB
     $condiciones = [];
 
     if ($estados && count($estados) > 0) {
-      $estadosStr = implode(",", array_map(function ($e) use ($conexion) {
-        $valor = ($e instanceof Estado) ? $e->value : $e;
+      $estadosStr = implode(",", array_map(function ($estado) use ($conexion) {
+        $valor = ($estado instanceof Estado) ? $estado->value : $estado;
         return "'" . $conexion->real_escape_string($valor) . "'";
       }, $estados));
       $condiciones[] = "estado IN ($estadosStr)";
