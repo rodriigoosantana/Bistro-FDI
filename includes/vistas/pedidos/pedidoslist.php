@@ -21,7 +21,7 @@ $clienteId  = $esCliente ? $_SESSION['usuarioId'] : null;
 $modos = [
     'activos' => [
         'titulo'  => 'Pedidos en curso',
-        'estados' => ['nuevo', 'recibido', 'en_preparacion', 'cocinando', 'listo_cocina', 'terminado'],
+        'estados' => ['nuevo', 'recibido', 'en preparacion', 'cocinando', 'listo cocina', 'terminado'],
         'roles'   => [Usuario::ROL_CLIENTE, Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
     ],
     'historial' => [
@@ -31,7 +31,7 @@ $modos = [
     ],
     'cocina' => [
         'titulo'  => 'Cola de cocina',
-        'estados' => ['en_preparacion', 'cocinando'],
+        'estados' => ['en preparacion', 'cocinando'],
         'roles'   => [Usuario::ROL_COCINERO, Usuario::ROL_GERENTE],
     ],
     'todos' => [
@@ -79,9 +79,9 @@ $etiquetasEstado = [
 $clasesEstado = [
     'nuevo'          => 'estado-nuevo',
     'recibido'       => 'estado-recibido',
-    'en_preparacion' => 'estado-preparacion',
+    'en preparacion' => 'estado-preparacion',
     'cocinando'      => 'estado-cocinando',
-    'listo_cocina'   => 'estado-listo',
+    'listo cocina'   => 'estado-listo',
     'terminado'      => 'estado-terminado',
     'entregado'      => 'estado-entregado',
     'cancelado'      => 'estado-cancelado',

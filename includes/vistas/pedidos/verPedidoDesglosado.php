@@ -36,9 +36,9 @@ $volverUrl = RUTA_VISTAS . '/pedidos/pedidoslist.php';
 $etiquetasEstado = [
     'nuevo'          => 'Nuevo',
     'recibido'       => 'Recibido',
-    'en_preparacion' => 'En preparación',
+    'en preparacion' => 'En preparación',
     'cocinando'      => 'Cocinando',
-    'listo_cocina'   => 'Listo cocina',
+    'listo cocina'   => 'Listo cocina',
     'terminado'      => 'Terminado',
     'entregado'      => 'Entregado',
     'cancelado'      => 'Cancelado',
@@ -47,9 +47,9 @@ $etiquetasEstado = [
 $clasesEstado = [
     'nuevo'          => 'estado-nuevo',
     'recibido'       => 'estado-recibido',
-    'en_preparacion' => 'estado-preparacion',
+    'en preparacion' => 'estado-preparacion',
     'cocinando'      => 'estado-cocinando',
-    'listo_cocina'   => 'estado-listo',
+    'listo cocina'   => 'estado-listo',
     'terminado'      => 'estado-terminado',
     'entregado'      => 'estado-entregado',
     'cancelado'      => 'estado-cancelado',
@@ -139,15 +139,15 @@ $transiciones = [];
 if ($esGerente || $esCamarero) {
     switch ($estadoVal) {
         case 'nuevo':          $transiciones = ['cancelado' => 'Cancelar']; break;
-        case 'recibido':       $transiciones = ['en_preparacion' => 'Confirmar pago', 'cancelado' => 'Cancelar']; break;
-        case 'listo_cocina':   $transiciones = ['terminado' => 'Marcar listo para entregar']; break;
+        case 'recibido':       $transiciones = ['en preparacion' => 'Confirmar pago', 'cancelado' => 'Cancelar']; break;
+        case 'listo cocina':   $transiciones = ['terminado' => 'Marcar listo para entregar']; break;
         case 'terminado':      $transiciones = ['entregado' => 'Marcar entregado']; break;
     }
 }
 if ($esCocinero || $esGerente) {
     switch ($estadoVal) {
-        case 'en_preparacion': $transiciones['cocinando']    = 'Empezar a cocinar'; break;
-        case 'cocinando':      $transiciones['listo_cocina'] = 'Marcar listo cocina'; break;
+        case 'en preparacion': $transiciones['cocinando']    = 'Empezar a cocinar'; break;
+        case 'cocinando':      $transiciones['listo cocina'] = 'Marcar listo cocina'; break;
     }
 }
 
