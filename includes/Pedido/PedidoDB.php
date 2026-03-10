@@ -184,38 +184,62 @@ class PedidoDB
     }
   }
 
-  public static function insertarProductoPedido(int $pedidoId, int $productoId, int $cantidad, float $precioUnitario): bool
+   public static function insertarProductoPedido(int $pedidoId, int $productoId, int $cantidad, float $precioUnitario): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
-      "SELECT p.id, p.nombre, pp.precio_unitario, pp.cantidad, pp.preparado
-      FROM PedidoProducto  pp
-      JOIN Productos p ON pp.producto_id = p.id
-      WHERE pp.pedido_id = %d",
-      intval($pedidoDesglosado->getId())
+      "INSERT INTO PedidoProducto (pedido_id, producto_id, cantidad, precio_unitario)
+      VALUES (%d, %d, %d, %f)",
+      intval($pedidoId),
+      intval($productoId),
+      intval($cantidad),
+      floatval($precioUnitario)
     );
 
-    $resultado = $conexion->query($query);
-
-    $productos = [];
-
-    if ($resultado) {
-      while ($fila = $resultado->fetch_assoc()) {
-        $productos[] = new ProductoEnPedido(
-          intval($fila['id']),
-          $fila['nombre'],
-          floatval($fila['precio_unitario']),
-          intval($fila['cantidad']),
-          boolval($fila['preparado'])
-        );
-      }
-      $resultado->free();
+    if ($conexion->query($query)) {
+      return true;
     } else {
       error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
     }
+  }
 
-    $pedidoDesglosado->setProductos($productos);
+  public static function actualizarProductoPedido(int $pedidoId, int $productoId, int $cantidad): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "UPDATE PedidoProducto SET cantidad = %d WHERE pedido_id = %d AND producto_id = %d",
+      intval($cantidad),
+      intval($pedidoId),
+      intval($productoId)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
+
+  public static function eliminarProductoPedido(int $pedidoId, int $productoId): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "DELETE FROM PedidoProducto WHERE pedido_id = %d AND producto_id = %d",
+      intval($pedidoId),
+      intval($productoId)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
   }
 
 
