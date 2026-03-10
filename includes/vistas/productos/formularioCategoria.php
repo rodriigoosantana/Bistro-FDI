@@ -23,10 +23,7 @@ class FormularioCategoria extends FormularioBase
     # Region métodos protegidos
     protected function generaCamposFormulario(&$datos): string
     {
-        $nombre = $this->categoria ? htmlspecialchars($this->categoria->getNombre()) : '';
-        $descripcion = $this->categoria ? htmlspecialchars($this->categoria->getDescripcion()) : '';
-        $activaChecked = ($this->categoria && $this->categoria->isActiva()) ? 'checked' : '';
-
+    
      # Valores por defecto: de la categoría existente o vacíos
         $nombre      = $datos['nombre'] ?? ($this->categoria ? $this->categoria->getNombre()      : '');
         $descripcion = $datos['descripcion'] ?? ($this->categoria ? $this->categoria->getDescripcion() : '');

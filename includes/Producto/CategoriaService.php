@@ -89,9 +89,9 @@ class CategoriaService
         }
 
         #Generar nombre único para evitar colisiones
-        $nombreArchivo = password_hash(('categoria_' . $categoriaId . '_' . uniqid()), PASSWORD_DEFAULT) . $extension;
+        $nombreArchivo = 'categoria_' . $categoriaId . '_' . uniqid() . '.' . $extension;
         $rutaDestino = $dir . $nombreArchivo;  #Ruta completa en el servidor
-        $rutaBD = '/img/uploads/categorias/' . $nombreArchivo; #Ruta relativa para almacenar en BD 
+        $rutaBD = '/img/uploads/categorias/' . $nombreArchivo; #Ruta    
 
         #Mover el archivo subido a su ubicación definitiva
         if (move_uploaded_file($fichero['tmp_name'], $rutaDestino)) { #Si se mueve correctamente, guardar la ruta en la base de datos
