@@ -75,7 +75,7 @@ class ProductoEnPedido
 
   public function getProductoId(): int
   {
-    return $this->productoId;
+    return $this->id;
   }
 
   public function setNombre(string $nombre): void
@@ -95,7 +95,7 @@ class ProductoEnPedido
 
   public function setProductoId(int $productoId): void
   {
-    $this->productoId = $productoId;
+    $this->productoId = $id;
   }
 
   public function isPreparado(): bool

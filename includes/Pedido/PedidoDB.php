@@ -268,4 +268,38 @@ class PedidoDB
 
     return $pedidos;
   }
+
+public static function getPedidoDesglosado(PedidoDesglosado $pedidoDesglosado)
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "SELECT p.id as producto_id, p.nombre, pp.precio_unitario, pp.cantidad, pp.preparado
+      FROM PedidoProducto pp
+      JOIN Productos p ON pp.producto_id = p.id
+      WHERE pp.pedido_id = %d",
+      intval($pedidoDesglosado->getId())
+    );
+
+    $resultado = $conexion->query($query);
+
+    $productos = [];
+
+    if ($resultado) {
+      while ($fila = $resultado->fetch_assoc()) {
+        $productos[] = new ProductoEnPedido(
+          intval($fila['producto_id']),
+          $fila['nombre'],
+          intval($fila['precio_unitario']),
+          intval($fila['cantidad']),
+          boolval($fila['preparado'])
+        );
+      }
+      $resultado->free();
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    }
+
+    $pedidoDesglosado->setProductos($productos);
+  }
 }
