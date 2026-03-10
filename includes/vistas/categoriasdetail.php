@@ -68,6 +68,8 @@ if ($esGerente && ($modoEdicion || !$categoria)) {
     if ($categoria->getImagen()) {
         $rutaImagen = RUTA_APP . htmlspecialchars($categoria->getImagen());
         $htmlImagen = "<img src=\"{$rutaImagen}\" alt=\"{$nombre}\" width=\"150\" />";
+    } else{
+        $htmlImagen = "<div class=\"img-placeholder\">📷<br>Sin imagen</div>";
     }
 
     # Botones de gerente

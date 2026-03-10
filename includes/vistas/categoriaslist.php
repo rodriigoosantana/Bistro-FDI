@@ -28,19 +28,21 @@ if ($categorias && count($categorias) > 0) {
         # Imagen o placeholder si no tiene imagen
         if ($cat->getImagen()) {
             $rutaImagen = RUTA_APP . htmlspecialchars($cat->getImagen());
-            $htmlImagen = "<img src=\"{$rutaImagen}\" alt=\"{$nombre}\" width=\"60\" height=\"60\" />";
+            $htmlImagen = "<img src=\"{$rutaImagen}\" alt=\"{$nombre}\" class=\"categoria-img\" />";
         } else {
-            $htmlImagen = "<div class=\"img-placeholder\">Sin imagen</div>";
+            $htmlImagen = "<div class=\"img-placeholder\">📷<br>Sin imagen</div>";
         }
 
         $verURL = RUTA_VISTAS . '/categoriasdetail.php?id=' . $cat->getId();
 
         $filasLista .= <<<FILA
         <div class="categoria-item">
-            <div class="Categoria-imagen">{$htmlImagen}</div>
-            <div class="Categoria-info">
-                <strong>{$nombre}</strong>
-                <span>{$descripcion}</span>
+            <div class="categoria-imagen">
+            {$htmlImagen}
+            </div>
+            <div class="categoria-info">
+                <strong class="categoria-nombre">{$nombre}</strong>
+                <span class="categoria-descripcion">{$descripcion}</span>
             </div>
             <div class="categoria-acciones">
                 <a href="{$verURL}" class="btn btn-ver">Ver</a>
@@ -57,7 +59,7 @@ $tituloHeader = 'Gestión de Categorías';
 
 $volverUrl  = RUTA_APP . '/index.php';
 $btnCrearNueva = '';
-if ($esGerente) {
+if ($esGerente) {   # Solo un gerente puede crear nuevas categorías
     $crearUrl = RUTA_VISTAS . '/categoriasdetail.php';
     $btnCrearNueva = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">+ Crear nueva</a>";
 }
