@@ -12,7 +12,10 @@ if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
 
 $esGerente = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
 
-$productos = ProductoService::listarTodos(); # Obtener lista de productos
+$esGerente = isset($_SESSION['rolId']) && $_SESSION['rolId'] === 1;
+
+//Si es gerente puede ver todos los productos, si no solo los activos
+$productos = $esGerente ? ProductoService::listarTodos()  : ProductoService::listarActivos();
 
 $categorias = CategoriaService::listarTodas();#Obtener categorías para mostrar nombres
 
@@ -26,11 +29,11 @@ if ($categorias) {
 $tarjetas = '';
 if ($productos && count($productos) > 0) {
     foreach ($productos as $p) {
-        $nombre      = htmlspecialchars($p->getNombre());
-        $nombreCat   = htmlspecialchars($mapaCategorias[$p->getCategoriaId()] ?? 'Sin categoría');
+        $nombre = htmlspecialchars($p->getNombre());
+        $nombreCat = htmlspecialchars($mapaCategorias[$p->getCategoriaId()] ?? 'Sin categoría');
         $precioFinal = number_format($p->getPrecioFinal(), 2, ',', '.');
-        $verUrl      = RUTA_VISTAS . '/productosdetail.php?id=' . $p->getId();
-        $disponible  = $p->isDisponible() ? '' : '<small>(No disponible)</small>';
+        $verUrl = RUTA_VISTAS . '/productosdetail.php?id=' . $p->getId();
+        $disponible = $p->isDisponible() ? '' : '<small>(No disponible)</small>';
 
         // Primera imagen del producto si tiene
         $imagenes = ProductoService::listarImagenes($p->getId());
@@ -38,23 +41,21 @@ if ($productos && count($productos) > 0) {
             $primeraRuta = htmlspecialchars(RUTA_APP . $imagenes[0]['ruta_imagen']);
             if (count($imagenes) > 1) {
                 // Slider automático en tarjeta
-                $rutas = array_map(function($img) {
+                $rutas = array_map(function ($img) {
                     return htmlspecialchars(RUTA_APP . $img['ruta_imagen']);
                 }, $imagenes);
                 $dataImagenes = htmlspecialchars(json_encode($rutas));
 
                 $dotsHtml = '';
                 foreach ($imagenes as $i => $img) {
-                    $active    = $i === 0 ? ' active' : '';
+                    $active = $i === 0 ? ' active' : '';
                     $dotsHtml .= "<span class=\"slider-dot{$active}\"></span>";
                 }
 
-                $htmlImg = <<<SLDR
-                <div class="slider-wrap tarjeta-slider" data-imagenes="{$dataImagenes}" data-auto="true">
-                    <img class="slider-img" src="{$primeraRuta}" alt="{$nombre}">
-                    <div class="slider-dots">{$dotsHtml}</div>
-                </div>
-                SLDR;
+                $htmlImg = '<div class="slider-wrap tarjeta-slider" data-imagenes="' . $dataImagenes . '" data-auto="true">'
+                    . '<img class="slider-img" src="' . $primeraRuta . '" alt="' . $nombre . '">'
+                    . '<div class="slider-dots">' . $dotsHtml . '</div>'
+                    . '</div>';
             } else {
                 // Una sola imagen, sin slider
                 $htmlImg = "<img class=\"tarjeta-img-unica\" src=\"{$primeraRuta}\" alt=\"{$nombre}\">";
@@ -84,11 +85,11 @@ if ($productos && count($productos) > 0) {
 // Botón crear solo para gerente
 $btnCrearNuevo = '';
 if ($esGerente) {
-    $crearUrl      = RUTA_VISTAS . '/productosdetail.php';
+    $crearUrl = RUTA_VISTAS . '/productosdetail.php';
     $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Crear nuevo</a>";
 }
 
-$volverUrl    = RUTA_APP . '/index.php';
+$volverUrl = RUTA_APP . '/index.php';
 $tituloPagina = 'Lista de Productos';
 $tituloHeader = 'Lista de Productos';
 

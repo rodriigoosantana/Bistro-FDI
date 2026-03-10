@@ -15,13 +15,15 @@ $filas = "";
 
 foreach ($usuarios as $u) {
   $rol = Rol::cargarRol($u->getId());
+  $avatar_img = "<img src='" . RUTA_APP . $u->getAvatar() . "' width='80' height='80'>";
+
   $filas .= "<tr>
       <td>{$u->getId()}</td>
       <td>{$u->getNombreUsuario()}</td>
       <td>{$u->getNombre()}</td>
       <td>{$u->getApellidos()}</td>
       <td>{$u->getEmail()}</td>
-      <td>{$u->getAvatar()}</td>
+      <td>$avatar_img</td>
       <td>{$rol->getNombre()}</td>
       <td> <a href=\"perfilUsuario.php?nombreUsuario={$u->getNombreUsuario()}\">Ver Perfil</a> </td>
    </tr>";

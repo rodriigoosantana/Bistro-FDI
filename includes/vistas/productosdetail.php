@@ -95,12 +95,10 @@ if ($esGerente && ($modoEdicion || !$producto)) {
             $dotsHtml = "<div class=\"slider-dots\">{$dotsHtml}</div>";
         }
 
-         $htmlImagenes = <<<SLIDER
-        <div class="slider-wrap" data-imagenes="{$dataImagenes}" data-auto="true">
-            <img class="slider-img" src="{$primeraRuta}" alt="{$nombre}">
-            {$dotsHtml}
-        </div>
-        SLIDER;
+        $htmlImagenes = '<div class="slider-wrap" data-imagenes="' . $dataImagenes . '" data-auto="true">'
+            . '<img class="slider-img" src="' . $primeraRuta . '" alt="' . $nombre . '">'
+            . $dotsHtml
+            . '</div>';
     } else {
         $htmlImagenes = '<em>Sin imágenes</em>';
     }
@@ -111,8 +109,7 @@ if ($esGerente && ($modoEdicion || !$producto)) {
         $editarUrl = RUTA_VISTAS . '/productosdetail.php?id=' . $producto->getId() . '&editar=1';
         $botonesGerente = <<<BTN
         <a href="{$editarUrl}" class="btn btn-editar">Modificar</a>
-        <form method="POST" action="" style="display:inline"
-              onsubmit="return confirm('¿Seguro que quieres borrar este producto?')">
+        <form method="POST" action="" style="display:inline" id="formBorrar">
             <input type="hidden" name="accion" value="borrar">
             <button type="submit" class="btn btn-borrar">Borrar</button>
         </form>

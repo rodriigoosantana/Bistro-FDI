@@ -3,7 +3,7 @@
 //Capa de acceso a datos para la tabla ProductoImagen
 class ProductoImagenDB
 {
-    public static function insertar(int $productoId, string $rutaImagen): int|false
+    public static function insertar(int $productoId, string $rutaImagen): int|bool
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -15,7 +15,8 @@ class ProductoImagenDB
 
         if ($conexion->query($query)) {
             return $conexion->insert_id; #devuelve el id de la imagen insertada
-        } else {
+        }
+        else {
             error_log("Error al insertar imagen de producto: " . $conexion->error);
             return false; #falla la inserción
         }
@@ -28,7 +29,8 @@ class ProductoImagenDB
 
         if ($conexion->query($query)) {
             return true; #se eliminaron las imágenes del producto
-        } else {
+        }
+        else {
             error_log("Error al eliminar imágenes de producto: " . $conexion->error);
             return false; #falla la eliminación
         }
@@ -46,7 +48,8 @@ class ProductoImagenDB
             $imagenes = $resultado->fetch_all(MYSQLI_ASSOC);
             $resultado->free();
             return $imagenes;
-        } else {
+        }
+        else {
             error_log("Error al listar imágenes de producto: " . $conexion->error);
             return []; #falla la consulta, devuelve array vacío
         }

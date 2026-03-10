@@ -1,16 +1,22 @@
-<aside>
-    <section>
-        <h3>Características</h3>
-        <ul>
-            <?php
+<?php
+$tieneCaracteristicas = isset($listaCaracteristicas) && is_array($listaCaracteristicas) && !empty($listaCaracteristicas);
+$tieneContenido       = isset($contenidoAside) && !empty(trim($contenidoAside));
 
-            //Entra la lista de caracteristicas desde la vista (ver por ejemplo index.php)
-            if (isset($listaCaracteristicas) && is_array($listaCaracteristicas)) {
-                foreach ($listaCaracteristicas as $item) {
-                    echo "<li>$item</li>";
-                }
-            }
-            ?>
+if ($tieneCaracteristicas || $tieneContenido): ?>
+<aside>
+    <?php if ($tieneCaracteristicas): ?>
+    <section>
+        <h3>Caracter&iacute;sticas</h3>
+        <ul>
+            <?php foreach ($listaCaracteristicas as $item): ?>
+                <li><?= $item ?></li>
+            <?php endforeach; ?>
         </ul>
     </section>
+    <?php endif; ?>
+
+    <?php if ($tieneContenido): ?>
+        <?= $contenidoAside ?>
+    <?php endif; ?>
 </aside>
+<?php endif; ?>

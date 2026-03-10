@@ -84,7 +84,32 @@ class FormularioRegistro extends formularioBase
                 <input id="password2" type="password" name="password2" />
                 {$erroresCampos['password2']}
             </div>
-            HTML;
+    HTML;
+    }
+
+    $htmlAvatarActual = '';
+    if ($this->usuario) {
+      $htmlAvatarActual .= '<p><strong>Avatar Actual:</strong></p>';
+      $htmlAvatarActual .= "<img src='" . RUTA_APP . $avatar . "' width='80' height='80'>";
+    }
+
+    $avataresPredeterminados = [
+      '/img/uploads/avatares/default.jpg',
+      '/img/uploads/avatares/avatar_predeterminado_1.jpeg',
+      '/img/uploads/avatares/avatar_predeterminado_2.jpeg'
+    ];
+
+    $htmlAvataresPredeterminados = '<div><p>O escoge un avatar predeterminado:</p>';
+
+    foreach ($avataresPredeterminados as $ruta) {
+      $checked = ($avatar === $ruta) ? 'checked' : '';
+      $ruta_img = RUTA_APP . $ruta;
+      $htmlAvataresPredeterminados .= <<<HTML
+        <label>
+            <input type="radio" name="avatarPredeterminado" value="$ruta" $checked>
+            <img src="$ruta_img" width="50" height="50" alt="Avatar">
+        </label>
+    HTML;
     }
 
     $html = <<<EOF
@@ -119,15 +144,18 @@ class FormularioRegistro extends formularioBase
                 <input id="email" type="text" name="email" value="$email"/>
                 {$erroresCampos['email']}
             </div>
-            <br>
+
+            $htmlAvatarActual
 
             <div>
-              <label for="avatar">Avatar:</label><br>
-              <input id="avatar" type="file" name="avatar" value="$avatar"/>
+              <label for="avatar">Añade un Avatar:</label><br>
+              <input id="avatar" type="file" name="avatar"/>
               {$erroresCampos['avatar']}
             </div>
-            <br>
 
+            $htmlAvataresPredeterminados 
+
+            <br>
             $opcionesRoles
 
             <div>
@@ -146,7 +174,7 @@ class FormularioRegistro extends formularioBase
                 </button>
             </div>
         </fieldset>
-        EOF;
+EOF;
 
     return $html;
   }
@@ -194,11 +222,30 @@ class FormularioRegistro extends formularioBase
         'No es una dirección de correo válida.';
     }
 
-    //Cambiar null por imagen por defecto
-    $avatar = $_FILES['avatar'] ?? null;
+    $avatar_file = $_FILES['avatar'] ?? null;
     $extensiones = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!$avatar || $avatar['error'] !== UPLOAD_ERR_OK || $avatar['size'] <= 0 || !in_array(mime_content_type($avatar['tmp_name']), $extensiones)) {
-      $this->errores['avatar'] = 'Error al subir el archivo.';
+
+    $avatar_predeterminado = trim($datos['avatarPredeterminado'] ?? null);
+
+    if ($avatar_file && $avatar_file['error'] === UPLOAD_ERR_OK) { //Control de errores si se ha subido un avatar
+
+      if ($avatar_file['size'] <= 0 || !in_array(mime_content_type($avatar_file['tmp_name']), $extensiones)) {
+        $this->errores['avatar'] = 'Error al subir el archivo.';
+      }
+    }
+
+    if (!($avatar_file && $avatar_file['error'] === UPLOAD_ERR_OK)) { //Si no se ha subido avatar
+      if (!$avatar_predeterminado) { //Ni predeterminado
+        if ($this->usuario == null) { //Si es un registro
+          $avatar = "/img/uploads/avatares/default.jpg";
+        } else { //Si es una modificacion
+          $avatar = $this->usuario->getAvatar(); //Se usa el que ya se tenía
+        }
+      } else { //Si se ha subido predeterminado
+        $avatar = $avatar_predeterminado;
+      }
+    } else { //Si se ha subido avatar 
+      $avatar = UsuarioService::procesarAvatar($avatar_file); //Se usa el subido
     }
 
     $password = trim($datos['password'] ?? '');
@@ -222,13 +269,14 @@ class FormularioRegistro extends formularioBase
       $usuario = UsuarioService::buscarPorNombre($nombreUsuarioOriginal);
       $usuario_id = $usuario != null ? $usuario->getId() : null;
 
+
       $dto = new Usuario(
         $nombreUsuario,
         UsuarioService::hashPassword($password),
         $nombre,
         $apellidos,
         $email,
-        UsuarioService::procesarAvatar($avatar),
+        $avatar,
         $usuario_id
       );
 

@@ -124,7 +124,7 @@ class ProductoDB
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
-        $query = "SELECT * FROM Productos ORDER BY nombre ASC";
+        $query =  "SELECT * FROM Productos ORDER BY categoria_id ASC, nombre ASC";
 
         $resultado = $conexion->query($query);
 
@@ -150,6 +150,38 @@ class ProductoDB
         }
 
         return $productos; #En este caso si hay error devuelve array vacío en vez de false
+    }
+
+    public static function listarActivos(): array {
+    // igual que listarTodos() pero con WHERE activo = 1 AND disponible = 1
+        $conexion = Aplicacion::getInstance()->getConexionBd();
+
+        $query = "SELECT * FROM Productos WHERE activo = 1 AND disponible = 1 ORDER BY categoria_id ASC, nombre ASC";
+
+        $resultado = $conexion->query($query);
+
+        $productos = [];
+
+        if ($resultado) {
+            while ($fila = $resultado->fetch_assoc()) {
+                $productos[] = new Producto(
+                    $fila['nombre'],
+                    $fila['descripcion'],
+                    intval($fila['categoria_id']),
+                    floatval($fila['precio_base']),
+                    intval($fila['iva']),
+                    (bool) $fila['disponible'],
+                    (bool) $fila['ofertado'],
+                    (bool) $fila['activo'],
+                    intval($fila['id'])
+                );
+            }
+            $resultado->free();
+        } else {
+            error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+        }
+
+        return $productos;
     }
 
 
@@ -229,4 +261,4 @@ class ProductoDB
         }
     }
 }
-?>>
+?>
