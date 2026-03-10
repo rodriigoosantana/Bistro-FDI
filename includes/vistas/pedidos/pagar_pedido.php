@@ -72,11 +72,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metodo_pago'])) {
     }
 }
 
-// ── Datos del pedido ──────────────────────────────────────────────────────────
+// Datos del pedido
 $numeroPedido = htmlspecialchars($pedidoDesglosado->getNumeroPedido());
 $total        = number_format($pedidoDesglosado->getTotal(), 2, ',', '.');
 
-// ── Tabla de productos del pedido ─────────────────────────────────────────────
+// Tabla de productos del pedido
 $productos         = $pedidoDesglosado->getProductos();
 $filasProductos    = '';
 
@@ -135,7 +135,7 @@ $contenidoPrincipal = <<<EOS
         <h3>Selecciona el metodo de pago</h3>
         <form method="POST" action="" class="form-pago">
             <div class="opcion-pago">
-                <input type="radio" id="pago_tarjeta" name="metodo_pago" value="tarjeta" checked onclick="document.getElementById('campo_tarjeta').style.display='block'">
+                <input type="radio" id="pago_tarjeta" name="metodo_pago" value="tarjeta" checked onclick="alternarMetodoPago('tarjeta')">
                 <label for="pago_tarjeta">Pagar con tarjeta</label>
             </div>
             
@@ -145,16 +145,21 @@ $contenidoPrincipal = <<<EOS
             </div>
 
             <div class="opcion-pago">
-                <input type="radio" id="pago_camarero" name="metodo_pago" value="camarero" onclick="document.getElementById('campo_tarjeta').style.display='none'">
+                <input type="radio" id="pago_camarero" name="metodo_pago" value="camarero" onclick="alternarMetodoPago('camarero')">
                 <label for="pago_camarero">Pagar al camarero</label>
             </div>
 
             <div class="acciones-pagina">
                 <button type="submit" class="btn btn-nuevo">Pagar</button>
-                <a href="anadir_productos.php?id={$idPedido}" class="btn btn-volver">Volver al carrito</a>
+                <form method="POST" action="anadir_productos.php" style="display:inline;">
+                    <input type="hidden" name="pedidoId" value="{$idPedido}" />
+                    <input type="hidden" name="accion" value="reabrir" />
+                    <button type="submit" class="btn btn-volver">Volver al carrito</button>
+                </form>
             </div>
         </form>
     </section>
+    <script src="../../js/pedidos.js"></script>
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');

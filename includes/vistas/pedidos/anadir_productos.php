@@ -9,7 +9,7 @@ require_once RAIZ_APP . '/includes/Producto/ProductoService.php';
 require_once RAIZ_APP . '/includes/Producto/CategoriaService.php';
 require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
 
-// ── Seguridad y Autorización ──────────────────────────────────────────────────
+// Seguridad y Autorización
 if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
     header('Location: ' . RUTA_VISTAS . '/login.php');
     exit();
@@ -25,6 +25,14 @@ $pedido = PedidoService::buscarPorId($idPedido);
 if (!$pedido) {
     header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
     exit();
+}
+
+// Manejo de Acción Reabrir (antes del chequeo de estado)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'reabrir') {
+    if ($pedido->getEstado() === Estado::Recibido) {
+        PedidoService::cambiarEstado($idPedido, Estado::Nuevo);
+        $pedido->setEstado(Estado::Nuevo);
+    }
 }
 
 // Solo el cliente del pedido, un camarero o un gerente pueden modificarlo
@@ -46,7 +54,7 @@ if ($pedido->getEstado() !== Estado::Nuevo) {
 $mensajeExito = "";
 $mensajeError = "";
 
-// ── Manejo de Acciones ────────────────────────────────────────────────────────
+// Manejo de Acciones
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $accionSolicitada = $_POST['accion'] ?? '';
 
@@ -108,14 +116,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mensajeError = "El pedido no tiene productos.";
         }
     }
+    elseif ($accionSolicitada === 'cancelar') {
+        if (PedidoService::cambiarEstado($idPedido, Estado::Cancelado)) {
+            header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php?modo=historial');
+            exit();
+        } else {
+            $mensajeError = "Error al cancelar el pedido.";
+        }
+    }
 }
 
-// ── Carga de Datos para la Vista ─────────────────────────────────────────────
+// Carga de Datos para la Vista
 $listaCategorias = CategoriaService::listarTodas();
 $listaProductos  = ProductoService::listarTodos();
 $pedidoDesglosado = PedidoService::buscarDesglosadoPorId($idPedido);
 
-// ── Generación de HTML: Navegador de Productos ──────────────────────────────
+// Generación de HTML: Navegador de Productos
 $htmlNavegadorProductos = "";
 foreach ($listaCategorias as $categoria) {
     if (!$categoria->isActiva()) continue;
@@ -157,7 +173,7 @@ HTML;
     }
 }
 
-// ── Generación de HTML: Carrito ──────────────────────────────────────────────
+// Generación de HTML: Carrito
 $htmlCarritoCompras = "";
 $totalPrecioCarrito = 0;
 if (count($pedidoDesglosado->getProductos()) > 0) {
@@ -205,7 +221,7 @@ HTML;
     $htmlCarritoCompras = "<p>El carrito está vacío.</p>";
 }
 
-// ── Preparación de la Vista Final ────────────────────────────────────────────
+// Preparación de la Vista Final
 $tituloPagina = 'Añadir Productos';
 $tituloHeader = 'Añadir Productos';
 
@@ -214,7 +230,14 @@ $htmlNotificacionError = $mensajeError ? "<p class='msg-error'>{$mensajeError}</
 
 $contenidoPrincipal = <<<EOS
 <section id="pedido-shopping">
-    <h2>Pedido #{$pedido->getNumeroPedido()}</h2>
+    <div class="header-shopping">
+        <h2>Pedido #{$pedido->getNumeroPedido()}</h2>
+        <form method="POST" action="" onsubmit="return confirmarCancelacionPedido()">
+            <input type="hidden" name="pedidoId" value="{$idPedido}" />
+            <input type="hidden" name="accion" value="cancelar" />
+            <button type="submit" class="btn btn-borrar">Cancelar</button>
+        </form>
+    </div>
     {$htmlNotificacionExito}
     {$htmlNotificacionError}
 
@@ -231,6 +254,7 @@ $contenidoPrincipal = <<<EOS
         </aside>
     </div>
 </section>
+<script src="../../js/pedidos.js"></script>
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');

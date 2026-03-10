@@ -135,7 +135,15 @@ if ($pedidos && count($pedidos) > 0) {
         $estadoClase  = $clasesEstado[$estadoVal] ?? '';
         $tipoLabel    = $p->getTipo()->value === 'local' ? 'Para tomar' : 'Para llevar';
         $tipoClase    = $p->getTipo()->value === 'local' ? 'tipo-local' : 'tipo-llevar';
-        $verUrl       = RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $id;
+        
+        // Redireccion según el estado
+        if ($estadoVal === 'nuevo') {
+            $verUrl = RUTA_VISTAS . '/pedidos/anadir_productos.php?id=' . $id;
+        } elseif ($estadoVal === 'recibido') {
+            $verUrl = RUTA_VISTAS . '/pedidos/pagar_pedido.php?id=' . $id;
+        } else {
+            $verUrl = RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $id;
+        }
 
         $htmlTotal = '';
         if (!$esCocinero) {

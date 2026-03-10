@@ -394,6 +394,19 @@ th, td {
   margin: 0 auto;
 }
 
+.header-shopping {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.header-shopping h2 {
+  flex-grow: 1;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
 .shopping-layout {
   display: flex;
   gap: 30px;
