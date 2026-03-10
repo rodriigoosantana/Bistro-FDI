@@ -16,6 +16,10 @@ class PedidoService
     # devuelve el DTO del pedido con id asignado si se inserta correctamente, null si falla
   }
 
+  public static function eliminar(int $id): bool
+  {
+    return PedidoDB::delete($id);
+  }
 
   public static function actualizar(Pedido $pedido): bool
   {

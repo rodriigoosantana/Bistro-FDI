@@ -66,6 +66,23 @@ class PedidoDB
     }
   }
 
+  public static function delete(int $id): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "DELETE FROM Pedidos WHERE id=%d",
+      intval($id)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
+
 
   public static function buscarPorId(int $id)
   {
@@ -314,7 +331,7 @@ public static function getPedidoDesglosado(PedidoDesglosado $pedidoDesglosado)
         $productos[] = new ProductoEnPedido(
           intval($fila['producto_id']),
           $fila['nombre'],
-          intval($fila['precio_unitario']),
+          floatval($fila['precio_unitario']),
           intval($fila['cantidad']),
           boolval($fila['preparado'])
         );

@@ -58,7 +58,7 @@ $clasesEstado = [
 // BORRADO (Solo gerente)
 if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar') {
     PedidoService::eliminar($pedidoDesglosado->getId());
-    header('Location: ' . RUTA_VISTAS . '/pedidoslist.php');
+    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
     exit();
 }
 

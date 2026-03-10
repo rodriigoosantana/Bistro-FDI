@@ -173,7 +173,7 @@ if ($pedidos && count($pedidos) > 0) {
 
 $btnCrearNuevo = '';
 if ($esGerente || $esCamarero) {
-    $crearUrl      = RUTA_VISTAS . '/pedidosdetail.php';
+    $crearUrl      = RUTA_VISTAS . '/pedidos/nuevo_pedido.php';
     $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Nuevo pedido</a>";
 }
 
