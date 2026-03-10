@@ -70,7 +70,7 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'cambiar_estado' && isset($_
     exit();
 }
 
-// ── Datos del pedido ──────────────────────────────────────────────────────────
+// Datos del pedido
 $numeroPedido = htmlspecialchars($pedidoDesglosado->getNumeroPedido());
 $fecha        = $pedidoDesglosado->getFechaCreacion()->format('d/m/Y H:i');
 $estadoVal    = $pedidoDesglosado->getEstado()->value;
@@ -85,7 +85,7 @@ $cocineroId   = ($pedidoDesglosado->getCocineroId() !== null)
                 ? htmlspecialchars((string)$pedidoDesglosado->getCocineroId()) 
                 : 'Sin asignar';
 
-// ── Tabla de productos del pedido ─────────────────────────────────────────────
+// Tabla de productos del pedido
 $productos         = $pedidoDesglosado->getProductos();
 $filasProductos    = '';
 $subtotalCalculado = 0.0;
@@ -135,7 +135,7 @@ $tablaProductos = <<<TABLA
 </table>
 TABLA;
 
-// ── Acciones de cambio de estado ──────────────────────────────────────────────
+// Acciones de cambio de estado
 // Transiciones permitidas por rol
 $transiciones = [];
 if ($esGerente || $esCamarero) {

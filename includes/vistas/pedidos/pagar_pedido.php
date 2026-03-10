@@ -133,7 +133,7 @@ $contenidoPrincipal = <<<EOS
         </div>
 
         <h3>Selecciona el metodo de pago</h3>
-        <form method="POST" action="" class="form-pago">
+        <form id="formPago" method="POST" action="" class="form-pago">
             <div class="opcion-pago">
                 <input type="radio" id="pago_tarjeta" name="metodo_pago" value="tarjeta" checked onclick="alternarMetodoPago('tarjeta')">
                 <label for="pago_tarjeta">Pagar con tarjeta</label>
@@ -148,16 +148,16 @@ $contenidoPrincipal = <<<EOS
                 <input type="radio" id="pago_camarero" name="metodo_pago" value="camarero" onclick="alternarMetodoPago('camarero')">
                 <label for="pago_camarero">Pagar al camarero</label>
             </div>
-
-            <div class="acciones-pagina">
-                <button type="submit" class="btn btn-nuevo">Pagar</button>
-                <form method="POST" action="anadir_productos.php" style="display:inline;">
-                    <input type="hidden" name="pedidoId" value="{$idPedido}" />
-                    <input type="hidden" name="accion" value="reabrir" />
-                    <button type="submit" class="btn btn-volver">Volver al carrito</button>
-                </form>
-            </div>
         </form>
+
+        <div class="botones-pago">
+            <button type="submit" form="formPago" class="btn btn-nuevo">Pagar</button>
+            <form method="POST" action="anadir_productos.php">
+                <input type="hidden" name="pedidoId" value="{$idPedido}" />
+                <input type="hidden" name="accion" value="reabrir" />
+                <button type="submit" class="btn btn-volver">Volver al carrito</button>
+            </form>
+        </div>
     </section>
     <script src="../../js/pedidos.js"></script>
 EOS;

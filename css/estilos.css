@@ -168,7 +168,7 @@ th, td {
     text-align: left;
 }
 
-/* ── LISTA DE PRODUCTOS / CATEGORÍAS ─────────────────────────────── */
+/* LISTA DE PRODUCTOS / CATEGORÍAS */
 
 .lista-productos {
   display: grid;
@@ -262,7 +262,7 @@ th, td {
   border-top: 1px solid #f0f0f0;
 }
 
-/* ── BOTONES GENERALES ────────────────────────────────────────────── */
+/* BOTONES GENERALES */
 
 .btn {
   display: inline-block;
@@ -284,7 +284,7 @@ th, td {
 .btn-borrar { background-color: #ef4444; color: white; }
 .btn-volver { background-color: #6b7280; color: white; }
 
-/* ── ACCIONES AL PIE ──────────────────────────────────────────────── */
+/* ACCIONES AL PIE */
 
 .acciones-pagina {
   display: flex;
@@ -293,7 +293,7 @@ th, td {
   align-items: center;
 }
 
-/* ── DETALLE DE PRODUCTO ──────────────────────────────────────────── */
+/* DETALLE DE PRODUCTO */
 
 .detalle-producto {
   display: flex;
@@ -318,7 +318,7 @@ th, td {
   text-align: left;
 }
 
-/* ── SLIDER ───────────────────────────────────────────────────────── */
+/* SLIDER */
 
 /* Slider en detalle de producto */
 .slider-wrap {
@@ -387,7 +387,7 @@ th, td {
   background: transparent;
 }
 
-/* ── SHOPPING EXPERIENCE (NEW) ─────────────────────────────────────── */
+/* SHOPPING EXPERIENCE (NEW) */
 
 #pedido-shopping {
   max-width: 1200px;
@@ -534,7 +534,7 @@ th, td {
   margin-bottom: 20px;
 }
 
-/* ── PAGO DE PEDIDO ───────────────────────────────────────────────── */
+/* PAGO DE PEDIDO */
 
 .resumen-pedido {
     margin-bottom: 30px;
@@ -568,4 +568,10 @@ th, td {
     border: 1px solid #cbd5e1;
     border-radius: 4px;
     width: 250px;
+}
+
+.botones-pago {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
 }
