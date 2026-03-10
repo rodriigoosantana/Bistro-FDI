@@ -65,7 +65,25 @@ if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar') {
 if (isset($_POST['accion']) && $_POST['accion'] === 'cambiar_estado' && isset($_POST['nuevo_estado'])) {
     $nuevoEstado = trim($_POST['nuevo_estado']);
     PedidoService::cambiarEstado($pedidoDesglosado->getId(), $nuevoEstado);
-    header('Location: ' . RUTA_VISTAS . '/pedidosdetail.php?id=' . $pedidoDesglosado->getId());
+    header('Location: ' . RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $pedidoDesglosado->getId());
+    exit();
+}
+
+if (isset($_POST['accion']) && $_POST['accion'] === 'toggle_producto' && isset($_POST['producto_id'])) {
+    $productoId = intval($_POST['producto_id']);
+    $pedidoId = $pedidoDesglosado->getId();
+
+    // Find the product to determine its current state
+    $productos = $pedidoDesglosado->getProductos();
+    foreach ($productos as $producto) {
+        if ($producto->getId() === $productoId) {
+            $nuevoEstado = !$producto->isPreparado();
+            PedidoService::togglePreparadoProducto($productoId, $pedidoId, $nuevoEstado);
+            break;
+        }
+    }
+
+    header('Location: ' . RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $pedidoDesglosado->getId());
     exit();
 }
 
@@ -117,8 +135,7 @@ if ($productos && count($productos) > 0) {
             <td class="text-right">{$pPrecio} €</td>
             <td class="text-right">{$pSubtotal} €</td>
         </tr>
-    FILA;
-}
+    FILA; }
 } else {
     $filasProductos = '<tr><td colspan="4"><em>Sin productos</em></td></tr>';
 }

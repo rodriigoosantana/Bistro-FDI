@@ -83,6 +83,24 @@ class PedidoDB
     }
   }
 
+  public static function togglePreparadoStatus(int $productoId, int $pedidoId, bool $nuevoEstado): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "UPDATE PedidoProducto SET preparado = %d WHERE producto_id = %d AND pedido_id = %d",
+      $nuevoEstado ? 1 : 0,
+      intval($productoId),
+      intval($pedidoId)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
 
   public static function buscarPorId(int $id)
   {
