@@ -1,3 +1,5 @@
+<?php require_once RAIZ_APP . '/includes/Usuario/Usuario.php'; ?> 
+
 <nav>
   <h3>Navegación</h3>
   <ul>
@@ -17,21 +19,21 @@
       <li><a href="<?php echo RUTA_VISTAS . '/categoriaslist.php' ?>">Categorías</a></li>
       <li><a href="<?php echo RUTA_VISTAS . '/pedidoslist.php' ?>">Pedidos</a></li>
 
-      <?php if ($_SESSION['rolId'] === 1): ?> <!-- GERENTE -->
+      <?php if ($_SESSION['rolId'] === Usuario::ROL_GERENTE): ?> <!-- GERENTE -->
         <li><a href="<?php echo RUTA_VISTAS . '/listaUsuarios.php' ?>">Usuarios</a></li>
         <li><a href="bocetos.php">Bocetos</a></li> <!-- PRÁCTICA 1 -->
         <li><a href="planificacion.php">Planificación</a></li> <!-- PRÁCTICA 1 -->
       <?php endif; ?>
 
-      <?php if ($_SESSION['rolId'] === 2): ?> <!-- COCINERO -->
+      <?php if ($_SESSION['rolId'] === Usuario::ROL_COCINERO): ?> <!-- COCINERO -->
 
       <?php endif; ?>
 
-      <?php if ($_SESSION['rolId'] === 3): ?> <!-- CAMARERO -->
+      <?php if ($_SESSION['rolId'] === Usuario::ROL_CAMARERO): ?> <!-- CAMARERO -->
 
       <?php endif; ?>
 
-      <?php if ($_SESSION['rolId'] === 4): ?>
+      <?php if ($_SESSION['rolId'] === Usuario::ROL_CLIENTE): ?> <!-- CLIENTE -->
 
       <?php endif; ?>
 

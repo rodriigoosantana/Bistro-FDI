@@ -17,10 +17,10 @@ class FormularioProducto extends formularioBase
         #Redirección a la lista de productos
         parent::__construct(
             'formProducto',
-        [
-            'urlRedireccion' => RUTA_VISTAS . '/productoslist.php',
-            'enctype' => 'multipart/form-data'
-        ]
+            [
+                'urlRedireccion' => RUTA_VISTAS . '/productoslist.php',
+                'enctype' => 'multipart/form-data'
+            ]
         ); #enctype necesario para subir archivos (imágenes)
     }
     //endregion
@@ -41,7 +41,7 @@ class FormularioProducto extends formularioBase
         // Generar errores
         $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
         $erroresCampos = self::generaErroresCampos(
-        ['nombre', 'descripcion', 'categoriaId', 'precioBase', 'iva'],
+            ['nombre', 'descripcion', 'categoriaId', 'precioBase', 'iva'],
             $this->errores
         );
 
@@ -65,14 +65,18 @@ class FormularioProducto extends formularioBase
 
         $htmlImagenesActuales = '';
         if ($this->producto) {
-            $imagenes = ProductoService::listarImagenes($this->producto->getId());
+            $imagenes = ProductoService::listarImagenes($this->producto->getId()); #Guardar array de imágenes actuales
             if ($imagenes) {
-                $htmlImagenesActuales .= '<p><strong>Imágenes actuales:</strong></p><div style="display:flex; gap:10px; flex-wrap:wrap;">';
+                $htmlImagenesActuales .= '<p><strong>Imágenes actuales:</strong></p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">';
                 foreach ($imagenes as $img) {
-                    $ruta = htmlspecialchars(RUTA_APP . $img['ruta_imagen']);
-                    $htmlImagenesActuales .= "<figure style=\"margin:0;\"><img src=\"{$ruta}\" width=\"100\" alt=\"Imagen actual\"><figcaption style=\"font-size:0.8em; text-align:center;\">Actual</figcaption></figure>";
+                    $ruta = htmlspecialchars(RUTA_APP . $img['ruta_imagen']); #Obtener ruta de la imagen
+                    $htmlImagenesActuales .= "<figure style=\"margin:0;\">
+                    <img src=\"{$ruta}\" width=\"100\" alt=\"Imagen actual\">
+                    <figcaption style=\"font-size:0.8em; text-align:center;\">Actual</figcaption>
+                    </figure>"; #Mostrar imagen actual con un caption indicando que es la imagen actual
                 }
-                $htmlImagenesActuales .= '</div><p><small>Si subes imágenes nuevas, las actuales serán reemplazadas.</small></p>';
+                $htmlImagenesActuales .= '</div><p><small>Si subes imágenes nuevas, las actuales serán reemplazadas.</small></p>'; #Aviso al user
             }
         }
 
@@ -126,8 +130,8 @@ class FormularioProducto extends formularioBase
           <br>
 
           <div>
-              <label>
-                  <input type="checkbox" name="disponible" value="1" {$checkedDisponible} />
+              <label for="disponible">
+                  <input type="checkbox" id="disponible" name="disponible" value="1" {$checkedDisponible} />
                   Disponible
               </label>
           </div>
@@ -135,8 +139,8 @@ class FormularioProducto extends formularioBase
           <br>
 
           <div>
-              <label>
-                  <input type="checkbox" name="ofertado" value="1" {$checkedOfertado} />
+              <label for="ofertado">
+                  <input type="checkbox" id="ofertado" name="ofertado" value="1" {$checkedOfertado} />
                   Ofertado
               </label>
           </div>
@@ -144,8 +148,8 @@ class FormularioProducto extends formularioBase
           <br>
 
           <div>
-              <label>
-                  <input type="checkbox" name="activo" value="1" {$checkedActivo} />
+              <label for="activo">
+                  <input type="checkbox" id="activo" name="activo" value="1" {$checkedActivo} />
                   Activo
               </label>
           </div>
@@ -179,7 +183,7 @@ EOF;
 
         // Validar descripción
         $descripcion = trim($datos['descripcion'] ?? '');
-        $descripcion = filter_var($descripcion, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $descripcion = strip_tags($descripcion);
         if (!$descripcion || strlen($descripcion) < 8) {
             $this->errores['descripcion'] = 'La descripción debe tener al menos 8 caracteres.';
         }
@@ -188,8 +192,7 @@ EOF;
         $categoriaId = intval($datos['categoriaId'] ?? 0);
         if ($categoriaId <= 0) {
             $this->errores['categoriaId'] = 'Debes seleccionar una categoría.';
-        }
-        else {
+        } else {
             $cat = CategoriaService::buscarPorId($categoriaId);
             if (!$cat) {
                 $this->errores['categoriaId'] = 'La categoría seleccionada no existe.';
@@ -209,9 +212,16 @@ EOF;
         }
 
         // Checkboxes
-        $disponible = isset($datos['disponible']) ? true : false;
-        $ofertado = isset($datos['ofertado']) ? true : false;
-        $activo = isset($datos['activo']) ? true : false;
+        // Si el form fue enviado, leer del POST; si no, leer del producto
+        if (isset($datos['formId'])) {
+            $disponible = isset($datos['disponible']);
+            $ofertado = isset($datos['ofertado']);
+            $activo = isset($datos['activo']);
+        } else {
+            $disponible = $this->producto ? $this->producto->isDisponible() : true;
+            $ofertado = $this->producto ? $this->producto->isOfertado() : false;
+            $activo = $this->producto ? $this->producto->isActivo() : true;
+        }
 
         //Imágenes
         $imagenes = (!empty($_FILES['imagenes']['name'][0])) ? $_FILES['imagenes'] : null;
@@ -228,8 +238,7 @@ EOF;
                 if (!ProductoService::actualizar($this->producto->getId(), $nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo, $imagenes)) {
                     $this->errores[] = 'Error al actualizar el producto.';
                 }
-            }
-            else {
+            } else {
                 // Crear nuevo producto (DTO)
                 $producto = ProductoService::crear($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo, $imagenes);
                 if (!$producto) {
@@ -239,6 +248,6 @@ EOF;
         }
     }
 
-//endregion
+    //endregion
 }
 ?>

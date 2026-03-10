@@ -12,7 +12,10 @@ if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
 
 $esGerente = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
 
-$productos = ProductoService::listarTodos(); # Obtener lista de productos
+$esGerente = isset($_SESSION['rolId']) && $_SESSION['rolId'] === 1;
+
+//Si es gerente puede ver todos los productos, si no solo los activos
+$productos = $esGerente ? ProductoService::listarTodos()  : ProductoService::listarActivos();
 
 $categorias = CategoriaService::listarTodas();#Obtener categorías para mostrar nombres
 

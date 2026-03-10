@@ -25,20 +25,19 @@ class ProductoService
     {
         $producto = new Producto($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo, $id);
 
-        $ok = ProductoDB::actualizar($producto);
-        #devuelve true si se actualiza correctamente, false si falla
+        $ok = ProductoDB::actualizar($producto); #devuelve true si se actualiza correctamente, false si falla
 
-        if ($ok && $imagenes !== null) {
+        if ($ok && $imagenes !== null) { #si no se pasan imágenes, no se modifican las existentes
             #borrar imágenes anteriores
             $img_actuales = ProductoImagenDB::listarPorProducto($id);
-            foreach ($imagenes as $img) {
+            foreach ($img_actuales as $img) {
                 $ruta = RAIZ_APP . $img['ruta_imagen'];
                 if (file_exists($ruta)) {
                     unlink($ruta); #elimina la imagen del servidor
                 }
             }
 
-            ProductoImagenDB::borrarPorProducto($id); #elimina registros de imágenes en BD
+            ProductoImagenDB::borrarPorProducto($id); #elimina registros de imágenes en BD 
 
             self::guardarImagenes($id, $imagenes); #guarda nuevas imágenes en BD
         }
@@ -78,6 +77,12 @@ class ProductoService
     {
         return ProductoDB::listarTodos();
         #devuelve array de productos, o array vacío si no hay productos
+    }
+
+     public static function listarActivos(): array
+    {
+        return ProductoDB::listarActivos();
+        #devuelve array de productos que estén activos, o array vacío si no hay
     }
 
     public static function listarPorCategoria($categoriaId): array

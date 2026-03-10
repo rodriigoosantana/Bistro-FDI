@@ -19,27 +19,24 @@ abstract class formularioBase
    //endregion
 
 
-    //region Métodos protegidos
+   //region Métodos protegidos
 
    protected static function generaListaErroresGlobales($errores = array())
    {
       $html = '';
-      
-      $keys = array_filter(array_keys($errores), function($v) 
-      {
-            return is_numeric($v);
+
+      $keys = array_filter(array_keys($errores), function ($v) {
+         return is_numeric($v);
       });
-      
-      if (count($keys) > 0) 
-      {
-            $html = '<ul class="errores">';
-            
-            foreach($keys as $key) 
-            {
-               $html .= "<li>{$errores[$key]}</li>";
-            }
-            
-            $html .= '</ul>';
+
+      if (count($keys) > 0) {
+         $html = '<ul class="errores">';
+
+         foreach ($keys as $key) {
+            $html .= "<li>{$errores[$key]}</li>";
+         }
+
+         $html .= '</ul>';
       }
 
       return $html;
@@ -47,22 +44,21 @@ abstract class formularioBase
 
    protected static function generarError($campo, $errores)
    {
-      return isset($errores[$campo]) ? "<span class=\"form-field-error\">{$errores[$campo]}</span>": '';
+      return isset($errores[$campo]) ? "<span class=\"form-field-error\">{$errores[$campo]}</span>" : '';
    }
 
-   protected static function generaErroresCampos($campos, $errores) 
+   protected static function generaErroresCampos($campos, $errores)
    {
       $erroresCampos = [];
 
-      foreach($campos as $campo) 
-      {
-            $erroresCampos[$campo] = self::generarError($campo, $errores);
+      foreach ($campos as $campo) {
+         $erroresCampos[$campo] = self::generarError($campo, $errores);
       }
-      
+
       return $erroresCampos;
    }
-   
-   
+
+
    //endregion
 
    //region Constructores
@@ -72,17 +68,16 @@ abstract class formularioBase
       $this->formId = $formId;
 
       $opcionesPorDefecto = array('action' => null, 'method' => 'POST', 'enctype' => null, 'urlRedireccion' => null);
-      
+
       $opciones = array_merge($opcionesPorDefecto, $opciones);
 
-      $this->action         = $opciones['action'];
-      $this->method         = $opciones['method'];
-      $this->enctype        = $opciones['enctype'];
+      $this->action = $opciones['action'];
+      $this->method = $opciones['method'];
+      $this->enctype = $opciones['enctype'];
       $this->urlRedireccion = $opciones['urlRedireccion'];
 
-      if (!$this->action) 
-      {
-            $this->action = htmlspecialchars($_SERVER['REQUEST_URI']);
+      if (!$this->action) {
+         $this->action = htmlspecialchars($_SERVER['REQUEST_URI']);
       }
    }
 
@@ -91,32 +86,28 @@ abstract class formularioBase
    public function gestiona()
    {
       $datos = &$_POST;
-      if (strcasecmp('GET', $this->method) == 0) 
-      {
-            $datos = &$_GET;
+      if (strcasecmp('GET', $this->method) == 0) {
+         $datos = &$_GET;
       }
-      
+
       $this->errores = [];
 
-      if (!$this->formularioEnviado($datos)) 
-      {
-            return $this->generaFormulario();
+      if (!$this->formularioEnviado($datos)) {
+         return $this->generaFormulario();
       }
 
       $this->procesaFormulario($datos);
-      
+
       $esValido = count($this->errores) === 0;
 
-      if (! $esValido ) 
-      {
-            return $this->generaFormulario($datos);
+      if (!$esValido) {
+         return $this->generaFormulario($datos);
       }
 
-      if ($this->urlRedireccion !== null) 
-      {
-            header("Location: {$this->urlRedireccion}");
-   
-            exit();
+      if ($this->urlRedireccion !== null) {
+         header("Location: {$this->urlRedireccion}");
+
+         exit();
       }
    }
 
@@ -134,7 +125,7 @@ abstract class formularioBase
       $enctypeAtt = $this->enctype != null ? "enctype=\"{$this->enctype}\"" : '';
 
       $htmlForm = <<<EOS
-      <form method="{$this->method}" action="{$this->action}" id="{$this->formId}"{$enctypeAtt}>
+      <form method="{$this->method}" action="{$this->action}" id="{$this->formId}" {$enctypeAtt}>
                <input type="hidden" name="formId" value="{$this->formId}" />
                $htmlCamposFormularios
       </form>
@@ -148,10 +139,9 @@ abstract class formularioBase
    //region Métodos abstractos
 
    abstract protected function generaCamposFormulario(&$datos);
-   
+
    abstract protected function procesaFormulario(&$datos);
 
    //endregion
 }
 ?>
-

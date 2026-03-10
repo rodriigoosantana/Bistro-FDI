@@ -13,7 +13,7 @@ function mostrarSaludo()
 }
 ?>
 <header>
-    <img src="<?php echo RUTA_IMGS; ?>/logo2.png" alt="Logo de Bistro FDI" width="400">
+    <img src="<?php echo RUTA_IMGS; ?>/logo2.png" alt="Logo de Bistro FDI">
     <h1> <?= $tituloHeader ?></h1>
     <div class="saludo"><?= mostrarSaludo(); ?></div>
 </header>
