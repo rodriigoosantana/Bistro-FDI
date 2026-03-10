@@ -95,12 +95,10 @@ if ($esGerente && ($modoEdicion || !$producto)) {
             $dotsHtml = "<div class=\"slider-dots\">{$dotsHtml}</div>";
         }
 
-         $htmlImagenes = <<<SLIDER
-        <div class="slider-wrap" data-imagenes="{$dataImagenes}" data-auto="true">
-            <img class="slider-img" src="{$primeraRuta}" alt="{$nombre}">
-            {$dotsHtml}
-        </div>
-        SLIDER;
+        $htmlImagenes = '<div class="slider-wrap" data-imagenes="' . $dataImagenes . '" data-auto="true">'
+            . '<img class="slider-img" src="' . $primeraRuta . '" alt="' . $nombre . '">'
+            . $dotsHtml
+            . '</div>';
     } else {
         $htmlImagenes = '<em>Sin imágenes</em>';
     }

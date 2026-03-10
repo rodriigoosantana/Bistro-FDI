@@ -20,7 +20,7 @@
       <?php if ($acceso ?? true) {
         echo $contenidoPrincipal;
       } else {
-        echo "<h1>Acceso Denegado<h1>";
+        echo "<h1>Acceso Denegado</h1>";
       }
       ?>
     </main>

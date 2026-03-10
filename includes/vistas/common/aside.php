@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $tieneCaracteristicas = isset($listaCaracteristicas) && is_array($listaCaracteristicas) && !empty($listaCaracteristicas);
 $tieneContenido       = isset($contenidoAside) && !empty(trim($contenidoAside));
 
