@@ -24,22 +24,23 @@ $modos = [
         'estados' => ['nuevo', 'recibido', 'en preparacion', 'cocinando', 'listo cocina', 'terminado'],
         'roles'   => [Usuario::ROL_CLIENTE, Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
     ],
+    'para recoger' => [
+        'titulo'  => 'Pedidos para recoger',
+        'estados' => ['listo cocina'],
+        'roles'   => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
+    ],
     'historial' => [
         'titulo'  => 'Historial de pedidos',
-        'estados' => ['entregado', 'cancelado'],
+        'estados' => [], // vacio =  sin filtro. 
         'roles'   => [Usuario::ROL_CLIENTE, Usuario::ROL_GERENTE],
     ],
     'cocina' => [
         'titulo'  => 'Cola de cocina',
         'estados' => ['en preparacion', 'cocinando'],
         'roles'   => [Usuario::ROL_COCINERO, Usuario::ROL_GERENTE],
-    ],
-    'todos' => [
-        'titulo'  => 'Todos los pedidos',
-        'estados' => [], // vacío = sin filtro de estado
-        'roles'   => [Usuario::ROL_GERENTE],
-    ],
+  ]
 ];
+
 
 $modo = $_GET['modo'] ?? 'activos';
 
@@ -70,7 +71,7 @@ $etiquetasEstado = [
     'recibido'       => 'Recibido',
     'en preparacion' => 'En preparación',
     'cocinando'      => 'Cocinando',
-    'listo_cocina'   => 'Listo cocina',
+    'listo cocina'   => 'Listo cocina',
     'terminado'      => 'Terminado',
     'entregado'      => 'Entregado',
     'cancelado'      => 'Cancelado',
@@ -88,7 +89,7 @@ $clasesEstado = [
 ];
 
 $htmlFiltro = '';
-if ($esGerente) {
+if ($modo === 'historial') {
     $opcionesFiltro = '<option value="">Todos</option>';
     foreach ($etiquetasEstado as $valor => $etiqueta) {
         $selected        = ($filtroEstado === $valor) ? ' selected' : '';

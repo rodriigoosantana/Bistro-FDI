@@ -47,10 +47,9 @@ class PedidoService
     # devuelve true si se actualiza correctamente, false si falla
   }
 
-  public static function cambiarEstado($idPedido, $activo)
+  public static function cambiarEstado($id, $estado)
   {
-    # id del pedido, nuevo estado activo/inactivo
-    return PedidoDB::cambiarEstado($idPedido, $activo);
+    return PedidoDB::cambiarEstado($id, $estado);
     # devuelve true si se actualiza correctamente, false si falla
   }
 

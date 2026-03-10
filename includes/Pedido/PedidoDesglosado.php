@@ -36,14 +36,26 @@ class ProductoEnPedido
   private string $nombre;
   private float $precio;
   private int $cantidad;
-  private int $productoId;
+  private bool $preparado;
+  private int $id;
 
-  public function __construct(string $nombre, float $precio, int $cantidad, int $productoId = 0)
+  public function __construct(int $id, string $n, float $p, int $c, bool $preparado)
   {
-    $this->nombre = $nombre;
-    $this->precio = $precio;
-    $this->cantidad = $cantidad;
-    $this->productoId = $productoId;
+    $this->id = $id;
+    $this->nombre = $n;
+    $this->precio = $p;
+    $this->cantidad = $c;
+    $this->preparado = $preparado;
+  }
+
+  public function getId(): int
+  {
+    return $this->id;
+  }
+
+  public function setId(int $id): void
+  {
+    $this->id = $id;
   }
 
   public function getNombre(): string
@@ -84,5 +96,15 @@ class ProductoEnPedido
   public function setProductoId(int $productoId): void
   {
     $this->productoId = $productoId;
+  }
+
+  public function isPreparado(): bool
+  {
+    return $this->preparado;
+  }
+
+  public function setPreparado(bool $preparado): void
+  {
+    $this->preparado = $preparado;
   }
 }

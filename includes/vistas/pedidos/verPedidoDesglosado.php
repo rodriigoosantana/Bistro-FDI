@@ -62,7 +62,6 @@ if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar') {
     exit();
 }
 
-// CAMBIO DE ESTADO (gerente y camarero y cocinero según reglas de negocio)
 if (isset($_POST['accion']) && $_POST['accion'] === 'cambiar_estado' && isset($_POST['nuevo_estado'])) {
     $nuevoEstado = trim($_POST['nuevo_estado']);
     PedidoService::cambiarEstado($pedidoDesglosado->getId(), $nuevoEstado);
@@ -70,7 +69,6 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'cambiar_estado' && isset($_
     exit();
 }
 
-// Datos del pedido
 $numeroPedido = htmlspecialchars($pedidoDesglosado->getNumeroPedido());
 $fecha        = $pedidoDesglosado->getFechaCreacion()->format('d/m/Y H:i');
 $estadoVal    = $pedidoDesglosado->getEstado()->value;
@@ -85,28 +83,42 @@ $cocineroId   = ($pedidoDesglosado->getCocineroId() !== null)
                 ? htmlspecialchars((string)$pedidoDesglosado->getCocineroId()) 
                 : 'Sin asignar';
 
-// Tabla de productos del pedido
 $productos         = $pedidoDesglosado->getProductos();
 $filasProductos    = '';
 $subtotalCalculado = 0.0;
 
 if ($productos && count($productos) > 0) {
-    foreach ($productos as $prod) {
-        $pNombre    = htmlspecialchars($prod->getNombre());
-        $pPrecio    = number_format($prod->getPrecio(), 2, ',', '.');
-        $pCantidad  = (int)$prod->getCantidad();
-        $pSubtotal  = number_format($prod->getPrecio() * $pCantidad, 2, ',', '.');
-        $subtotalCalculado += $prod->getPrecio() * $pCantidad;
+  foreach ($productos as $prod) {
+    $pNombre   = htmlspecialchars($prod->getNombre());
+    $pPrecio   = number_format($prod->getPrecio(), 2, ',', '.');
+    $pCantidad = (int)$prod->getCantidad();
+    $pSubtotal = number_format($prod->getPrecio() * $pCantidad, 2, ',', '.');
+    $subtotalCalculado += $prod->getPrecio() * $pCantidad;
 
-        $filasProductos .= <<<FILA
-            <tr>
-                <td>{$pNombre}</td>
-                <td class="text-center">{$pCantidad}</td>
-                <td class="text-right">{$pPrecio} €</td>
-                <td class="text-right">{$pSubtotal} €</td>
-            </tr>
-        FILA;
+    $checked   = $prod->isPreparado() ? 'checked' : '';
+    $checkHtml = '';
+
+    if ($esCocinero || $esCamarero || $esGerente) {
+        $checkHtml = <<<CHECK
+        <form method="POST" action="" style="display:inline">
+            <input type="hidden" name="accion" value="toggle_producto">
+            <input type="hidden" name="producto_id" value="{$prod->getId()}">
+            <input type="checkbox" onchange="this.form.submit()" {$checked}>
+        </form>
+        CHECK;
     }
+
+    $filaClase = $prod->isPreparado() ? ' class="producto-listo"' : '';
+
+    $filasProductos .= <<<FILA
+        <tr{$filaClase}>
+            <td>{$checkHtml} {$pNombre}</td>
+            <td class="text-center">{$pCantidad}</td>
+            <td class="text-right">{$pPrecio} €</td>
+            <td class="text-right">{$pSubtotal} €</td>
+        </tr>
+    FILA;
+}
 } else {
     $filasProductos = '<tr><td colspan="4"><em>Sin productos</em></td></tr>';
 }
@@ -135,8 +147,6 @@ $tablaProductos = <<<TABLA
 </table>
 TABLA;
 
-// Acciones de cambio de estado
-// Transiciones permitidas por rol
 $transiciones = [];
 if ($esGerente || $esCamarero) {
     switch ($estadoVal) {
@@ -146,7 +156,7 @@ if ($esGerente || $esCamarero) {
         case 'terminado':      $transiciones = ['entregado' => 'Marcar entregado']; break;
     }
 }
-if ($esCocinero || $esGerente) {
+if ($esCocinero) {
     switch ($estadoVal) {
         case 'en preparacion': $transiciones['cocinando']    = 'Empezar a cocinar'; break;
         case 'cocinando':      $transiciones['listo cocina'] = 'Marcar listo cocina'; break;
