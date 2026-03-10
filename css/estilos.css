@@ -520,3 +520,39 @@ th, td {
   border-radius: 6px;
   margin-bottom: 20px;
 }
+
+/* ── PAGO DE PEDIDO ───────────────────────────────────────────────── */
+
+.resumen-pedido {
+    margin-bottom: 30px;
+}
+
+.form-pago {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.opcion-pago {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+}
+
+.campo-pago {
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+
+.campo-pago label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.campo-pago input[type="text"] {
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    width: 250px;
+}

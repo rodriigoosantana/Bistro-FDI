@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pedido->setTotal($precioTotalAcumulado);
             $pedido->setEstado(Estado::Recibido); // Confirmado
             if (PedidoService::actualizar($pedido)) {
-                header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+                header('Location: ' . RUTA_VISTAS . '/pedidos/pagar_pedido.php?id=' . $idPedido);
                 exit();
             } else {
                 $mensajeError = "Error al confirmar el pedido.";
