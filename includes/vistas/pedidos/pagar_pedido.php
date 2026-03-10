@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 require_once RAIZ_APP . '/includes/Pedido/PedidoService.php';
+require_once RAIZ_APP . '/includes/Pedido/PagoService.php';
 require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
 
 // Verificar login
@@ -50,11 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metodo_pago'])) {
 
     if ($metodoPago === 'tarjeta') {
         $numeroTarjeta = $_POST['numero_tarjeta'] ?? '';
-        if (empty($numeroTarjeta)) {
-            $mensajeError = "Por favor, introduce un numero de tarjeta.";
-        } else {
-            // Aqui iria la logica de validacion de tarjeta
+        $resultadoValidacion = PagoService::validarTarjeta($numeroTarjeta);
+        
+        if ($resultadoValidacion['valido']) {
             $pagoValido = true;
+        } else {
+            $mensajeError = $resultadoValidacion['error'];
         }
     } elseif ($metodoPago === 'camarero') {
         $pagoValido = true;
@@ -139,7 +141,7 @@ $contenidoPrincipal = <<<EOS
             
             <div id="campo_tarjeta" class="campo-pago">
                 <label for="numero_tarjeta">Numero de tarjeta:</label>
-                <input type="text" id="numero_tarjeta" name="numero_tarjeta" placeholder="0000 0000 0000 0000">
+                <input type="text" id="numero_tarjeta" name="numero_tarjeta" placeholder="">
             </div>
 
             <div class="opcion-pago">
