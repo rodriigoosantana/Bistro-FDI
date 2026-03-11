@@ -34,6 +34,11 @@ class PedidoService
         return PedidoDB::listarTodos();
     }
 
+    public static function asignarCocinero(int $pedidoId, int $cocineroId): bool
+    {
+        return PedidoDB::asignarCocinero($pedidoId, $cocineroId);
+    }
+
     public static function cambiarEstado($id, $estado)
     {
         return PedidoDB::cambiarEstado($id, $estado);
@@ -66,9 +71,9 @@ class PedidoService
         return $pedidoDesglosado;
     }
 
-    public static function listarPorEstados(array $estados = null, int $clienteId = null): array
+    public static function listarPorEstados(array $estados = null, int $clienteId = null, int $cocineroId = null): array
     {
-        return PedidoDB::listarPorEstados($estados, $clienteId);
+        return PedidoDB::listarPorEstados($estados, $clienteId, $cocineroId);
     }
 
     public static function togglePreparadoProducto(int $productoId, int $pedidoId, bool $nuevoEstado): bool

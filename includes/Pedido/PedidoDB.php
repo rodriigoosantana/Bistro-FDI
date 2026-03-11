@@ -201,6 +201,24 @@ class PedidoDB
     return null;
   }
 
+  public static function asignarCocinero(int $pedidoId, int $cocineroId): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "UPDATE Pedidos SET cocinero_id=%d WHERE id=%d",
+      intval($cocineroId),
+      intval($pedidoId)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
+
   public static function cambiarEstado(int $id, Estado $estado)
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
@@ -278,7 +296,7 @@ class PedidoDB
   }
 
 
-  public static function listarPorEstados(array $estados = null, int $clienteId = null)
+  public static function listarPorEstados(array $estados = null, int $clienteId = null, int $cocineroId = null)
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -295,6 +313,10 @@ class PedidoDB
 
     if ($clienteId !== null) {
       $condiciones[] = "cliente_id = " . intval($clienteId);
+    }
+
+    if ($cocineroId !== null) {
+      $condiciones[] = "cocinero_id = " . intval($cocineroId);
     }
 
     if (count($condiciones) > 0) {
