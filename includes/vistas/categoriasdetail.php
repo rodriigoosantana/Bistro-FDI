@@ -30,10 +30,22 @@ if (isset($_GET['id'])) {
 $volverUrl = RUTA_VISTAS . '/categoriaslist.php';
 
 # BORRADO (solo gerente, acción POST)
-if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar' && $categoria) {
-    CategoriaService::cambiarEstado($categoria->getId(), false);
-    header('Location: ' . RUTA_VISTAS . '/categoriaslist.php');
-    exit();
+$mensajeError = '';
+if ($esGerente && isset($_POST['accion']) && $categoria) {
+    $accion = $_POST['accion'];
+    if($accion === 'desactivar') {
+        if (CategoriaService::puedeDesactivar($categoria->getId())) {
+            CategoriaService::cambiarEstado($categoria->getId(), false);
+            header('Location: ' . RUTA_VISTAS . '/categoriaslist.php');
+            exit();
+        } else {
+            $mensajeError = 'No se puede desactivar esta categoría porque tiene productos activos asociados.';
+        }
+    } elseif($accion === 'reactivar') {
+            CategoriaService::cambiarEstado($categoria->getId(), true);
+            header('Location: ' . RUTA_VISTAS . '/categoriaslist.php?id=' . $categoria->getId());
+            exit();
+        }
 }
 
 # MODO EDICIÓN (solo gerente, pulsó "Modificar" o hay error de formulario)
@@ -76,14 +88,28 @@ if ($esGerente && ($modoEdicion || !$categoria)) {
     $botonesGerente = '';
     if ($esGerente) {
         $editarUrl = RUTA_VISTAS . '/categoriasdetail.php?id=' . $categoria->getId() . '&editar=1';
-        $botonesGerente = <<<BTN
-        <a href="{$editarUrl}" class="btn btn-editar">Modificar</a>
-        <form method="POST" action="" style="display:inline"
-              onsubmit="return confirm('¿Seguro que quieres desactivar esta categoría?')">
-            <input type="hidden" name="accion" value="borrar">
-            <button type="submit" class="btn btn-borrar">Desactivar</button>
-        </form>
-        BTN;
+        $botonesGerente = "<a href=\"{$editarUrl}\" class=\"btn btn-editar\">Modificar</a> ";
+        if ($categoria->isActiva()) {   # Solo mostrar botón de desactivar si la categoría está activa
+            $botonesGerente .= <<<BTN
+            <form method="POST" action="" style="display:inline"
+                  onsubmit="return confirm('¿Desactivar esta categoría?')"> 
+                <input type="hidden" name="accion" value="desactivar">
+                <button type="submit" class="btn btn-borrar">Desactivar</button>
+            </form>
+            BTN;
+        } else { # Si la categoría está inactiva, mostrar botón de reactivar
+            $botonesGerente .= <<<BTN
+            <form method="POST" action="" style="display:inline">
+                <input type="hidden" name="accion" value="reactivar">
+                <button type="submit" class="btn btn-nuevo">Reactivar</button>
+            </form>
+            BTN;
+        }
+    }
+
+    $htmlError = '';
+    if ($mensajeError) {
+        $htmlError = '<p style="color:red; font-weight:bold;">' . htmlspecialchars($mensajeError) . '</p>';
     }
 
     $tituloPagina = $nombre;
@@ -92,7 +118,7 @@ if ($esGerente && ($modoEdicion || !$categoria)) {
     $contenidoPrincipal = <<<EOS
         <section id="contenido">
             <h2>Ver Categoría</h2>
-
+            {$htmlError}
             <div class="detalle-categoria">
                 <div class="detalle-imagen">
                     {$htmlImagen}

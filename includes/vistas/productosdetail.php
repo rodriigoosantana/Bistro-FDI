@@ -29,7 +29,8 @@ if (isset($_GET['id'])) {
     }
 }
 
-$volverUrl = RUTA_VISTAS . '/productoslist.php'; #Ruta de retorno a la lista de productos
+$categoriaOrigen = isset($_GET['categoria']) ? intval($_GET['categoria']) : null;
+$volverUrl = RUTA_VISTAS . '/productoslist.php' . ($categoriaOrigen ? '?categoria=' . $categoriaOrigen : '');
 
 #BORRADO (Solo gerente, acción POST)
 if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar' && $producto) {

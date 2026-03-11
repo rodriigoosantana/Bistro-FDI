@@ -221,6 +221,40 @@ class ProductoDB
         return $productos;
     }
 
+    // Lista productos activos de una categoría concreta.
+    public static function listarActivosPorCategoria(int $categoriaId): array
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
+
+        $query = sprintf(
+            "SELECT * FROM Productos WHERE categoria_id=%d AND activo=1 AND disponible=1 ORDER BY nombre ASC",
+            intval($categoriaId)
+        );
+
+        $resultado = $conexion->query($query);
+        $productos = [];
+
+        if ($resultado) {
+            while ($fila = $resultado->fetch_assoc()) {
+                $productos[] = new Producto(
+                    $fila['nombre'],
+                    $fila['descripcion'],
+                    intval($fila['categoria_id']),
+                    floatval($fila['precio_base']),
+                    intval($fila['iva']),
+                    (bool) $fila['disponible'],
+                    (bool) $fila['ofertado'],
+                    (bool) $fila['activo'],
+                    intval($fila['id'])
+                );
+            }
+            $resultado->free();
+        } else {
+            error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+        }
+
+        return $productos;
+    }
 
     //Cambia la disponibilidad de un producto.
     public static function cambiarDisponibilidad($id, $disponible): bool
@@ -260,5 +294,28 @@ class ProductoDB
             return false;
         }
     }
+
+    # Método para contar el número total de productos disponibles de una categoría
+    public static function contarDisponiblesPorCategoria(int $categoriaId): int
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
+
+        $query = sprintf(
+            "SELECT COUNT(*) AS total FROM Productos WHERE categoria_id=%d AND disponible=1",
+            intval($categoriaId)
+        );
+
+        $resultado = $conexion->query($query);
+
+        if ($resultado) {
+            $fila = $resultado->fetch_assoc();
+            $resultado->free();
+            return intval($fila['total']);
+        } else {
+            error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+            return -1;
+        }
+    }
+
 }
 ?>

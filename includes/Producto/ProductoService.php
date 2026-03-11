@@ -91,7 +91,11 @@ class ProductoService
         #devuelve array de productos que pertenecen a la categoría indicada, o array vacío 
     }
 
-
+    public static function listarActivosPorCategoria(int $categoriaId): array
+    {
+        return ProductoDB::listarActivosPorCategoria($categoriaId);
+        #devuelve array de productos activos que pertenecen a la categoría indicada, o array vacío
+    }
     public static function cambiarDisponibilidad($id, $disponible): bool
     {
         #id del producto, nuevo valor de disponibilidad
@@ -146,6 +150,12 @@ class ProductoService
                 error_log("Error al mover archivo subido: " . $imagenes['name'][$i]);
             }
         }
+    }
+
+    public static function contarDisponiblesPorCategoria(int $categoriaId): int
+    {
+        return ProductoDB::contarDisponiblesPorCategoria($categoriaId);
+        #devuelve el número de productos disponibles en la categoría indicada
     }
 }
 ?>

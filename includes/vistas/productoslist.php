@@ -12,10 +12,24 @@ if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
 
 $esGerente = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
 
-$esGerente = isset($_SESSION['rolId']) && $_SESSION['rolId'] === 1;
+$categoriaFiltro = isset($_GET['categoria']) ? intval($_GET['categoria']) : null;
 
-//Si es gerente puede ver todos los productos, si no solo los activos
-$productos = $esGerente ? ProductoService::listarTodos()  : ProductoService::listarActivos();
+if ($categoriaFiltro) { # Si hay filtro de categoría, mostrar solo productos de esa categoría
+    $productos = $esGerente # Si es gerente, mostrar tanto productos activos como inactivos
+        ? ProductoService::listarPorCategoria($categoriaFiltro)
+        : ProductoService::listarActivosPorCategoria($categoriaFiltro);
+} else {
+    $productos = $esGerente
+        ? ProductoService::listarTodos()
+        : ProductoService::listarActivos();
+}
+
+// Título de contexto si hay filtro activo
+$tituloCat = '';
+if ($categoriaFiltro) {
+    $cat = CategoriaService::buscarPorId($categoriaFiltro);
+    $tituloCat = $cat ? ' — ' . htmlspecialchars($cat->getNombre()) : '';
+}
 
 $categorias = CategoriaService::listarTodas();#Obtener categorías para mostrar nombres
 
@@ -32,7 +46,8 @@ if ($productos && count($productos) > 0) {
         $nombre = htmlspecialchars($p->getNombre());
         $nombreCat = htmlspecialchars($mapaCategorias[$p->getCategoriaId()] ?? 'Sin categoría');
         $precioFinal = number_format($p->getPrecioFinal(), 2, ',', '.');
-        $verUrl = RUTA_VISTAS . '/productosdetail.php?id=' . $p->getId();
+        $verUrl = RUTA_VISTAS . '/productosdetail.php?id=' . $p->getId() 
+        . ($categoriaFiltro ? '&categoria=' . $categoriaFiltro : '');
         $disponible = $p->isDisponible() ? '' : '<small>(No disponible)</small>';
 
         // Primera imagen del producto si tiene
@@ -89,13 +104,18 @@ if ($esGerente) {
     $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Crear nuevo</a>";
 }
 
-$volverUrl = RUTA_APP . '/index.php';
+if ($categoriaFiltro) {
+    $volverUrl = RUTA_VISTAS . '/categoriaslist.php';
+} else{
+    $volverUrl = RUTA_APP . '/index.php';
+}
+
 $tituloPagina = 'Lista de Productos';
 $tituloHeader = 'Lista de Productos';
 
 $contenidoPrincipal = <<<EOS
     <section id="contenido">
-        <h2>Lista de productos</h2>
+        <h2>Lista de productos{$tituloCat}</h2>
         <div class="lista-productos">
             {$tarjetas}
         </div>

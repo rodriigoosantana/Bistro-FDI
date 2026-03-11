@@ -25,23 +25,31 @@ if ($categorias && count($categorias) > 0) {
             $descripcion = substr($descripcion, 0, 80) . '...';
         }
 
+        $badgeEstado = '';
+        $estiloItem = '';
+        if (!$cat->isActiva()) {
+            $badgeEstado = '<span style="color:red; font-size:0.9em;">[Inactiva]</span>';
+            $estiloItem = 'style=opacity:0.6;'; #Apariencia atenuada para categorías inactivas
+        }
+
         # Imagen o placeholder si no tiene imagen
+        $productosUrl = RUTA_VISTAS . '/productoslist.php?categoria=' . $cat->getId();
         if ($cat->getImagen()) {
             $rutaImagen = RUTA_APP . htmlspecialchars($cat->getImagen());
-            $htmlImagen = "<img src=\"{$rutaImagen}\" alt=\"{$nombre}\" class=\"categoria-img\" />";
+            $htmlImagen = "<a href=\"{$productosUrl}\"><img src=\"{$rutaImagen}\" alt=\"{$nombre}\" class=\"categoria-img\" /></a>";
         } else {
-            $htmlImagen = "<div class=\"img-placeholder\">📷<br>Sin imagen</div>";
+            $htmlImagen = "<a href=\"{$productosUrl}\"><div class=\"img-placeholder\">📷<br>Sin imagen</div></a>";
         }
 
         $verURL = RUTA_VISTAS . '/categoriasdetail.php?id=' . $cat->getId();
 
         $filasLista .= <<<FILA
-        <div class="categoria-item">
+        <div class="categoria-item" {$estiloItem}>
             <div class="categoria-imagen">
             {$htmlImagen}
             </div>
             <div class="categoria-info">
-                <strong class="categoria-nombre">{$nombre}</strong>
+                <strong class="categoria-nombre">{$nombre}{$badgeEstado}</strong>
                 <span class="categoria-descripcion">{$descripcion}</span>
             </div>
             <div class="categoria-acciones">
