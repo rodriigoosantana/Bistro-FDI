@@ -78,7 +78,7 @@ INSERT INTO `Productos` (`id`, `nombre`, `descripcion`, `categoria_id`, `precio_
 (9, 'Fruta del día',          'Pieza de fruta de temporada',        4, 1.00, 10);
 
 -- IMÁGENES DE PRODUCTOS (Por defecto, para que aparezca algo)
-INSERT INTO `productoimagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
+INSERT INTO `ProductoImagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
 (1, 4, '/img/original/productos/producto_4_69a94d9a16216.jpg'),
 (2, 3, '/img/original/productos/producto_3_69a94dc0c35b5.jpg'),
 (3, 1, '/img/original/productos/producto_1_69a94ddcb011a.jpg'),
