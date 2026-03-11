@@ -75,4 +75,9 @@ class PedidoService
     {
         return PedidoDB::togglePreparadoStatus($productoId, $pedidoId, $nuevoEstado);
     }
+
+    public static function productoEnPedidodNecesitaPreparacion(int $pedidoId, int $productoId): bool
+    {
+        return PedidoDB::productoEnPedidoNecesitaPreparacion($pedidoId, $productoId);
+    }
 }

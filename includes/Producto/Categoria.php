@@ -8,6 +8,7 @@ class Categoria
     private $descripcion;
     private $imagen;
     private $activa;
+    private $necesitaPrepararcion;
     //endregion
 
     //region Constructor
@@ -18,6 +19,11 @@ class Categoria
         $this->descripcion = $descripcion;
         $this->imagen = $imagen;
         $this->activa = $activa;
+        if ($this->nombre === 'Bebidas') {
+            $this->necesitaPrepararcion = false;
+        } else {
+            $this->necesitaPrepararcion = true;
+        }
     }
     //endregion
 

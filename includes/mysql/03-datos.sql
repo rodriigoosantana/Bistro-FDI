@@ -59,11 +59,11 @@ INSERT INTO `RolesUsuario` (`usuario`, `rol`) VALUES
 
 
 -- CATEGORIAS
-INSERT INTO `Categorias` (`id`, `nombre`, `descripcion`) VALUES
-(1, 'Bocadillos', 'Bocadillos frescos preparados al momento'),
-(2, 'Bebidas',    'Refrescos, agua, zumos y bebidas calientes'),
-(3, 'Menús',      'Menús completos con primero, segundo y postre'),
-(4, 'Postres',    'Dulces y postres del día');
+INSERT INTO `Categorias` (`id`, `nombre`, `descripcion`, `necesita_preparacion`) VALUES
+(1, 'Bocadillos', 'Bocadillos frescos preparados al momento', 1),
+(2, 'Bebidas',    'Refrescos, agua, zumos y bebidas calientes', 0),
+(3, 'Menús',      'Menús completos con primero, segundo y postre', 1),
+(4, 'Postres',    'Dulces y postres del día', 1);
 
 -- PRODUCTOS (IVA: 10% alimentación, 21% bebidas)
 INSERT INTO `Productos` (`id`, `nombre`, `descripcion`, `categoria_id`, `precio_base`, `iva`) VALUES
@@ -78,7 +78,7 @@ INSERT INTO `Productos` (`id`, `nombre`, `descripcion`, `categoria_id`, `precio_
 (9, 'Fruta del día',          'Pieza de fruta de temporada',        4, 1.00, 10);
 
 -- IMÁGENES DE PRODUCTOS (Por defecto, para que aparezca algo)
-INSERT INTO `productoimagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
+INSERT INTO `ProductoImagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
 (1, 4, '/img/original/productos/producto_4_69a94d9a16216.jpg'),
 (2, 3, '/img/original/productos/producto_3_69a94dc0c35b5.jpg'),
 (3, 1, '/img/original/productos/producto_1_69a94ddcb011a.jpg'),
@@ -94,17 +94,6 @@ INSERT INTO `productoimagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
 (13, 9, '/img/original/productos/producto_9_69aca8c9af735.jpg'),
 (14, 8, '/img/original/productos/producto_8_69aca91ca2bfc.jpg'),
 (15, 7, '/img/original/productos/producto_7_69aca97eaa07b.jpg');
-
--- ESTADOS DE PEDIDO
-INSERT INTO `EstadosPedido` (`id`, `nombre`) VALUES
-(1, 'nuevo'),
-(2, 'recibido'),
-(3, 'en_preparacion'),
-(4, 'cocinando'),
-(5, 'listo_cocina'),
-(6, 'terminado'),
-(7, 'entregado'),
-(8, 'cancelado');
 
 -- NUEVOS PEDIDOS DE PRUEBA
 -- Pedido 1: Cliente 1 (Koke) pide un Bocadillo de Jamón y un Refresco.

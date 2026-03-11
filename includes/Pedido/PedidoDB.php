@@ -361,4 +361,31 @@ public static function getPedidoDesglosado(PedidoDesglosado $pedidoDesglosado)
 
     $pedidoDesglosado->setProductos($productos);
   }
+
+  public static function productoEnPedidoNecesitaPreparacion(int $pedido_id, int $productoId): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "SELECT c.necesita_preparacion
+      FROM Productos p
+      JOIN Categorias c ON p.categoria_id = c.id
+      JOIN PedidoProducto pp ON p.id = pp.producto_id
+      WHERE pp.pedido_id = %d AND p.id = %d", 
+      intval($pedido_id),intval($productoId)
+    );
+
+    $resultado = $conexion->query($query);
+
+    if ($resultado) {
+      if ($fila = $resultado->fetch_assoc()) {
+        return boolval($fila['necesita_preparacion']);
+      }
+      $resultado->free();
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    }
+
+    return false;
+  }
 }

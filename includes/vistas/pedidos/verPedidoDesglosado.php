@@ -116,7 +116,8 @@ if ($productos && count($productos) > 0) {
     $checked   = $prod->isPreparado() ? 'checked' : '';
     $checkHtml = '';
 
-    if ($esCocinero || $esCamarero || $esGerente) {
+    // Display checkbox only if the product requires preparation and the user is a cook or manager
+    if (($esCocinero || $esGerente) && PedidoService::productoEnPedidodNecesitaPreparacion($pedidoDesglosado->getId(), $prod->getId())) {
         $checkHtml = <<<CHECK
         <form method="POST" action="" style="display:inline">
             <input type="hidden" name="accion" value="toggle_producto">
@@ -173,7 +174,7 @@ if ($esGerente || $esCamarero) {
         case 'terminado':      $transiciones = ['entregado' => 'Marcar entregado']; break;
     }
 }
-if ($esCocinero) {
+if ($esGerente || $esCocinero) {
     switch ($estadoVal) {
         case 'en preparacion': $transiciones['cocinando']    = 'Empezar a cocinar'; break;
         case 'cocinando':      $transiciones['listo cocina'] = 'Marcar listo cocina'; break;
