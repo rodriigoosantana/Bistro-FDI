@@ -2,6 +2,7 @@
 
 require_once RAIZ_APP . '/includes/Pedido/Pedido.php';
 require_once RAIZ_APP . '/includes/Pedido/PedidoDB.php';
+require_once RAIZ_APP . '/includes/Pedido/PedidoDesglosado.php';
 
 // Clase PedidoService (Lógica de negocio)
 // Capa intermedia
@@ -11,14 +12,18 @@ class PedidoService
 {
   public static function crear(Pedido $pedido): Pedido
   {
-    return PedidoDB::insertar($pedido);
+    return PedidoDB::insert($pedido);
     # devuelve el DTO del pedido con id asignado si se inserta correctamente, null si falla
   }
 
+  public static function eliminar(int $id): bool
+  {
+    return PedidoDB::delete($id);
+  }
 
   public static function actualizar(Pedido $pedido): bool
   {
-    return PedidoDB::actualizar($pedido);
+    return PedidoDB::update($pedido);
   }
 
   public static function buscarPorId(int $id): Pedido
@@ -32,35 +37,56 @@ class PedidoService
   }
 
   // TODO
-  public static function listarPorCategoria($categoriaId)
+  public static function listarPorCategoria($idCategoria)
   {
-    return PedidoDB::listarPorCategoria($categoriaId);
+    return PedidoDB::listarPorCategoria($idCategoria);
     # devuelve array de pedidos que pertenecen a la categoría indicada, o array vacío 
   }
 
 
-  public static function cambiarDisponibilidad($id, $disponible)
+  public static function cambiarDisponibilidad($idPedido, $disponible)
   {
     # id del pedido, nuevo valor de disponibilidad
-    return PedidoDB::cambiarDisponibilidad($id, $disponible);
+    return PedidoDB::cambiarDisponibilidad($idPedido, $disponible);
     # devuelve true si se actualiza correctamente, false si falla
   }
 
-  public static function cambiarEstado($id, $activo)
+  public static function cambiarEstado($id, $estado)
   {
-    # id del pedido, nuevo estado activo/inactivo
-    return PedidoDB::cambiarEstado($id, $activo);
+    return PedidoDB::cambiarEstado($id, $estado);
     # devuelve true si se actualiza correctamente, false si falla
   }
 
-  public static function getPedidoDesglosado(Pedido $pedido): PedidoDesglosado
+  public static function insertarProductoPedido(int $idPedido, int $idProducto, int $cantidad, float $precioUnitario): bool
   {
-    if (PedidoDB::buscarPorId($pedido->getId()) === null) {
-      throw new Exception("Pedido con id {$pedido->getId()} no encontrado");
+    return PedidoDB::insertarProductoPedido($idPedido, $idProducto, $cantidad, $precioUnitario);
+  }
+
+  public static function actualizarProductoPedido(int $idPedido, int $idProducto, int $cantidad): bool
+  {
+    return PedidoDB::actualizarProductoPedido($idPedido, $idProducto, $cantidad);
+  }
+
+  public static function eliminarProductoPedido(int $idPedido, int $idProducto): bool
+  {
+    return PedidoDB::eliminarProductoPedido($idPedido, $idProducto);
+  }
+
+  public static function buscarDesglosadoPorId(int $idPedido): PedidoDesglosado
+  {
+    $pedido = PedidoDB::buscarPorId($idPedido);
+    if ($pedido === null) {
+      throw new Exception("Pedido con id {$idPedido} no encontrado");
     }
 
-    $pd = new PedidoDesglosado($pedido, []);
-    PedidoDB::getPedidoDesglosado($pd);
-    return $pd;
+    $pedidoDesglosado = new PedidoDesglosado($pedido, []);
+    PedidoDB::getPedidoDesglosado($pedidoDesglosado);
+    return $pedidoDesglosado;
+  }
+
+  public static function listarPorEstados(array $estados = null, int $clienteId = null): array
+  {
+    return PedidoDB::listarPorEstados($estados, $clienteId);
+    # devuelve array de pedidos que coinciden con los estados indicados (si se pasan), o todos los pedidos si estados es null
   }
 }

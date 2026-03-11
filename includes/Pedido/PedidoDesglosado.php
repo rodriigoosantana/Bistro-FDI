@@ -5,16 +5,17 @@ class PedidoDesglosado extends Pedido
   /** @var ProductoEnPedido[] */
   private array $productos = [];
 
-  public function __construct(Pedido $p, array $productos)
+  public function __construct(Pedido $pedido, array $productos)
   {
     parent::__construct(
-      $p->getNumeroPedido(),
-      $p->getFechaCreacion(),
-      $p->getEstado(),
-      $p->getTipo(),
-      $p->getClienteId(),
-      $p->getCocineroId(),
-      $p->getTotal()
+      $pedido->getNumeroPedido(),
+      $pedido->getFechaCreacion(),
+      $pedido->getEstado(),
+      $pedido->getTipo(),
+      $pedido->getClienteId(),
+      $pedido->getCocineroId(),
+      $pedido->getTotal(),
+      $pedido->getId()
     );
     $this->productos = $productos;
   }
@@ -35,12 +36,26 @@ class ProductoEnPedido
   private string $nombre;
   private float $precio;
   private int $cantidad;
+  private bool $preparado;
+  private int $id;
 
-  public function __construct(string $n, float $p, int $c)
+  public function __construct(int $id, string $n, float $p, int $c, bool $preparado)
   {
+    $this->id = $id;
     $this->nombre = $n;
     $this->precio = $p;
     $this->cantidad = $c;
+    $this->preparado = $preparado;
+  }
+
+  public function getId(): int
+  {
+    return $this->id;
+  }
+
+  public function setId(int $id): void
+  {
+    $this->id = $id;
   }
 
   public function getNombre(): string
@@ -58,18 +73,38 @@ class ProductoEnPedido
     return $this->cantidad;
   }
 
-  public function setNombre(string $n): void
+  public function getProductoId(): int
   {
-    $this->nombre = $n;
+    return $this->id;
   }
 
-  public function setPrecio(float $p): void
+  public function setNombre(string $nombre): void
   {
-    $this->precio = $p;
+    $this->nombre = $nombre;
   }
 
-  public function setCantidad(int $c): void
+  public function setPrecio(float $precio): void
   {
-    $this->cantidad = $c;
+    $this->precio = $precio;
+  }
+
+  public function setCantidad(int $cantidad): void
+  {
+    $this->cantidad = $cantidad;
+  }
+
+  public function setProductoId(int $productoId): void
+  {
+    $this->productoId = $id;
+  }
+
+  public function isPreparado(): bool
+  {
+    return $this->preparado;
+  }
+
+  public function setPreparado(bool $preparado): void
+  {
+    $this->preparado = $preparado;
   }
 }

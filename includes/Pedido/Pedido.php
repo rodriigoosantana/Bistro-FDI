@@ -3,9 +3,9 @@
 enum Estado: string {
 	case Nuevo = "nuevo"; // En proceso de creacion, aun poniendo productos
 	case Recibido = "recibido"; // El pedido se ha terminado, pero no pagado
-	case EnPreparacion = "en_preparacion"; // El pedido se ha pagado, a la espera de un camarero
+	case EnPreparacion = "en preparacion"; // El pedido se ha pagado, a la espera de un camarero
 	case Cocinando = "cocinando"; // Los productos se estan preparando por un cocinero
-	case ListoCocina = "listo_cocina"; // Los productos se han terminado de preparar por la cocina, falta que lo prepare un camarero
+	case ListoCocina = "listo cocina"; // Los productos se han terminado de preparar por la cocina, falta que lo prepare un camarero
 	case Terminado = "terminado"; // Pedido completado, esperando que lo recoga un cliente
 	case Entregado = "entregado"; // Pedido entregado a cliente (DONE)
 	case Cancelado = "cancelado"; // Se puede cancelar en Nuevo o Recibido
@@ -22,44 +22,44 @@ enum Tipo: string {
 class Pedido
 {
 	// region Campos privados
-	private int $id;
-	private int $numero_pedido;
-	private DateTime $fecha_creacion;
+	private ?int $id;
+	private int $numeroPedido;
+	private DateTime $fechaCreacion;
 	private Estado $estado;
 	private Tipo $tipo;
-	private int $cliente_id;
-	private int $cocinero_id;
+	private int $clienteId;
+	private ?int $cocineroId;
 	private float $total;
 	// endregion
 
 	// region Constructor
-	public function __construct(int $numero_pedido, DateTime $fecha_creacion, Estado $estado, Tipo $tipo, int $cliente_id, int $cocinero_id, float $total, int $id = null)
+	public function __construct(int $numeroPedido, DateTime $fechaCreacion, Estado $estado, Tipo $tipo, int $clienteId, ?int $cocineroId, float $total, ?int $id = null)
 	{
 		$this->id = $id;
-		$this->numero_pedido = $numero_pedido;
-		$this->fecha_creacion = $fecha_creacion;
+		$this->numeroPedido = $numeroPedido;
+		$this->fechaCreacion = $fechaCreacion;
 		$this->estado = $estado;
 		$this->tipo = $tipo;
-		$this->cliente_id = $cliente_id;
-		$this->cocinero_id = $cocinero_id;
+		$this->clienteId = $clienteId;
+		$this->cocineroId = $cocineroId;
 		$this->total = $total;
 	}
 	// endregion
 
 	// region Getters
-	public function getId(): int
+	public function getId(): ?int
 	{
 		return $this->id;
 	}
 
 	public function getNumeroPedido(): int
 	{
-		return $this->numero_pedido;
+		return $this->numeroPedido;
 	}
 
 	public function getFechaCreacion(): DateTime
 	{
-		return $this->fecha_creacion;
+		return $this->fechaCreacion;
 	}
 
 	public function getEstado(): Estado
@@ -74,12 +74,12 @@ class Pedido
 
 	public function getClienteId(): int
 	{
-		return $this->cliente_id;
+		return $this->clienteId;
 	}
 
-	public function getCocineroId(): int
+	public function getCocineroId(): ?int
 	{
-		return $this->cocinero_id;
+		return $this->cocineroId;
 	}
 
 	public function getTotal(): float
@@ -95,14 +95,14 @@ class Pedido
 		$this->id = $id;
 	}
 
-	public function setNumeroPedido(int $numero_pedido)
+	public function setNumeroPedido(int $numeroPedido)
 	{
-		$this->numero_pedido = $numero_pedido;
+		$this->numeroPedido = $numeroPedido;
 	}
 
-	public function setFechaCreacion(DateTime $fecha_creacion)
+	public function setFechaCreacion(DateTime $fechaCreacion)
 	{
-		$this->fecha_creacion = $fecha_creacion;
+		$this->fechaCreacion = $fechaCreacion;
 	}
 
 	public function setEstado(Estado $estado)
@@ -115,14 +115,14 @@ class Pedido
 		$this->tipo = $tipo;
 	}
 
-	public function setClienteId(int $cliente_id)
+	public function setClienteId(int $clienteId)
 	{
-		$this->cliente_id = $cliente_id;
+		$this->clienteId = $clienteId;
 	}
 
-	public function setCocineroId(int $cocinero_id)
+	public function setCocineroId(?int $cocineroId)
 	{
-		$this->cocinero_id = $cocinero_id;
+		$this->cocineroId = $cocineroId;
 	}
 
 	public function setTotal(float $total)

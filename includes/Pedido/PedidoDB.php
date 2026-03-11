@@ -1,6 +1,7 @@
 <?php
 
 require_once RAIZ_APP . '/includes/Pedido/Pedido.php';
+require_once RAIZ_APP . '/includes/Pedido/PedidoDesglosado.php';
 
 // Clase PedidoDB
 // Capa de acceso a datos para Pedido.
@@ -13,21 +14,22 @@ class PedidoDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf(
-      "INSERT INTO Pedidos (numero_dia, fecha_creacion, estado, tipo, cliente_id, cocinero_id, total)
-			VALUES (%d, %s, %s, %s, %d, %d, %f)",
+    $cocineroId = $pedido->getCocineroId() !== null ? intval($pedido->getCocineroId()) : "NULL";
 
+    $query = sprintf(
+      "INSERT INTO Pedidos (numero_pedido, fecha_creacion, estado, tipo, cliente_id, cocinero_id, total)
+			VALUES (%d, '%s', '%s', '%s', %d, %s, %f)",
       intval($pedido->getNumeroPedido()),
-      $conexion->real_escape_string($pedido->getFechaCreacion()->format("Y-m-d H:i:s")), // TODO now?
+      $conexion->real_escape_string($pedido->getFechaCreacion()->format("Y-m-d H:i:s")),
       $conexion->real_escape_string($pedido->getEstado()->value),
       $conexion->real_escape_string($pedido->getTipo()->value),
       intval($pedido->getClienteId()),
-      intval($pedido->getCocineroId()),
-      floatval($pedido->getTotal()),
+      $cocineroId,
+      floatval($pedido->getTotal())
     );
 
-    if ($conexion->query($query) == true) {
-      $pedido->setId($conexion->insert_id); # Asignar el id al pedido
+    if ($conexion->query($query) === true) {
+      $pedido->setId($conexion->insert_id);
       return $pedido;
     } else {
       error_log("Error BD ({$conexion->errno}): {$conexion->error}");
@@ -39,20 +41,38 @@ class PedidoDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
+    $cocineroId = $pedido->getCocineroId() !== null ? intval($pedido->getCocineroId()) : "NULL";
+
     $query = sprintf(
       "UPDATE Pedidos
-			SET numero_pedido='%d', fecha_creacion='%s', estado_id='%d',
-			tipo='%s', cliente_id='%d', cocinero_id='%d', total='%f'
+			SET numero_pedido=%d, fecha_creacion='%s', estado='%s',
+			tipo='%s', cliente_id=%d, cocinero_id=%s, total=%f
 			WHERE id=%d",
-
       intval($pedido->getNumeroPedido()),
-      $conexion->real_escape_string($pedido->getFechaCreacion()->format("Y-m-d H:i:s")), // TODO now?
+      $conexion->real_escape_string($pedido->getFechaCreacion()->format("Y-m-d H:i:s")),
       $conexion->real_escape_string($pedido->getEstado()->value),
       $conexion->real_escape_string($pedido->getTipo()->value),
       intval($pedido->getClienteId()),
-      intval($pedido->getCocineroId()),
+      $cocineroId,
       floatval($pedido->getTotal()),
       intval($pedido->getId())
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
+
+  public static function delete(int $id): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "DELETE FROM Pedidos WHERE id=%d",
+      intval($id)
     );
 
     if ($conexion->query($query)) {
@@ -83,18 +103,18 @@ class PedidoDB
         return new Pedido(
           intval($fila['numero_pedido']),
           new DateTime($fila['fecha_creacion']),
-          Estado::from($fila['estado']), // Cast de string al enum
-          Tipo::from($fila['tipo']), // Cast de string al enum
+          Estado::from($fila['estado']),
+          Tipo::from($fila['tipo']),
           intval($fila['cliente_id']),
-          intval($fila['cocinero_id']),
+          $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
           floatval($fila['total']),
           intval($fila['id'])
         );
       }
     } else {
       error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
     }
+    return null;
   }
 
 
@@ -112,11 +132,11 @@ class PedidoDB
       while ($fila = $resultado->fetch_assoc()) {
         $pedidos[] = new Pedido(
           intval($fila['numero_pedido']),
-          $fila['fecha_creacion'],
+          new DateTime($fila['fecha_creacion']),
           Estado::from($fila['estado']),
           Tipo::from($fila['tipo']),
           intval($fila['cliente_id']),
-          intval($fila['cocinero_id']),
+          $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
           floatval($fila['total']),
           intval($fila['id'])
         );
@@ -126,18 +146,18 @@ class PedidoDB
       error_log("Error BD ({$conexion->errno}): {$conexion->error}");
     }
 
-    return $pedidos; // En este caso si hay error devuelve array vacío en vez de false
+    return $pedidos;
   }
 
-  // Devolver el pedido hecho mas reciente en la fecha (DateTime) indicada o null si no ha habido ninguno en esa fecha
+
   public static function obtenerUltimoPedidoDelDia(DateTime $fecha)
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
       "SELECT * FROM Pedidos
-			WHERE DATE(fecha_creacion) = %s
-			ORDER BY fecha_creacion DESC LIMIT 1",
+      WHERE DATE(fecha_creacion) = '%s'
+      ORDER BY fecha_creacion DESC LIMIT 1",
       $fecha->format('Y-m-d')
     );
 
@@ -147,16 +167,15 @@ class PedidoDB
       if ($fila = $resultado->fetch_assoc()) {
         $pedido = new Pedido(
           intval($fila['numero_pedido']),
-          $fila['fecha_creacion'],
-          Estado::from($fila['estado_id']),
+          new DateTime($fila['fecha_creacion']),
+          Estado::from($fila['estado']),
           Tipo::from($fila['tipo']),
           intval($fila['cliente_id']),
-          intval($fila['cocinero_id']),
+          $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
           floatval($fila['total']),
           intval($fila['id'])
         );
         $resultado->free();
-
         return $pedido;
       }
     }
@@ -169,8 +188,8 @@ class PedidoDB
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
-      "UPDATE Productos SET estado=%s WHERE id=%d",
-      $estado,
+      "UPDATE Pedidos SET estado='%s' WHERE id=%d",
+      $conexion->real_escape_string($estado->value),
       intval($id)
     );
 
@@ -182,16 +201,125 @@ class PedidoDB
     }
   }
 
-  public static function getPedidoDesglosado(PedidoDesglosado $pedido)
+   public static function insertarProductoPedido(int $pedidoId, int $productoId, int $cantidad, float $precioUnitario): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
-      "SELECT p.nombre, pp.precio, pp.cantidad
-      FROM ProductosEnPedidos pp
+      "INSERT INTO PedidoProducto (pedido_id, producto_id, cantidad, precio_unitario)
+      VALUES (%d, %d, %d, %f)",
+      intval($pedidoId),
+      intval($productoId),
+      intval($cantidad),
+      floatval($precioUnitario)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
+
+  public static function actualizarProductoPedido(int $pedidoId, int $productoId, int $cantidad): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "UPDATE PedidoProducto SET cantidad = %d WHERE pedido_id = %d AND producto_id = %d",
+      intval($cantidad),
+      intval($pedidoId),
+      intval($productoId)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
+
+  public static function eliminarProductoPedido(int $pedidoId, int $productoId): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "DELETE FROM PedidoProducto WHERE pedido_id = %d AND producto_id = %d",
+      intval($pedidoId),
+      intval($productoId)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
+
+
+  public static function listarPorEstados(array $estados = null, int $clienteId = null)
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = "SELECT * FROM Pedidos";
+    $condiciones = [];
+
+    if ($estados && count($estados) > 0) {
+      $estadosStr = implode(",", array_map(function ($estado) use ($conexion) {
+        $valor = ($estado instanceof Estado) ? $estado->value : $estado;
+        return "'" . $conexion->real_escape_string($valor) . "'";
+      }, $estados));
+      $condiciones[] = "estado IN ($estadosStr)";
+    }
+
+    if ($clienteId !== null) {
+      $condiciones[] = "cliente_id = " . intval($clienteId);
+    }
+
+    if (count($condiciones) > 0) {
+      $query .= " WHERE " . implode(" AND ", $condiciones);
+    }
+
+    $query .= " ORDER BY id ASC";
+
+    $resultado = $conexion->query($query);
+
+    $pedidos = [];
+
+    if ($resultado) {
+      while ($fila = $resultado->fetch_assoc()) {
+        $pedidos[] = new Pedido(
+          intval($fila['numero_pedido']),
+          new DateTime($fila['fecha_creacion']),
+          Estado::from($fila['estado']),
+          Tipo::from($fila['tipo']),
+          intval($fila['cliente_id']),
+          $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
+          floatval($fila['total']),
+          intval($fila['id'])
+        );
+      }
+      $resultado->free();
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    }
+
+    return $pedidos;
+  }
+
+public static function getPedidoDesglosado(PedidoDesglosado $pedidoDesglosado)
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "SELECT p.id as producto_id, p.nombre, pp.precio_unitario, pp.cantidad, pp.preparado
+      FROM PedidoProducto pp
       JOIN Productos p ON pp.producto_id = p.id
       WHERE pp.pedido_id = %d",
-      intval($pedido->getId())
+      intval($pedidoDesglosado->getId())
     );
 
     $resultado = $conexion->query($query);
@@ -201,9 +329,11 @@ class PedidoDB
     if ($resultado) {
       while ($fila = $resultado->fetch_assoc()) {
         $productos[] = new ProductoEnPedido(
+          intval($fila['producto_id']),
           $fila['nombre'],
-          floatval($fila['precio']),
-          intval($fila['cantidad'])
+          floatval($fila['precio_unitario']),
+          intval($fila['cantidad']),
+          boolval($fila['preparado'])
         );
       }
       $resultado->free();
@@ -211,6 +341,6 @@ class PedidoDB
       error_log("Error BD ({$conexion->errno}): {$conexion->error}");
     }
 
-    $pedido->setProductos($productos);
+    $pedidoDesglosado->setProductos($productos);
   }
 }

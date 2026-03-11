@@ -1,4 +1,4 @@
-<?php require_once RAIZ_APP . '/includes/Usuario/Usuario.php'; ?> 
+<?php require_once RAIZ_APP . '/includes/Usuario/Usuario.php'; ?>
 
 <nav>
   <h3>Navegación</h3>
@@ -7,34 +7,24 @@
 
     <?php if (isset($_SESSION['login']) && $_SESSION['login'] === true): ?>
 
-      <!-- Por defecto, al estar logueado puedes ver:
-       - Tu perfil
-       - Productos
-       - Categorías
-       - Pedidos       
-      -->
-      <li><a href="<?php echo RUTA_VISTAS . '/perfilUsuario.php?nombreUsuario=' . $_SESSION['nombreUsuario']; ?>">Mi
-          perfil</a></li>
-      <li><a href="<?php echo RUTA_VISTAS . '/productoslist.php' ?>">Productos</a></li>
-      <li><a href="<?php echo RUTA_VISTAS . '/categoriaslist.php' ?>">Categorías</a></li>
-      <li><a href="<?php echo RUTA_VISTAS . '/pedidoslist.php' ?>">Pedidos</a></li>
-
-      <?php if ($_SESSION['rolId'] === Usuario::ROL_GERENTE): ?> <!-- GERENTE -->
+      <?php if ($_SESSION['rolId'] === Usuario::ROL_GERENTE): ?>
+        <li><a href="<?php echo RUTA_VISTAS . '/productoslist.php' ?>">Productos</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/categoriaslist.php' ?>">Categorías</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/listaUsuarios.php' ?>">Usuarios</a></li>
-        <li><a href="bocetos.php">Bocetos</a></li> <!-- PRÁCTICA 1 -->
-        <li><a href="planificacion.php">Planificación</a></li> <!-- PRÁCTICA 1 -->
+        <li><a href="<?php echo RUTA_VISTAS . '/pedidos/pedidoslist.php' ?>">Pedidos</a></li>
       <?php endif; ?>
 
-      <?php if ($_SESSION['rolId'] === Usuario::ROL_COCINERO): ?> <!-- COCINERO -->
-
+      <?php if ($_SESSION['rolId'] === Usuario::ROL_COCINERO): ?>
+        <li><a href="<?php echo RUTA_VISTAS . '/pedidos/pedidoslist.php' ?>">Pedidos</a></li>
       <?php endif; ?>
 
-      <?php if ($_SESSION['rolId'] === Usuario::ROL_CAMARERO): ?> <!-- CAMARERO -->
-
+      <?php if ($_SESSION['rolId'] === Usuario::ROL_CAMARERO): ?>
+        <li><a href="<?php echo RUTA_VISTAS . '/pedidos/pedidoslist.php' ?>">Pedidos</a></li>
       <?php endif; ?>
 
-      <?php if ($_SESSION['rolId'] === Usuario::ROL_CLIENTE): ?> <!-- CLIENTE -->
-
+      <?php if ($_SESSION['rolId'] === Usuario::ROL_CLIENTE): ?>
+        <li><a href="<?php echo RUTA_VISTAS . '/pedidos/nuevo_pedido.php' ?>">Nuevo Pedido</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/pedidos/pedidoslist.php' ?>">Mis Pedidos</a></li>
       <?php endif; ?>
 
 
