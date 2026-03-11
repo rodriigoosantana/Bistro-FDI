@@ -64,9 +64,11 @@ class Aplicacion
   private function compruebaInstanciaInicializada()
   {
     if (! $this->inicializada) {
-      echo "Aplicacion no inicializa";
-
-      exit();
+      // Lanzar excepción en lugar de echo + exit
+      // El gestor global la captura y muestra pçagina de error
+      throw new \RuntimeException(
+        'Aplicacion::init() no ha sido llamado antes de usar la instancia.'
+      );
     }
   }
 
@@ -84,6 +86,14 @@ class Aplicacion
     $this->compruebaInstanciaInicializada();
 
     if (! $this->conn) {
+      /*
+      Activar excepciones en ysqli antes de abrir la conexión.
+      A partir de aquí cualquier error SQL lanza \mysqli_sql_exception
+      No es necesario comprobar el valor de retorno de las query en las clase DB del proyecto.
+      */
+      $driver = new \mysqli_driver(); 
+      $driver->report_mode = MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT;
+
       $bdHost = $this->bdDatosConexion['host'];
       $bdUser = $this->bdDatosConexion['user'];
       $bdPass = $this->bdDatosConexion['pass'];
@@ -91,15 +101,12 @@ class Aplicacion
 
       $conn = new mysqli($bdHost, $bdUser, $bdPass, $bd);
 
-      if ($conn->connect_errno) {
-        echo "Error de conexión a la BD ({$conn->connect_errno}):  {$conn->connect_error}";
-        exit();
-      }
+      // Con MYSQLI_REPORT_STRICT, si la conexión falla se lanza
+      // \mysqli_sql_exception antes de llegar aquí, por lo que
+      // ya no necesitamos comprobar connect_errno manualmente.
 
-      if (! $conn->set_charset("utf8mb4")) {
-        echo "Error al configurar la BD ({$conn->errno}):  {$conn->error}";
-        exit();
-      }
+      // Forzar codificación UTF-8 en la conexión
+      $conn->set_charset('utf8mb4');
 
       $this->conn = $conn;
     }
