@@ -2,6 +2,7 @@
 
 namespace es\ucm\fdi\aw\vistas\productos;
 
+use es\ucm\fdi\aw\Aplicacion;
 use es\ucm\fdi\aw\vistas\common\formularioBase;
 use es\ucm\fdi\aw\Producto\CategoriaService;
 use es\ucm\fdi\aw\Producto\Categoria;
@@ -19,7 +20,7 @@ class FormularioCategoria extends FormularioBase
     parent::__construct(
       'formCategoria',
       [
-        'urlRediraccion' => RUTA_VISTAS . '/categoriaslist.php',
+        'urlRedireccion' => RUTA_VISTAS . '/categoriaslist.php',
         'enctype' => 'multipart/form-data'
       ]
     );
@@ -125,7 +126,7 @@ IMG;
 
     # Validar descripción
     $descripcion = trim($datos['descripcion'] ?? '');
-    $descripcion = filter_var($descripcion, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $descripcion = strip_tags($descripcion);
     if (!$descripcion || strlen($descripcion) < 8) {
       $this->errores['descripcion'] = 'La descripción debe tener al menos 8 caracteres.';
     }
@@ -146,6 +147,7 @@ IMG;
     }
 
     if (count($this->errores) === 0) {
+      $app = Aplicacion::getInstance();
       if ($this->categoria) {
         # Editar categoría existente
         if (!CategoriaService::actualizar(
@@ -156,12 +158,20 @@ IMG;
           $activa
         )) {
           $this->errores[] = 'Error al actualizar la categoría.';
+        } else {
+          $app->putAtributoPeticion('mensajes', [
+            'Categoría actualizada correctamente'
+          ]);
         }
       } else {
         # Crear nueva categoría
         $categoria = CategoriaService::crear($nombre, $descripcion, $fichero, $activa);
         if (!$categoria) {
           $this->errores[] = 'Error al crear la categoría.';
+        } else {
+          $app->putAtributoPeticion('mensajes', [
+            'Categoría creada correctamente'
+          ]);
         }
       }
     }

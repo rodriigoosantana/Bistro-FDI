@@ -2,10 +2,12 @@
 
 namespace es\ucm\fdi\aw\vistas\productos;
 
+use es\ucm\fdi\aw\Aplicacion;
 use es\ucm\fdi\aw\vistas\common\formularioBase;
 use es\ucm\fdi\aw\Producto\ProductoService;
 use es\ucm\fdi\aw\Producto\CategoriaService;
 use es\ucm\fdi\aw\Producto\Producto;
+
 
 class FormularioProducto extends formularioBase
 {
@@ -63,6 +65,7 @@ class FormularioProducto extends formularioBase
     $checkedDisponible = $disponible ? 'checked' : '';
     $checkedOfertado = $ofertado ? 'checked' : '';
     $checkedActivo = $activo ? 'checked' : '';
+    $disabledDisponible = (!$activo) ? 'disabled' : '';
 
     $tituloForm = $this->producto ? 'Editar producto' : 'Nuevo producto'; #Si el producto existe, se marca como editar, si no, como nuevo
 
@@ -134,7 +137,7 @@ class FormularioProducto extends formularioBase
 
           <div>
               <label for="disponible">
-                  <input type="checkbox" id="disponible" name="disponible" value="1" {$checkedDisponible} />
+                  <input type="checkbox" id="disponible" name="disponible" value="1" {$checkedDisponible} {$disabledDisponible} />
                   Disponible
               </label>
           </div>
@@ -214,8 +217,7 @@ EOF;
       $this->errores['iva'] = 'El IVA debe estar entre 0 y 100.';
     }
 
-    // Checkboxes
-    // Si el form fue enviado, leer del POST; si no, leer del producto
+    // Checkboxes -> Si el form fue enviado, leer del POST; si no, leer del producto
     if (isset($datos['formId'])) {
       $disponible = isset($datos['disponible']);
       $ofertado = isset($datos['ofertado']);
@@ -225,27 +227,41 @@ EOF;
       $ofertado = $this->producto ? $this->producto->isOfertado() : false;
       $activo = $this->producto ? $this->producto->isActivo() : true;
     }
+    if (!$activo) {
+      $disponible = false;
+    }
 
-    //Imágenes
-    $imagenes = (!empty($_FILES['imagenes']['name'][0])) ? $_FILES['imagenes'] : null;
+    $imagenes = (!empty($_FILES['imagenes']['name'][0])) ? $_FILES['imagenes'] : null; #si se han subido imágenes, se obtienen del array $_FILES, si no, se dejan como null para no modificar las imágenes actuales
+    $app = Aplicacion::getInstance(); #para poder usar los atributos de petición y mostrar mensajes flash
 
-    if (count($this->errores) === 0) { #Si no hay errores
+    //Bloque de persistencia: si no hay errores, se crea o actualiza el producto según corresponda
+    if (count($this->errores) === 0) {
       if ($this->producto) { #Si el producto existe
+
         // Editar producto existente
         $this->producto = ProductoService::buscarPorId($this->producto->getId());
         if (!$this->producto) {
           $this->errores[] = 'Error: el producto no existe.';
           return;
         }
+
         // Actualizar campos del DTO
         if (!ProductoService::actualizar($this->producto->getId(), $nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo, $imagenes)) {
           $this->errores[] = 'Error al actualizar el producto.';
+        }
+        // Agregar mensaje flash de éxito
+        else {
+          $app->putAtributoPeticion('mensajes', ['Producto actualizado correctamente.']);
         }
       } else {
         // Crear nuevo producto (DTO)
         $producto = ProductoService::crear($nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo, $imagenes);
         if (!$producto) {
           $this->errores[] = 'Error al crear el producto.';
+        }
+        // Agregar mensaje flash de éxito
+        else {
+          $app->putAtributoPeticion('mensajes', ['Producto creado correctamente.']);
         }
       }
     }

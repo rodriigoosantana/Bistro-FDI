@@ -87,6 +87,7 @@ class Aplicacion
 
   private function __construct() {}
 
+  //Método de inicialización de la aplicación, que se llama desde el gestor global antes de procesar cualquier petición.
   public function init($bdDatosConexion)
   {
     if (! $this->inicializada) {
@@ -96,9 +97,9 @@ class Aplicacion
 
       session_start();
 
-      $this->atributosPeticion = $_SESSION[self::ATRIBUTOS_PETICION] ?? [];
-
-      unset($_SESSION[self::ATRIBUTOS_PETICION]);
+      //Paso 8.1: Implementación de atributos de petición -> cargar los atributos de petición desde la sesión, si existen
+      $this->atributosPeticion = $_SESSION[self::ATRIBUTOS_PETICION] ?? []; 
+      unset($_SESSION[self::ATRIBUTOS_PETICION]); # limpiar los atributos de petición de la sesión para evitar que persistan entre peticiones
     }
   }
 
@@ -155,6 +156,7 @@ class Aplicacion
     return $this->conn;
   }
 
+  //Paso 8.2: Implementación de atributos de petición -> funciones para almacenar y recuperar datos asociados a la petición actual
   public function putAtributoPeticion($clave, $valor)
   {
     $atts = null;

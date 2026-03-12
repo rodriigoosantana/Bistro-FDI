@@ -635,3 +635,17 @@ th, td {
 .categoria-acciones {
   flex-shrink: 0;
 }
+
+/* Mensajes flash (paso 8) */
+.mensajes-flash {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+  padding: 12px 20px;
+  margin-bottom: 16px;
+}
+
+.mensajes-flash p {
+  margin: 4px 0;
+}

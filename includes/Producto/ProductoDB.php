@@ -257,12 +257,20 @@ class ProductoDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf(
-      "UPDATE Productos SET activo=%d WHERE id=%d",
-      $activo ? 1 : 0,
-      intval($id)
-    );
-
+     if ($activo) {
+        // Al activar, solo cambiamos activo (disponible lo gestiona el gerente a mano)
+        $query = sprintf(
+            "UPDATE Productos SET activo=1 WHERE id=%d",
+            intval($id)
+        );
+    } else {
+        // Al desactivar, también quitamos disponible automáticamente
+        $query = sprintf(
+            "UPDATE Productos SET activo=0, disponible=0 WHERE id=%d",
+            intval($id)
+        );
+    }
+    
     $conexion->query($query);
 
     return true;

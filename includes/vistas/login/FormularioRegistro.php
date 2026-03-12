@@ -2,6 +2,7 @@
 
 namespace es\ucm\fdi\aw\vistas\login;
 
+use es\ucm\fdi\aw\Aplicacion;
 use es\ucm\fdi\aw\vistas\common\formularioBase;
 use es\ucm\fdi\aw\Usuario\Usuario;
 use es\ucm\fdi\aw\Usuario\Rol;
@@ -194,6 +195,7 @@ EOF;
       $this->errores['nombreUsuario'] =
         'El nombre de usuario debe tener al menos 4 caracteres.';
     }
+    /*
     $usuarioExistente = UsuarioService::buscarPorNombre($nombreUsuario);
 
     if (($this->usuario == null && $usuarioExistente != null) ||
@@ -201,6 +203,7 @@ EOF;
     ) {
       $this->errores['nombreUsuario'] = "El nombre de usuario ya existe";
     }
+      */
 
     $nombre = trim($datos['nombre'] ?? '');
     $nombre = filter_var($nombre, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -262,8 +265,10 @@ EOF;
 
     if ($this->gerente) {
       $rol = intval($datos['rol']);
-    } else if ($usuarioExistente != null) {
-      $rol = Rol::cargarRol($usuarioExistente->getId())->getId();
+      //} else if ($usuarioExistente != null) {
+    } elseif ($this->usuario != null) {
+      //$rol = Rol::cargarRol($usuarioExistente->getId())->getId();
+      $rol = Rol::cargarRol($this->usuario->getId())->getId();
     } else {
       $rol = Usuario::ROL_CLIENTE;
     }
@@ -284,11 +289,16 @@ EOF;
         $usuario_id
       );
 
+      $app = Aplicacion::getInstance();
+
       if ($this->usuario != null) {
         if (UsuarioService::actualizar($dto, $rol) == null) {
           $this->errores[] = "Error en la modificación del usuario";
         }
-      } else {
+      }
+
+      /*
+      else {
         $usuarioInsertado = UsuarioService::insertar($dto);
         UsuarioService::insertarRoles($usuarioInsertado, Usuario::ROL_CLIENTE);
 
@@ -300,6 +310,26 @@ EOF;
           $_SESSION['rolId'] = Rol::cargarRol($usuarioInsertado->getId())->getId();
           $_SESSION['userId'] = $usuarioInsertado->getId();
           $_SESSION['nombreUsuario'] = $usuarioInsertado->getNombreUsuario();
+        }
+      }
+      */ else {
+        
+        try {
+          $usuarioInsertado = UsuarioService::insertar($dto);
+          UsuarioService::insertarRoles($usuarioInsertado, Usuario::ROL_CLIENTE);
+
+          $_SESSION['login'] = true;
+          $_SESSION['nombre'] = $usuarioInsertado->getNombre();
+          $_SESSION['rolId'] = Rol::cargarRol($usuarioInsertado->getId())->getId();
+          $_SESSION['userId'] = $usuarioInsertado->getId();
+          $_SESSION['nombreUsuario'] = $usuarioInsertado->getNombreUsuario();
+
+          $app->putAtributoPeticion('mensajes', [
+            'Se ha registrado exitosamente',
+            'Bienvenido ' . $usuarioInsertado->getNombre()
+          ]); // Paso 8.3: Implementación de atributos de petición -> almacenar mensajes flash en el atributo de petición para mostrarlos en la siguiente página
+        } catch (UsuarioYaExisteException $e) {
+          $this->errores['nombreUsuario'] = $e->getMessage();
         }
       }
     }

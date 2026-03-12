@@ -31,11 +31,18 @@ if (isset($_GET['id'])) {
 $categoriaOrigen = isset($_GET['categoria']) ? intval($_GET['categoria']) : null;
 $volverUrl = RUTA_VISTAS . '/productoslist.php' . ($categoriaOrigen ? '?categoria=' . $categoriaOrigen : '');
 
-#BORRADO (Solo gerente, acción POST)
+/* BORRADO (Solo gerente, acción POST) [QUITADO PARA EVITAR CONFLICTOS, SOLO BORRADO LÓGICO]
 if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar' && $producto) {
   ProductoService::eliminar($producto->getId());
   header('Location: ' . RUTA_VISTAS . '/productoslist.php');
   exit();
+} */
+
+#TOGGLE ACTIVO/INACTIVO (Solo gerente, acción POST)
+if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'toggleActivo' && $producto) {
+    ProductoService::cambiarEstado($producto->getId(), !$producto->isActivo());
+    header('Location: ' . RUTA_VISTAS . '/productosdetail.php?id=' . $producto->getId());
+    exit();
 }
 
 
@@ -107,13 +114,15 @@ if ($esGerente && ($modoEdicion || !$producto)) {
   $botonesGerente = '';
   if ($esGerente) {
     $editarUrl = RUTA_VISTAS . '/productosdetail.php?id=' . $producto->getId() . '&editar=1';
+    $textoEstado = $producto->isActivo() ? 'Desactivar' : 'Activar';
+    $claseEstado = $producto->isActivo() ? 'btn-borrar' : 'btn-editar';
     $botonesGerente = <<<BTN
         <a href="{$editarUrl}" class="btn btn-editar">Modificar</a>
-        <form method="POST" action="" style="display:inline" id="formBorrar">
-            <input type="hidden" name="accion" value="borrar">
-            <button type="submit" class="btn btn-borrar">Borrar</button>
+        <form method="POST" action="" style="display:inline">
+            <input type="hidden" name="accion" value="toggleActivo">
+            <button type="submit" class="{$claseEstado}">{$textoEstado}</button>
         </form>
-        BTN;
+    BTN;
   }
 
   $tituloPagina = $nombre;
