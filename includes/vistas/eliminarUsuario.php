@@ -1,10 +1,11 @@
 <?php
 
-require_once dirname(__DIR__,2) . '/includes/config.php';
-require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
-require_once RAIZ_APP . '/includes/Usuario/Rol.php';
+require_once dirname(__DIR__, 2) . '/includes/config.php';
 
-$nombreUsuario = $_GET['nombreUsuario'] ?? null; 
+use es\ucm\fdi\aw\Usuario\UsuarioService;
+use es\ucm\fdi\aw\Usuario\Rol;
+
+$nombreUsuario = $_GET['nombreUsuario'] ?? null;
 $usuario = UsuarioService::buscarPorNombre($nombreUsuario);
 
 if (isset($_POST['eliminar'])) {
@@ -12,16 +13,15 @@ if (isset($_POST['eliminar'])) {
   if ($nombreUsuario == $_SESSION['nombreUsuario']) {
     header("Location: logout.php");
     exit();
-  }
-  else {
+  } else {
     header("Location: listaUsuarios.php");
     exit();
   }
 }
 
 if (isset($_POST['cancelar'])) {
-   header("Location: perfilUsuario.php?nombreUsuario={$usuario->getNombreUsuario()}");
-   exit();
+  header("Location: perfilUsuario.php?nombreUsuario={$usuario->getNombreUsuario()}");
+  exit();
 }
 
 
@@ -58,9 +58,3 @@ $contenidoPrincipal = <<<EOS
 EOS;
 
 require("common/plantilla.php");
-?>
-
-
-
-
-

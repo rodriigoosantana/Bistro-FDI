@@ -1,12 +1,9 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 require_once dirname(__DIR__, 2) . '/includes/config.php';
-require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
-require_once RAIZ_APP . '/includes/Usuario/Rol.php';
-require_once RAIZ_APP . '/includes/Aplicacion.php';
 
+use es\ucm\fdi\aw\Usuario\UsuarioService;
+use es\ucm\fdi\aw\Usuario\Rol;
+use es\ucm\fdi\aw\Aplicacion;
 
 $tituloPagina = 'Lista Usuarios';
 $tituloHeader = 'Lista Usuarios';

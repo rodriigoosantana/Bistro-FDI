@@ -1,4 +1,9 @@
 <?php
+
+namespace es\ucm\fdi\aw;
+
+use mysqli;
+
 class Aplicacion
 {
   const ATRIBUTOS_PETICION = 'attsPeticion';

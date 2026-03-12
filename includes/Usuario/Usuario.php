@@ -1,6 +1,7 @@
 <?php
-require_once RAIZ_APP . '/includes/Usuario/RolesUsuario.php';
-require_once RAIZ_APP . '/includes/Usuario/Rol.php';
+
+namespace es\ucm\fdi\aw\Usuario;
+
 class Usuario
 {
   //region Campos privados

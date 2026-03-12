@@ -1,52 +1,58 @@
 <?php
-require_once RAIZ_APP . '/includes/vistas/common/FormularioBase.php';
-require_once RAIZ_APP . '/includes/Producto/CategoriaService.php';
+
+namespace es\ucm\fdi\aw\vistas\productos;
+
+use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\Producto\CategoriaService;
+use es\ucm\fdi\aw\Producto\Categoria;
 
 class FormularioCategoria extends FormularioBase
 {
-    # Region campos privados 
-    private ?Categoria $categoria;
-    # Endregion
+  # Region campos privados 
+  private ?Categoria $categoria;
+  # Endregion
 
-    # Region constructor
-    public function __construct(Categoria $categoria = null)
-    {
-        $this->categoria = $categoria; # Si es null es crear, si es Categoria es editar
-        parent::__construct(
-            'formCategoria', 
-            [
-                'urlRediraccion' => RUTA_VISTAS . '/categoriaslist.php',
-                'enctype' => 'multipart/form-data']);
-    }# Enctype necesario para subir archivos (imágenes)
-    # Endregion
+  # Region constructor
+  public function __construct(Categoria $categoria = null)
+  {
+    $this->categoria = $categoria; # Si es null es crear, si es Categoria es editar
+    parent::__construct(
+      'formCategoria',
+      [
+        'urlRediraccion' => RUTA_VISTAS . '/categoriaslist.php',
+        'enctype' => 'multipart/form-data'
+      ]
+    );
+  } # Enctype necesario para subir archivos (imágenes)
+  # Endregion
 
-    # Region métodos protegidos
-    protected function generaCamposFormulario(&$datos): string
-    {
-    
-     # Valores por defecto: de la categoría existente o vacíos
-        $nombre      = $datos['nombre'] ?? ($this->categoria ? $this->categoria->getNombre()      : '');
-        $descripcion = $datos['descripcion'] ?? ($this->categoria ? $this->categoria->getDescripcion() : '');
-        $activa      = isset($datos['formId']) ? isset($datos['activa']) : ($this->categoria ? $this->categoria->isActiva() : true);
+  # Region métodos protegidos
+  protected function generaCamposFormulario(&$datos): string
+  {
 
-        # Generar errores
-        $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
-        $erroresCampos = self::generaErroresCampos(
-            ['nombre', 'descripcion', 'imagen'],
-            $this->errores
-        );
+    # Valores por defecto: de la categoría existente o vacíos
+    $nombre      = $datos['nombre'] ?? ($this->categoria ? $this->categoria->getNombre()      : '');
+    $descripcion = $datos['descripcion'] ?? ($this->categoria ? $this->categoria->getDescripcion() : '');
+    $activa      = isset($datos['formId']) ? isset($datos['activa']) : ($this->categoria ? $this->categoria->isActiva() : true);
 
-        # Checkbox
-        $checkedActiva = $activa ? 'checked' : '';
+    # Generar errores
+    $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
+    $erroresCampos = self::generaErroresCampos(
+      ['nombre', 'descripcion', 'imagen'],
+      $this->errores
+    );
 
-        # Título del formulario
-        $tituloForm = $this->categoria ? 'Editar categoría' : 'Nueva categoría';
+    # Checkbox
+    $checkedActiva = $activa ? 'checked' : '';
 
-        # Imagen actual (solo en edición)
-        $htmlImagenActual = '';
-        if ($this->categoria && $this->categoria->getImagen()) {
-            $rutaImagen = RUTA_APP . htmlspecialchars($this->categoria->getImagen());
-            $htmlImagenActual = <<<IMG
+    # Título del formulario
+    $tituloForm = $this->categoria ? 'Editar categoría' : 'Nueva categoría';
+
+    # Imagen actual (solo en edición)
+    $htmlImagenActual = '';
+    if ($this->categoria && $this->categoria->getImagen()) {
+      $rutaImagen = RUTA_APP . htmlspecialchars($this->categoria->getImagen());
+      $htmlImagenActual = <<<IMG
             <div>
                 <p><strong>Imagen actual:</strong></p>
                 <img src="{$rutaImagen}" alt="Imagen de la categoría" width="100" />
@@ -54,9 +60,9 @@ class FormularioCategoria extends FormularioBase
             </div>
             <br>
 IMG;
-        }
+    }
 
-        $html = <<<EOF
+    $html = <<<EOF
         {$htmlErroresGlobales}
 
         <fieldset>
@@ -103,63 +109,62 @@ IMG;
             </div>
         </fieldset>
     EOF;
-        return $html;
+    return $html;
+  }
+
+  protected function procesaFormulario(&$datos)
+  {
+    $this->errores = [];
+
+    # Validar nombre
+    $nombre = trim($datos['nombre'] ?? '');
+    $nombre = strip_tags($nombre);
+    if (!$nombre || strlen($nombre) < 3) {
+      $this->errores['nombre'] = 'El nombre debe tener al menos 3 caracteres.';
     }
 
-    protected function procesaFormulario(&$datos)
-    {
-        $this->errores = [];
-
-        # Validar nombre
-        $nombre = trim($datos['nombre'] ?? '');
-        $nombre = strip_tags($nombre);
-        if (!$nombre || strlen($nombre) < 3) {
-            $this->errores['nombre'] = 'El nombre debe tener al menos 3 caracteres.';
-        }
-
-        # Validar descripción
-        $descripcion = trim($datos['descripcion'] ?? '');
-        $descripcion = filter_var($descripcion, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        if (!$descripcion || strlen($descripcion) < 8) {
-            $this->errores['descripcion'] = 'La descripción debe tener al menos 8 caracteres.';
-        }
-
-        # Checkbox
-        $activa = isset($datos['activa']) ? true : false;
-
-        # Imagen: solo si se subió un fichero
-        $fichero = (!empty($_FILES['imagen']['name'])) ? $_FILES['imagen'] : null;
-
-        # Validar extensión si se subió imagen
-        if ($fichero) {
-            $extensionesPermitidas = ['jpg', 'jpeg', 'png', 'webp'];
-            $extension = strtolower(pathinfo($fichero['name'], PATHINFO_EXTENSION));
-            if (!in_array($extension, $extensionesPermitidas)) {
-                $this->errores['imagen'] = 'La imagen debe ser jpg, png o webp.';
-            }
-        }
-
-        if (count($this->errores) === 0) {
-            if ($this->categoria) {
-                # Editar categoría existente
-                if (!CategoriaService::actualizar(
-                    $this->categoria->getId(),
-                    $nombre,
-                    $descripcion,
-                    $fichero,
-                    $activa
-                )) {
-                    $this->errores[] = 'Error al actualizar la categoría.';
-                }
-            } else {
-                # Crear nueva categoría
-                $categoria = CategoriaService::crear($nombre, $descripcion, $fichero, $activa);
-                if (!$categoria) {
-                    $this->errores[] = 'Error al crear la categoría.';
-                }
-            }
-        }
+    # Validar descripción
+    $descripcion = trim($datos['descripcion'] ?? '');
+    $descripcion = filter_var($descripcion, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    if (!$descripcion || strlen($descripcion) < 8) {
+      $this->errores['descripcion'] = 'La descripción debe tener al menos 8 caracteres.';
     }
-    //endregion
+
+    # Checkbox
+    $activa = isset($datos['activa']) ? true : false;
+
+    # Imagen: solo si se subió un fichero
+    $fichero = (!empty($_FILES['imagen']['name'])) ? $_FILES['imagen'] : null;
+
+    # Validar extensión si se subió imagen
+    if ($fichero) {
+      $extensionesPermitidas = ['jpg', 'jpeg', 'png', 'webp'];
+      $extension = strtolower(pathinfo($fichero['name'], PATHINFO_EXTENSION));
+      if (!in_array($extension, $extensionesPermitidas)) {
+        $this->errores['imagen'] = 'La imagen debe ser jpg, png o webp.';
+      }
+    }
+
+    if (count($this->errores) === 0) {
+      if ($this->categoria) {
+        # Editar categoría existente
+        if (!CategoriaService::actualizar(
+          $this->categoria->getId(),
+          $nombre,
+          $descripcion,
+          $fichero,
+          $activa
+        )) {
+          $this->errores[] = 'Error al actualizar la categoría.';
+        }
+      } else {
+        # Crear nueva categoría
+        $categoria = CategoriaService::crear($nombre, $descripcion, $fichero, $activa);
+        if (!$categoria) {
+          $this->errores[] = 'Error al crear la categoría.';
+        }
+      }
+    }
+  }
+  //endregion
 }
-?>

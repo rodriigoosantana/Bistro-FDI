@@ -1,5 +1,9 @@
 <?php
 
+namespace es\ucm\fdi\aw\Usuario;
+
+use es\ucm\fdi\aw\Aplicacion;
+
 class RolesUsuario
 {
   //region Campos privados
