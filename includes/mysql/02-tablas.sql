@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `Pedidos` (
   `id`             int(11)       NOT NULL AUTO_INCREMENT,
   `numero_pedido`  int(11)       NOT NULL,
   `fecha_creacion` datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `estado`         enum('nuevo', 'recibido', 'en preparacion', 'cocinando', 'listo cocina', 'entregado', 'cancelado') NOT NULL DEFAULT 'Nuevo',
+  `estado`         enum('nuevo', 'recibido', 'en preparacion', 'cocinando', 'listo cocina', 'terminado','entregado', 'cancelado') NOT NULL DEFAULT 'nuevo',
   `tipo`           enum('local','llevar') NOT NULL,
   `cliente_id`     int(11)       NOT NULL,
   `cocinero_id`    int(11),

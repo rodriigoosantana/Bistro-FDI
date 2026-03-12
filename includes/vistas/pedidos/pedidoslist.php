@@ -51,7 +51,7 @@ $modos = [
         'filtroCoci' => true,
     ],
     'pedidos a cocinar' => [
-        'titulo'     => 'Peidos pendientes',
+        'titulo'     => 'Pedidos pendientes',
         'estados'    => [Estado::EnPreparacion->value],
         'roles'      => [Usuario::ROL_COCINERO],
         'filtroCoci' => false,

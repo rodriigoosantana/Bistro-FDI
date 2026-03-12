@@ -8,6 +8,7 @@ require_once RAIZ_APP . '/includes/Pedido/PedidoService.php';
 require_once RAIZ_APP . '/includes/Producto/ProductoService.php';
 require_once RAIZ_APP . '/includes/Producto/CategoriaService.php';
 require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
+require_once RAIZ_APP . '/includes/Pedido/Pedido.php';
 
 // Seguridad y Autorización
 if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {

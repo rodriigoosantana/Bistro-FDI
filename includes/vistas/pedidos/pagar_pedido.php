@@ -30,7 +30,7 @@ if (!$pedidoDesglosado) {
 // Verificar que el pedido pertenece al usuario o es gerente/camarero
 $esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
 $esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
-$esDueno    = ($_SESSION['userId'] === $pedidoDesglosado->getClienteId());
+$esDueno = (intval($_SESSION['userId']) === $pedidoDesglosado->getClienteId());
 
 if (!$esGerente && !$esCamarero && !$esDueno) {
     header('Location: ' . RUTA_APP . '/index.php');
