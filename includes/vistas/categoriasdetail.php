@@ -40,7 +40,7 @@ if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar' && $c
 $modoEdicion = ($esGerente && (isset($_GET['editar']) || isset($_POST['formId'])));
 
 if ($esGerente && ($modoEdicion || !$categoria)) {
-    require_once RAIZ_APP . '/includes/vistas/productos/FormularioCategoria.php';
+    require_once RAIZ_APP . '/includes/vistas/productos/formularioCategoria.php';
 
     $form = new FormularioCategoria($categoria);
     $htmlContenido = $form->gestiona();

@@ -13,7 +13,7 @@ class CategoriaDB
         //Construcción de la query (petición SQL)
         $query = sprintf(
             "INSERT INTO Categorias (nombre, descripcion, imagen, activa, necesita_preparacion)
-            VALUES ('%s', '%s', '%s', %d)",
+            VALUES ('%s', '%s', '%s', %d, %d)",
             $conexion->real_escape_string($categoria->getNombre()),
             $conexion->real_escape_string($categoria->getDescripcion()),
             $conexion->real_escape_string($categoria->getImagen()),

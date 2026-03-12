@@ -1,5 +1,5 @@
 <?php
-require_once RAIZ_APP . '/includes/vistas/common/FormularioBase.php';
+require_once RAIZ_APP . '/includes/vistas/common/formularioBase.php';
 require_once RAIZ_APP . '/includes/Producto/CategoriaService.php';
 
 class FormularioCategoria extends FormularioBase
