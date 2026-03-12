@@ -82,26 +82,8 @@ EOF;
                     $this->urlRedireccion = RUTA_VISTAS . '/pedidos/pedidoslist.php';
                 }
             } else {
-                // Crear nuevo pedido
-                $numero_pedido = 1;
-                $fecha_creacion = new DateTime('now');
-                $ultimo_pedido_hoy = PedidoService::obtenerUltimoPedidoDelDia($fecha_creacion);
-                if ($ultimo_pedido_hoy !== null) {
-                    $numero_pedido = $ultimo_pedido_hoy->getNumeroPedido() + 1;
-                }
-
-                $estado = Estado::Nuevo;
-                $cliente_id = $_SESSION['userId'];
-                $cocinero_id = null; // Aún no tiene cocinero asignado
-                $total = 0.0;
-
-                $dto = new Pedido($numero_pedido, $fecha_creacion, $estado, $tipo, $cliente_id, $cocinero_id, $total);
-                $pedido = PedidoService::crear($dto);
-                if (!$pedido || !$pedido->getId()) {
-                    $this->errores[] = 'Error al crear el pedido o obtener su ID.';
-                } else {
-                    $this->urlRedireccion = RUTA_VISTAS . '/pedidos/anadir_productos.php?id=' . $pedido->getId();
-                }
+                // No crear pedido aún — pasar el tipo a anadir_productos para crearlo al confirmar
+                $this->urlRedireccion = RUTA_VISTAS . '/pedidos/anadir_productos.php?tipo=' . urlencode($tipo->value);
             }
         }
     }
