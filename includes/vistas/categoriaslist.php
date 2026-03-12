@@ -12,7 +12,8 @@ if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
 
 $esGerente = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
 
-$categorias = CategoriaService::listarTodas(); # Obtener lista de categorías
+# El gerente puede ver todas las categorías, el resto solo las activas
+$categorias = $esGerente? CategoriaService::listarTodas() : CategoriaService::listarActivas();
 
 # Generar filas de la lista
 $filasLista = '';
@@ -30,7 +31,7 @@ if ($categorias && count($categorias) > 0) {
     $estiloItem = '';
     if (!$cat->isActiva()) {
       $badgeEstado = '<span style="color:red; font-size:0.9em;">[Inactiva]</span>';
-      $estiloItem = 'style=opacity:0.6;'; #Apariencia atenuada para categorías inactivas
+      $estiloItem = 'style="opacity:0.6;"'; #Apariencia atenuada para categorías inactivas
     }
 
     # Imagen o placeholder si no tiene imagen

@@ -4,6 +4,8 @@ namespace es\ucm\fdi\aw\Producto;
 
 use es\ucm\fdi\aw\Producto\Categoria;
 use es\ucm\fdi\aw\Producto\CategoriaDB;
+use es\ucm\fdi\aw\Producto\ProductoService;
+
 
 class CategoriaService
 {
@@ -60,9 +62,17 @@ class CategoriaService
     #devuelve array de categorías, o array vacío si no hay categorías
   }
 
+  public static function listarActivas(): array
+  {
+      return CategoriaDB::listarActivas();
+  }
+
   public static function cambiarEstado($id, $activa): bool
   {
-    #id de la categoría, nuevo estado activa/inactiva
+    # Si se desactiva la categoría, también se desactivan todos los productos asociados a esa categoría
+    if(!$activa) {
+      ProductoService::desactivarPorCategoria($id); #Desactivar todos los productos de la categoría si se desactiva la categoría
+    }
     return CategoriaDB::cambiarEstado($id, $activa);
     #devuelve true si se actualiza correctamente, false si falla
   }
@@ -105,10 +115,4 @@ class CategoriaService
     }
   }
 
-  public static function puedeDesactivar(int $id): bool
-  {
-    #Verificar si hay productos activos asociados a esta categoría
-    return ProductoService::contarDisponiblesPorCategoria($id) === 0;
-    #devuelve true si no hay productos activos en la categoría, false si hay productos activos
-  }
 }

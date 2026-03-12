@@ -32,17 +32,12 @@ if (isset($_GET['id'])) {
 $volverUrl = RUTA_VISTAS . '/categoriaslist.php';
 
 # BORRADO (solo gerente, acción POST)
-$mensajeError = '';
 if ($esGerente && isset($_POST['accion']) && $categoria) {
   $accion = $_POST['accion'];
   if ($accion === 'desactivar') {
-    if (CategoriaService::puedeDesactivar($categoria->getId())) {
-      CategoriaService::cambiarEstado($categoria->getId(), false);
-      header('Location: ' . RUTA_VISTAS . '/categoriaslist.php');
-      exit();
-    } else {
-      $mensajeError = 'No se puede desactivar esta categoría porque tiene productos activos asociados.';
-    }
+    CategoriaService::cambiarEstado($categoria->getId(), false);
+    header('Location:' . RUTA_VISTAS . '/categoriaslist.php');
+    exit();
   } elseif ($accion === 'reactivar') {
     CategoriaService::cambiarEstado($categoria->getId(), true);
     header('Location: ' . RUTA_VISTAS . '/categoriaslist.php?id=' . $categoria->getId());
@@ -93,7 +88,7 @@ if ($esGerente && ($modoEdicion || !$categoria)) {
     if ($categoria->isActiva()) {   # Solo mostrar botón de desactivar si la categoría está activa
       $botonesGerente .= <<<BTN
             <form method="POST" action="" style="display:inline"
-                  onsubmit="return confirm('¿Desactivar esta categoría?')"> 
+                  onsubmit="return confirm('¿Desactivar esta categoría? Sus productos también se desactivarán.')"> 
                 <input type="hidden" name="accion" value="desactivar">
                 <button type="submit" class="btn btn-borrar">Desactivar</button>
             </form>
@@ -108,18 +103,12 @@ if ($esGerente && ($modoEdicion || !$categoria)) {
     }
   }
 
-  $htmlError = '';
-  if ($mensajeError) {
-    $htmlError = '<p style="color:red; font-weight:bold;">' . htmlspecialchars($mensajeError) . '</p>';
-  }
-
   $tituloPagina = $nombre;
   $tituloHeader = 'Ver categoría';
 
   $contenidoPrincipal = <<<EOS
         <section id="contenido">
             <h2>Ver Categoría</h2>
-            {$htmlError}
             <div class="detalle-categoria">
                 <div class="detalle-imagen">
                     {$htmlImagen}

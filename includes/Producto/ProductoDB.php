@@ -299,25 +299,21 @@ class ProductoDB
     }
   }
 
-  # Método para contar el número total de productos disponibles de una categoría
-  public static function contarDisponiblesPorCategoria(int $categoriaId): int
-  {
+  // Desactiva todos los productos de una categoría
+public static function desactivarPorCategoria(int $categoriaId): bool
+{
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
-      "SELECT COUNT(*) AS total FROM Productos WHERE categoria_id=%d AND disponible=1",
-      intval($categoriaId)
+        "UPDATE Productos SET disponible = 0 WHERE categoria_id = %d",
+        $categoriaId
     );
 
-    $resultado = $conexion->query($query);
-
-    if ($resultado) {
-      $fila = $resultado->fetch_assoc();
-      $resultado->free();
-      return intval($fila['total']);
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return -1;
+    if ($conexion->query($query)) {
+        return true;
     }
-  }
+    error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    return false;
+}
+
 }

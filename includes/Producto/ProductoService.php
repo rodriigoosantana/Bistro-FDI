@@ -154,9 +154,10 @@ class ProductoService
     }
   }
 
-  public static function contarDisponiblesPorCategoria(int $categoriaId): int
+  // Desactiva todos los productos de una categoría
+  public static function desactivarPorCategoria(int $categoriaId): bool
   {
-    return ProductoDB::contarDisponiblesPorCategoria($categoriaId);
-    #devuelve el número de productos disponibles en la categoría indicada
+      return ProductoDB::desactivarPorCategoria($categoriaId);
   }
+
 }

@@ -575,3 +575,63 @@ th, td {
     gap: 10px;
     margin-top: 20px;
 }
+
+
+/* === LISTA DE CATEGORÍAS === */
+.lista-categorias {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.categoria-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.categoria-imagen img,
+.categoria-imagen .img-placeholder {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.img-placeholder {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.8em;
+  color: #94a3b8;
+}
+
+.categoria-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.categoria-nombre {
+  font-size: 1.05em;
+}
+
+.categoria-descripcion {
+  font-size: 0.9em;
+  color: #64748b;
+}
+
+.categoria-acciones {
+  flex-shrink: 0;
+}

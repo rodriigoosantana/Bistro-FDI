@@ -129,6 +129,35 @@ class CategoriaDB
     return $categorias;
   }
 
+  // Lista solo las categorías activas, ordenadas por nombre
+public static function listarActivas()
+{
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = "SELECT * FROM Categorias WHERE activa = 1 ORDER BY nombre ASC";
+
+    $resultado = $conexion->query($query);
+
+    $categorias = [];
+
+    if ($resultado) {
+        while ($fila = $resultado->fetch_assoc()) {
+            $categorias[] = new Categoria(
+                $fila['nombre'],
+                $fila['descripcion'],
+                $fila['imagen'],
+                (bool)$fila['activa'],
+                intval($fila['id'])
+            );
+        }
+        $resultado->free();
+    } else {
+        error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    }
+
+    return $categorias;
+}
+
   // Cambia el estado activa/inactiva de una categoría
   public static function cambiarEstado($id, $activa)
   {
