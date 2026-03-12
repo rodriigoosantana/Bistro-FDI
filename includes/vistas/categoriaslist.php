@@ -3,6 +3,7 @@ require_once dirname(__DIR__, 2) . '/includes/config.php';
 
 use es\ucm\fdi\aw\Producto\CategoriaService;
 use es\ucm\fdi\aw\Usuario\Usuario;
+
 # Verificar login
 if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
   header('Location: ' . RUTA_VISTAS . '/login.php');
@@ -20,6 +21,11 @@ if ($categorias && count($categorias) > 0) {
     $nombre = htmlspecialchars($cat->getNombre());
     $descripcion = htmlspecialchars($cat->getDescripcion());
 
+    #Truncar la descripción a 80 caracteres para mostrar en la tabla
+    if (strlen($descripcion) > 80) {
+      $descripcion = substr($descripcion, 0, 80) . '...';
+    }
+
     $badgeEstado = '';
     $estiloItem = '';
     if (!$cat->isActiva()) {
@@ -36,13 +42,7 @@ if ($categorias && count($categorias) > 0) {
       $htmlImagen = "<a href=\"{$productosUrl}\"><div class=\"img-placeholder\">📷<br>Sin imagen</div></a>";
     }
 
-    # Imagen o placeholder si no tiene imagen
-    if ($cat->getImagen()) {
-      $rutaImagen = RUTA_APP . htmlspecialchars($cat->getImagen());
-      $htmlImagen = "<img src=\"{$rutaImagen}\" alt=\"{$nombre}\" class=\"categoria-img\" />";
-    } else {
-      $htmlImagen = "<div class=\"img-placeholder\">📷<br>Sin imagen</div>";
-    }
+    $verURL = RUTA_VISTAS . '/categoriasdetail.php?id=' . $cat->getId();
 
     $filasLista .= <<<FILA
         <div class="categoria-item" {$estiloItem}>

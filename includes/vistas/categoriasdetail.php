@@ -84,6 +84,7 @@ if ($esGerente && ($modoEdicion || !$categoria)) {
   } else {
     $htmlImagen = "<div class=\"img-placeholder\">📷<br>Sin imagen</div>";
   }
+
   # Botones de gerente
   $botonesGerente = '';
   if ($esGerente) {

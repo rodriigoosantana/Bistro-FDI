@@ -1,11 +1,10 @@
 <?php
+
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 
 use es\ucm\fdi\aw\Producto\ProductoService;
 use es\ucm\fdi\aw\Producto\CategoriaService;
-use es\ucm\fdi\aw\Usuario\Usuario;
-
-// Verificar login
+use es\ucm\fdi\aw\Usuario\Usuario; // Verificar login
 if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
   header('Location: ' . RUTA_VISTAS . '/login.php');
   exit();
@@ -50,7 +49,6 @@ if ($productos && count($productos) > 0) {
     $verUrl = RUTA_VISTAS . '/productosdetail.php?id=' . $p->getId()
       . ($categoriaFiltro ? '&categoria=' . $categoriaFiltro : '');
     $disponible = $p->isDisponible() ? '' : '<small>(No disponible)</small>';
-
 
     // Primera imagen del producto si tiene
     $imagenes = ProductoService::listarImagenes($p->getId());

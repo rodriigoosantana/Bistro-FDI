@@ -1,4 +1,5 @@
 <?php
+
 namespace es\ucm\fdi\aw\Producto;
 
 use es\ucm\fdi\aw\Producto\Categoria;
@@ -102,12 +103,12 @@ class CategoriaService
       error_log("Error al mover archivo subido: " . $fichero['name']);
       return null; #Devolver null si no se pudo mover el archivo
     }
+  }
 
-    public static function puedeDesactivar(int $id) : bool
-    {
-        #Verificar si hay productos activos asociados a esta categoría
-        return ProductoService::contarDisponiblesPorCategoria($id) === 0;
-        #devuelve true si no hay productos activos en la categoría, false si hay productos activos
-    }
+  public static function puedeDesactivar(int $id): bool
+  {
+    #Verificar si hay productos activos asociados a esta categoría
+    return ProductoService::contarDisponiblesPorCategoria($id) === 0;
+    #devuelve true si no hay productos activos en la categoría, false si hay productos activos
   }
 }
