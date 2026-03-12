@@ -7,7 +7,8 @@ use es\ucm\fdi\aw\Pedido\PedidoService;
 use es\ucm\fdi\aw\Pedido\PedidoDB;
 use es\ucm\fdi\aw\Pedido\Pedido;
 use \DateTime;
-use \Tipo;
+use es\ucm\fdi\aw\Pedido\Tipo;
+use es\ucm\fdi\aw\Pedido\Estado;
 
 class FormularioPedido extends formularioBase
 {

@@ -16,25 +16,20 @@ class ProductoImagenDB
       $conexion->real_escape_string($rutaImagen)
     );
 
-    if ($conexion->query($query)) {
-      return $conexion->insert_id; #devuelve el id de la imagen insertada
-    } else {
-      error_log("Error al insertar imagen de producto: " . $conexion->error);
-      return false; #falla la inserción
-    }
+    $conexion->query($query);
+
+    return $conexion->insert_id;
   }
+
   public static function borrarPorProducto(int $productoId): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf("DELETE FROM ProductoImagen WHERE producto_id = %d", $productoId);
 
-    if ($conexion->query($query)) {
-      return true; #se eliminaron las imágenes del producto
-    } else {
-      error_log("Error al eliminar imágenes de producto: " . $conexion->error);
-      return false; #falla la eliminación
-    }
+    $conexion->query($query);
+
+    return true;
   }
 
   public static function listarPorProducto($productoId): array
@@ -45,13 +40,8 @@ class ProductoImagenDB
 
     $resultado = $conexion->query($query);
 
-    if ($resultado) {
-      $imagenes = $resultado->fetch_all(MYSQLI_ASSOC);
-      $resultado->free();
-      return $imagenes;
-    } else {
-      error_log("Error al listar imágenes de producto: " . $conexion->error);
-      return []; #falla la consulta, devuelve array vacío
-    }
+    $imagenes = $resultado->fetch_all(MYSQLI_ASSOC);
+    $resultado->free();
+    return $imagenes;
   }
 }

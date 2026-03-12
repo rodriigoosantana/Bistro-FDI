@@ -19,11 +19,11 @@ TRUNCATE TABLE `Usuarios`;
 TRUNCATE TABLE `Roles`;
 
 -- ROLES (prioridad: 1=máximo acceso)
-INSERT INTO `Roles` (`id`, `nombre`, `prioridad`) VALUES
-(1, 'gerente',  1),
-(2, 'cocinero', 2),
-(3, 'camarero', 3),
-(4, 'cliente',  4);
+INSERT INTO `Roles` (`id`, `nombre`) VALUES
+(1, 'gerente'),
+(2, 'cocinero'),
+(3, 'camarero'),
+(4, 'cliente');
 
 -- USUARIOS
 -- password -> $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi

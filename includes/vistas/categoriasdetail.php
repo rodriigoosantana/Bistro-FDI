@@ -3,15 +3,13 @@ require_once dirname(__DIR__, 2) . '/includes/config.php';
 
 use es\ucm\fdi\aw\Producto\CategoriaService;
 use es\ucm\fdi\aw\vistas\productos\FormularioCategoria;
-use es\ucm\fdi\aw\Usuario\Usuario;
+use es\ucm\fdi\aw\Aplicacion;
 
-# Verificar login
-if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-  header('Location: ' . RUTA_VISTAS . '/login.php');
-  exit();
+if (!Aplicacion::estaLogueado()) {
+    header('Location: ' . RUTA_VISTAS . '/login.php');
+    exit();
 }
-
-$esGerente = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
+$esGerente = Aplicacion::esGerente();
 
 # Sin id solo puede entrar el gerente (para crear)
 if (!isset($_GET['id']) && !$esGerente) {

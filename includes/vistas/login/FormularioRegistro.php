@@ -7,6 +7,8 @@ use es\ucm\fdi\aw\Usuario\Usuario;
 use es\ucm\fdi\aw\Usuario\Rol;
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 
+use es\ucm\fdi\aw\Usuario\UsuarioYaExisteException; # Excepción personalizada para indicar que el nombre de usuario ya existe
+
 class FormularioRegistro extends formularioBase
 {
   private $usuario;

@@ -19,7 +19,8 @@ class Aplicacion
     return self::$instancia;
   }
 
-  //Funciones para control de accesos.
+  //Funciones para control de accesos -> en vez de que cada vista consulte
+  //$_SESSION['rolId'] directamente, se centraliza el control de acceso a través de funciones como esta.
 
   //No se puede importar user por dependencia circular entre config y aplicacion
   private const ROL_GERENTE = 1;
@@ -30,6 +31,41 @@ class Aplicacion
   public static function puedeListarUsuarios()
   {
     return isset($_SESSION["rolId"]) && $_SESSION["rolId"] == self::ROL_GERENTE;
+  }
+
+  public static function estaLogueado(): bool
+  {
+    return isset($_SESSION['login']) && $_SESSION['login'] === true;
+  }
+
+  public static function esGerente(): bool
+  {
+    return isset($_SESSION['rolId']) && $_SESSION['rolId'] === self::ROL_GERENTE;
+  }
+
+  public static function esCocinero(): bool
+  {
+    return isset($_SESSION['rolId']) && $_SESSION['rolId'] === self::ROL_COCINERO;
+  }
+
+  public static function esCamarero(): bool
+  {
+    return isset($_SESSION['rolId']) && $_SESSION['rolId'] === self::ROL_CAMARERO;
+  }
+
+  public static function esCliente(): bool
+  {
+    return isset($_SESSION['rolId']) && $_SESSION['rolId'] === self::ROL_CLIENTE;
+  }
+
+  public static function getRolId(): ?int
+  {
+    return $_SESSION['rolId'] ?? null;
+  }
+
+  public static function getUserId(): ?int
+  {
+    return $_SESSION['userId'] ?? null;
   }
 
 
@@ -96,7 +132,7 @@ class Aplicacion
       A partir de aquí cualquier error SQL lanza \mysqli_sql_exception
       No es necesario comprobar el valor de retorno de las query en las clase DB del proyecto.
       */
-      $driver = new \mysqli_driver(); 
+      $driver = new \mysqli_driver();
       $driver->report_mode = MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT;
 
       $bdHost = $this->bdDatosConexion['host'];

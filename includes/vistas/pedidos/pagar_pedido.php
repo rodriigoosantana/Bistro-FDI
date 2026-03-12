@@ -4,6 +4,7 @@
 use es\ucm\fdi\aw\Pedido\PedidoService;
 use es\ucm\fdi\aw\Pedido\PagoService;
 use es\ucm\fdi\aw\Usuario\Usuario;
+use es\ucm\fdi\aw\Pedido\Estado;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 

@@ -4,6 +4,7 @@ namespace es\ucm\fdi\aw\Pedido;
 
 use \DateTime;
 
+/*
 enum Estado: string
 {
   case Nuevo = "nuevo"; // En proceso de creacion, aun poniendo productos
@@ -21,6 +22,7 @@ enum Tipo: string
   case ParaTomar = "local";
   case ParaLlevar = "llevar";
 };
+*/
 
 // Clase Pedido
 // Solo contiene propiedades, getters y setters.

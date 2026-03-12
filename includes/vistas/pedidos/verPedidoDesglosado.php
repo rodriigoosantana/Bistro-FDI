@@ -3,6 +3,7 @@
 
 use es\ucm\fdi\aw\Pedido\PedidoService;
 use es\ucm\fdi\aw\Usuario\Usuario;
+use es\ucm\fdi\aw\Pedido\Estado;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 // Verificar login
@@ -61,7 +62,7 @@ if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar') {
 
 if (isset($_POST['accion']) && $_POST['accion'] === 'cambiar_estado' && isset($_POST['nuevo_estado'])) {
   $nuevoEstado = trim($_POST['nuevo_estado']);
-  PedidoService::cambiarEstado($pedidoDesglosado->getId(), $nuevoEstado);
+  PedidoService::cambiarEstado($pedidoDesglosado->getId(), Estado::from($nuevoEstado));
   header('Location: ' . RUTA_VISTAS . '/pedidosdetail.php?id=' . $pedidoDesglosado->getId());
   exit();
 }

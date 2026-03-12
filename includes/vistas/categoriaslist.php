@@ -1,16 +1,15 @@
 <?php
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 
+use es\ucm\fdi\aw\Aplicacion;
 use es\ucm\fdi\aw\Producto\CategoriaService;
-use es\ucm\fdi\aw\Usuario\Usuario;
 
-# Verificar login
-if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-  header('Location: ' . RUTA_VISTAS . '/login.php');
-  exit();
+if (!Aplicacion::estaLogueado()) {
+    header('Location: ' . RUTA_VISTAS . '/login.php');
+    exit();
 }
 
-$esGerente = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
+$esGerente = Aplicacion::esGerente();
 
 # El gerente puede ver todas las categorías, el resto solo las activas
 $categorias = $esGerente? CategoriaService::listarTodas() : CategoriaService::listarActivas();

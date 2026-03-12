@@ -23,14 +23,10 @@ class CategoriaDB
       $categoria->isActiva() ? 1 : 0
     );
 
-    //Eejecutar la query y manejar el resultado
-    if ($conexion->query($query) == TRUE) {
-      $categoria->setId($conexion->insert_id); # Asignar el ID generado por la base de datos
-      return $categoria;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return null;
-    }
+    $conexion->query($query);
+    $categoria->setId($conexion->insert_id); # Asignar el ID generado por la base de datos
+
+    return $categoria;
   }
 
   //Actualiza una categoría existente en la base de datos.
@@ -49,12 +45,9 @@ class CategoriaDB
       intval($categoria->getId())
     );
 
-    if ($conexion->query($query) == TRUE) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
-    }
+    $conexion->query($query);
+
+    return true;
   }
 
   public static function actualizarImagen(int $id, string $rutaImagen): bool
@@ -66,8 +59,11 @@ class CategoriaDB
       $conexion->real_escape_string($rutaImagen),
       $id
     );
-    return $conexion->query($query) ? true : false;
+    $conexion->query($query);
+    
+    return true; 
   }
+
   // Busca una categoría por su ID
   public static function buscarPorId($id)
   {
@@ -80,21 +76,17 @@ class CategoriaDB
 
     $resultado = $conexion->query($query);
 
-    if ($resultado) {
-      $fila = $resultado->fetch_assoc();
-      $resultado->free();
+    $fila = $resultado->fetch_assoc();
+    $resultado->free();
 
-      if ($fila) {
-        return new Categoria(
-          $fila['nombre'],
-          $fila['descripcion'],
-          $fila['imagen'],
-          (bool)$fila['activa'],
-          intval($fila['id'])
-        );
-      }
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    if ($fila) {
+      return new Categoria(
+        $fila['nombre'],
+        $fila['descripcion'],
+        $fila['imagen'],
+        (bool)$fila['activa'],
+        intval($fila['id'])
+      );
     }
 
     return null;
@@ -111,27 +103,23 @@ class CategoriaDB
 
     $categorias = [];
 
-    if ($resultado) {
-      while ($fila = $resultado->fetch_assoc()) {  //Recorremos cada fila del resultado y creamos un objeto Categoria para cada una
-        $categorias[] = new Categoria(
-          $fila['nombre'],
-          $fila['descripcion'],
-          $fila['imagen'],
-          (bool)$fila['activa'],
-          intval($fila['id'])
-        );
-      }
-      $resultado->free();  //Liberamos el resultado para liberar memoria
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    while ($fila = $resultado->fetch_assoc()) {  //Recorremos cada fila del resultado y creamos un objeto Categoria para cada una
+      $categorias[] = new Categoria(
+        $fila['nombre'],
+        $fila['descripcion'],
+        $fila['imagen'],
+        (bool)$fila['activa'],
+        intval($fila['id'])
+      );
     }
+    $resultado->free();
 
     return $categorias;
   }
 
   // Lista solo las categorías activas, ordenadas por nombre
-public static function listarActivas()
-{
+  public static function listarActivas()
+  {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = "SELECT * FROM Categorias WHERE activa = 1 ORDER BY nombre ASC";
@@ -140,23 +128,19 @@ public static function listarActivas()
 
     $categorias = [];
 
-    if ($resultado) {
-        while ($fila = $resultado->fetch_assoc()) {
-            $categorias[] = new Categoria(
-                $fila['nombre'],
-                $fila['descripcion'],
-                $fila['imagen'],
-                (bool)$fila['activa'],
-                intval($fila['id'])
-            );
-        }
-        $resultado->free();
-    } else {
-        error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    while ($fila = $resultado->fetch_assoc()) {
+      $categorias[] = new Categoria(
+        $fila['nombre'],
+        $fila['descripcion'],
+        $fila['imagen'],
+        (bool)$fila['activa'],
+        intval($fila['id'])
+      );
     }
+    $resultado->free();
 
     return $categorias;
-}
+  }
 
   // Cambia el estado activa/inactiva de una categoría
   public static function cambiarEstado($id, $activa)
@@ -169,11 +153,7 @@ public static function listarActivas()
       intval($id)
     );
 
-    if ($conexion->query($query)) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
-    }
+    $conexion->query($query);
+    return true;
   }
 }

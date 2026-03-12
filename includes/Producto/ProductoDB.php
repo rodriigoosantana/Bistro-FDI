@@ -31,13 +31,10 @@ class ProductoDB
       $producto->isActivo() ? 1 : 0
     );
 
-    if ($conexion->query($query) == TRUE) {
-      $producto->setId($conexion->insert_id); #Asignar el id al producto
-      return $producto;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return null;
-    }
+    $conexion->query($query);
+    $producto->setId($conexion->insert_id); #Asignar el id al producto
+
+    return $producto;
   }
 
   //Actualiza un producto existente en la base de datos.
@@ -62,12 +59,9 @@ class ProductoDB
       intval($producto->getId())
     );
 
-    if ($conexion->query($query)) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
-    }
+    $conexion->query($query);
+
+    return true;
   }
 
   // Elimina un producto por su id. Devuelve true si se elimina, false si falla.
@@ -77,13 +71,9 @@ class ProductoDB
 
     $query = sprintf("DELETE FROM Productos WHERE id=%d", $id);
 
-    if ($conexion->query($query)) {
-      return true;
-    }
+    $conexion->query($query);
 
-
-    error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-    return false;
+    return true;
   }
 
   //Busca un producto por su id.
@@ -98,27 +88,24 @@ class ProductoDB
 
     $resultado = $conexion->query($query);
 
-    if ($resultado) {
-      $fila = $resultado->fetch_assoc();
-      $resultado->free();
+    $fila = $resultado->fetch_assoc();
+    $resultado->free();
 
-      if ($fila) {
-        return new Producto(
-          $fila['nombre'],
-          $fila['descripcion'],
-          intval($fila['categoria_id']),
-          floatval($fila['precio_base']),
-          intval($fila['iva']),
-          (bool) $fila['disponible'],
-          (bool) $fila['ofertado'],
-          (bool) $fila['activo'],
-          intval($fila['id'])
-        );
-      }
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return null;
+    if ($fila) {
+      return new Producto(
+        $fila['nombre'],
+        $fila['descripcion'],
+        intval($fila['categoria_id']),
+        floatval($fila['precio_base']),
+        intval($fila['iva']),
+        (bool) $fila['disponible'],
+        (bool) $fila['ofertado'],
+        (bool) $fila['activo'],
+        intval($fila['id'])
+      );
     }
+
+    return null;
   }
 
 
@@ -133,24 +120,20 @@ class ProductoDB
 
     $productos = [];
 
-    if ($resultado) {
-      while ($fila = $resultado->fetch_assoc()) {
-        $productos[] = new Producto(
-          $fila['nombre'],
-          $fila['descripcion'],
-          intval($fila['categoria_id']),
-          floatval($fila['precio_base']),
-          intval($fila['iva']),
-          (bool) $fila['disponible'],
-          (bool) $fila['ofertado'],
-          (bool) $fila['activo'],
-          intval($fila['id'])
-        );
-      }
-      $resultado->free();
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    while ($fila = $resultado->fetch_assoc()) {
+      $productos[] = new Producto(
+        $fila['nombre'],
+        $fila['descripcion'],
+        intval($fila['categoria_id']),
+        floatval($fila['precio_base']),
+        intval($fila['iva']),
+        (bool) $fila['disponible'],
+        (bool) $fila['ofertado'],
+        (bool) $fila['activo'],
+        intval($fila['id'])
+      );
     }
+    $resultado->free();
 
     return $productos; #En este caso si hay error devuelve array vacío en vez de false
   }
@@ -166,24 +149,20 @@ class ProductoDB
 
     $productos = [];
 
-    if ($resultado) {
-      while ($fila = $resultado->fetch_assoc()) {
-        $productos[] = new Producto(
-          $fila['nombre'],
-          $fila['descripcion'],
-          intval($fila['categoria_id']),
-          floatval($fila['precio_base']),
-          intval($fila['iva']),
-          (bool) $fila['disponible'],
-          (bool) $fila['ofertado'],
-          (bool) $fila['activo'],
-          intval($fila['id'])
-        );
-      }
-      $resultado->free();
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    while ($fila = $resultado->fetch_assoc()) {
+      $productos[] = new Producto(
+        $fila['nombre'],
+        $fila['descripcion'],
+        intval($fila['categoria_id']),
+        floatval($fila['precio_base']),
+        intval($fila['iva']),
+        (bool) $fila['disponible'],
+        (bool) $fila['ofertado'],
+        (bool) $fila['activo'],
+        intval($fila['id'])
+      );
     }
+    $resultado->free();
 
     return $productos;
   }
@@ -238,24 +217,20 @@ class ProductoDB
     $resultado = $conexion->query($query);
     $productos = [];
 
-    if ($resultado) {
-      while ($fila = $resultado->fetch_assoc()) {
-        $productos[] = new Producto(
-          $fila['nombre'],
-          $fila['descripcion'],
-          intval($fila['categoria_id']),
-          floatval($fila['precio_base']),
-          intval($fila['iva']),
-          (bool) $fila['disponible'],
-          (bool) $fila['ofertado'],
-          (bool) $fila['activo'],
-          intval($fila['id'])
-        );
-      }
-      $resultado->free();
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    while ($fila = $resultado->fetch_assoc()) {
+      $productos[] = new Producto(
+        $fila['nombre'],
+        $fila['descripcion'],
+        intval($fila['categoria_id']),
+        floatval($fila['precio_base']),
+        intval($fila['iva']),
+        (bool) $fila['disponible'],
+        (bool) $fila['ofertado'],
+        (bool) $fila['activo'],
+        intval($fila['id'])
+      );
     }
+    $resultado->free();
 
     return $productos;
   }
@@ -271,12 +246,9 @@ class ProductoDB
       intval($id)
     );
 
-    if ($conexion->query($query)) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
-    }
+    $conexion->query($query);
+
+    return true;
   }
 
 
@@ -291,29 +263,23 @@ class ProductoDB
       intval($id)
     );
 
-    if ($conexion->query($query)) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
-    }
+    $conexion->query($query);
+
+    return true;
   }
 
   // Desactiva todos los productos de una categoría
-public static function desactivarPorCategoria(int $categoriaId): bool
-{
+  public static function desactivarPorCategoria(int $categoriaId): bool
+  {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
-        "UPDATE Productos SET disponible = 0 WHERE categoria_id = %d",
-        $categoriaId
+      "UPDATE Productos SET disponible = 0 WHERE categoria_id = %d",
+      $categoriaId
     );
 
-    if ($conexion->query($query)) {
-        return true;
-    }
-    error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-    return false;
-}
+    $conexion->query($query);
 
+    return true;
+  }
 }
