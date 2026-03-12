@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'reabr
 // Solo el cliente del pedido, un camarero o un gerente pueden modificarlo
 $esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
 $esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
-$esDueno    = ($_SESSION['userId'] === $pedido->getClienteId());
+$esDueno = (intval($_SESSION['userId']) === $pedido->getClienteId());
 
 if (!$esGerente && !$esCamarero && !$esDueno) {
     header('Location: ' . RUTA_APP . '/index.php');

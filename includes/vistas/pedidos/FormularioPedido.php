@@ -85,7 +85,7 @@ EOF;
                 // Crear nuevo pedido
                 $numero_pedido = 1;
                 $fecha_creacion = new DateTime('now');
-                $ultimo_pedido_hoy = PedidoDB::obtenerUltimoPedidoDelDia($fecha_creacion);
+                $ultimo_pedido_hoy = PedidoService::obtenerUltimoPedidoDelDia($fecha_creacion);
                 if ($ultimo_pedido_hoy !== null) {
                     $numero_pedido = $ultimo_pedido_hoy->getNumeroPedido() + 1;
                 }

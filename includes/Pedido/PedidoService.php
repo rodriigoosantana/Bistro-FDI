@@ -85,4 +85,9 @@ class PedidoService
     {
         return PedidoDB::productoEnPedidoNecesitaPreparacion($pedidoId, $productoId);
     }
+
+    public static function obtenerUltimoPedidoDelDia(DateTime $fecha): ?Pedido
+    {
+        return PedidoDB::obtenerUltimoPedidoDelDia($fecha);
+    }
 }
