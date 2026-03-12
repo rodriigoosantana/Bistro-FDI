@@ -52,23 +52,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metodo_pago'])) {
     if ($metodoPago === 'tarjeta') {
         $numeroTarjeta = $_POST['numero_tarjeta'] ?? '';
         $resultadoValidacion = PagoService::validarTarjeta($numeroTarjeta);
-        
+
         if ($resultadoValidacion['valido']) {
-            $pagoValido = true;
+            if (PedidoService::cambiarEstado($idPedido, Estado::EnPreparacion)) {
+                header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+                exit();
+            } else {
+                $mensajeError = "Error al procesar el pago.";
+            }
         } else {
             $mensajeError = $resultadoValidacion['error'];
         }
     } elseif ($metodoPago === 'camarero') {
-        $pagoValido = true;
-    }
-
-    if ($pagoValido) {
-        if (PedidoService::cambiarEstado($idPedido, Estado::EnPreparacion)) {
-            header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-            exit();
-        } else {
-            $mensajeError = "Error al procesar el pago.";
-        }
+        // El pedido se queda en Recibido, el camarero lo cobrará en persona
+        header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+        exit();
     }
 }
 
@@ -123,6 +121,13 @@ $tituloHeader = 'Finalizar Pago';
 
 $htmlNotificacionError = $mensajeError ? "<p class='msg-error'>{$mensajeError}</p>" : "";
 
+$opcionCamarero = (!$esCamarero) ? <<<HTML
+<div class="opcion-pago">
+    <input type="radio" id="pago_camarero" name="metodo_pago" value="camarero" onclick="alternarMetodoPago('camarero')">
+    <label for="pago_camarero">Pagar al camarero</label>
+</div>
+HTML : '';
+
 $contenidoPrincipal = <<<EOS
     <section id="contenido">
         <h2>Resumen de tu pedido</h2>
@@ -145,9 +150,8 @@ $contenidoPrincipal = <<<EOS
             </div>
 
             <div class="opcion-pago">
-                <input type="radio" id="pago_camarero" name="metodo_pago" value="camarero" onclick="alternarMetodoPago('camarero')">
-                <label for="pago_camarero">Pagar al camarero</label>
-            </div>
+            {$opcionCamarero}
+           </div>
         </form>
 
         <div class="botones-pago">

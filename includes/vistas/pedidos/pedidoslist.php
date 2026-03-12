@@ -21,39 +21,45 @@ $cocineroId = $esCocinero ? $_SESSION['userId'] : null;
 
 $modos = [
     'activos' => [
-        'titulo'     => 'Pedidos en curso',
+        'titulo'     => 'En curso',
         'estados'    => [Estado::Nuevo->value, Estado::Recibido->value, Estado::EnPreparacion->value, Estado::Cocinando->value, Estado::ListoCocina->value, Estado::Terminado->value],
         'roles'      => [Usuario::ROL_CLIENTE, Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
         'filtroCoci' => false,
     ],
     'para recoger' => [
-        'titulo'     => 'Pedidos para recoger',
+        'titulo'     => 'Por recoger',
         'estados'    => [Estado::ListoCocina->value],
         'roles'      => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
         'filtroCoci' => false,
     ],
     'historial' => [
-        'titulo'     => 'Historial de pedidos',
+        'titulo'     => 'Historial',
         'estados'    => [], // vacío = sin filtro
         'roles'      => [Usuario::ROL_CLIENTE, Usuario::ROL_GERENTE],
         'filtroCoci' => false,
     ],
     'cocina' => [
-        'titulo'     => 'Cola de cocina',
+        'titulo'     => 'En cocina',
         'estados'    => [Estado::EnPreparacion->value, Estado::Cocinando->value],
         'roles'      => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
         'filtroCoci' => false,
     ],
     'mis pedidos' => [
-        'titulo'     => 'Mis pedidos',
+        'titulo'     => 'Mis pedidos en curso',
         'estados'    => [Estado::Cocinando->value],
         'roles'      => [Usuario::ROL_COCINERO],
         'filtroCoci' => true,
     ],
     'pedidos a cocinar' => [
-        'titulo'     => 'Pedidos pendientes',
+        'titulo'     => 'Por cocinar',
         'estados'    => [Estado::EnPreparacion->value],
         'roles'      => [Usuario::ROL_COCINERO],
+        'filtroCoci' => false,
+    ],
+    'por cobrar' => [
+        'titulo'     => 'Por cobrar',
+        'estados'    => [Estado::Recibido->value],
+        'roles'      => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
         'filtroCoci' => false,
     ],
 ];
@@ -157,7 +163,7 @@ if ($pedidos && count($pedidos) > 0) {
 
         if ($estadoVal === Estado::Nuevo->value) {
             $verUrl = RUTA_VISTAS . '/pedidos/anadir_productos.php?id=' . $id;
-        } elseif ($estadoVal === Estado::Recibido->value) {
+        } elseif ($estadoVal === Estado::Recibido->value && !$esCamarero && !$esGerente) {
             $verUrl = RUTA_VISTAS . '/pedidos/pagar_pedido.php?id=' . $id;
         } else {
             $verUrl = RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $id;
