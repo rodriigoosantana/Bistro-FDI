@@ -1,5 +1,9 @@
 <?php
-require_once RAIZ_APP . '/includes/Usuario/Rol.php';
+
+namespace es\ucm\fdi\aw\Usuario;
+
+use es\ucm\fdi\aw\Usuario\Rol;
+use es\ucm\fdi\aw\Aplicacion;
 
 class UsuarioDB
 {

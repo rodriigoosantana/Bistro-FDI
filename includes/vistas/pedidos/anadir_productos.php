@@ -1,38 +1,36 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
+use es\ucm\fdi\aw\Pedido\PedidoService;
+use es\ucm\fdi\aw\Producto\ProductoService;
+use es\ucm\fdi\aw\Producto\CategoriaService;
+use es\ucm\fdi\aw\Usuario\Usuario;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
-require_once RAIZ_APP . '/includes/Pedido/PedidoService.php';
-require_once RAIZ_APP . '/includes/Producto/ProductoService.php';
-require_once RAIZ_APP . '/includes/Producto/CategoriaService.php';
-require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
 
 // Seguridad y Autorización
 if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-    header('Location: ' . RUTA_VISTAS . '/login.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/login.php');
+  exit();
 }
 
 $idPedido = $_GET['id'] ?? $_POST['pedidoId'] ?? null;
 if (!$idPedido) {
-    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+  exit();
 }
 
 $pedido = PedidoService::buscarPorId($idPedido);
 if (!$pedido) {
-    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+  exit();
 }
 
 // Manejo de Acción Reabrir (antes del chequeo de estado)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'reabrir') {
-    if ($pedido->getEstado() === Estado::Recibido) {
-        PedidoService::cambiarEstado($idPedido, Estado::Nuevo);
-        $pedido->setEstado(Estado::Nuevo);
-    }
+  if ($pedido->getEstado() === Estado::Recibido) {
+    PedidoService::cambiarEstado($idPedido, Estado::Nuevo);
+    $pedido->setEstado(Estado::Nuevo);
+  }
 }
 
 // Solo el cliente del pedido, un camarero o un gerente pueden modificarlo
@@ -41,14 +39,14 @@ $esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
 $esDueno    = ($_SESSION['userId'] === $pedido->getClienteId());
 
 if (!$esGerente && !$esCamarero && !$esDueno) {
-    header('Location: ' . RUTA_APP . '/index.php');
-    exit();
+  header('Location: ' . RUTA_APP . '/index.php');
+  exit();
 }
 
 // Solo se pueden añadir productos si el pedido está en estado 'nuevo'
 if ($pedido->getEstado() !== Estado::Nuevo) {
-    header('Location: ' . RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $idPedido);
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $idPedido);
+  exit();
 }
 
 $mensajeExito = "";
@@ -56,74 +54,70 @@ $mensajeError = "";
 
 // Manejo de Acciones
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $accionSolicitada = $_POST['accion'] ?? '';
+  $accionSolicitada = $_POST['accion'] ?? '';
 
-    if ($accionSolicitada === 'add') {
-        $idProducto = intval($_POST['productoId'] ?? 0);
-        $cantidadProducto = intval($_POST['cantidad'] ?? 1);
-        $productoExistente = ProductoService::buscarPorId($idProducto);
+  if ($accionSolicitada === 'add') {
+    $idProducto = intval($_POST['productoId'] ?? 0);
+    $cantidadProducto = intval($_POST['cantidad'] ?? 1);
+    $productoExistente = ProductoService::buscarPorId($idProducto);
 
-        if ($productoExistente && $cantidadProducto > 0) {
-            // Comprobar si ya existe en el pedido
-            $pedidoDesglosado = PedidoService::buscarDesglosadoPorId($idPedido);
-            $yaEstaEnCarrito = false;
-            foreach ($pedidoDesglosado->getProductos() as $productoEnPedido) {
-                if ($productoEnPedido->getProductoId() === $idProducto) {
-                    $yaEstaEnCarrito = true;
-                    $nuevaCantidadTotal = $productoEnPedido->getCantidad() + $cantidadProducto;
-                    PedidoService::actualizarProductoPedido($idPedido, $idProducto, $nuevaCantidadTotal);
-                    break;
-                }
-            }
-            if (!$yaEstaEnCarrito) {
-                PedidoService::insertarProductoPedido($idPedido, $idProducto, $cantidadProducto, $productoExistente->getPrecioFinal());
-            }
-            $mensajeExito = "Producto añadido al pedido.";
+    if ($productoExistente && $cantidadProducto > 0) {
+      // Comprobar si ya existe en el pedido
+      $pedidoDesglosado = PedidoService::buscarDesglosadoPorId($idPedido);
+      $yaEstaEnCarrito = false;
+      foreach ($pedidoDesglosado->getProductos() as $productoEnPedido) {
+        if ($productoEnPedido->getProductoId() === $idProducto) {
+          $yaEstaEnCarrito = true;
+          $nuevaCantidadTotal = $productoEnPedido->getCantidad() + $cantidadProducto;
+          PedidoService::actualizarProductoPedido($idPedido, $idProducto, $nuevaCantidadTotal);
+          break;
         }
-    } 
-    elseif ($accionSolicitada === 'update') {
-        $idProducto = intval($_POST['productoId'] ?? 0);
-        $cantidadProducto = intval($_POST['cantidad'] ?? 0);
-        if ($cantidadProducto > 0) {
-            PedidoService::actualizarProductoPedido($idPedido, $idProducto, $cantidadProducto);
-        } else {
-            PedidoService::eliminarProductoPedido($idPedido, $idProducto);
-        }
-        $mensajeExito = "Cantidad actualizada.";
-    } 
-    elseif ($accionSolicitada === 'delete') {
-        $idProducto = intval($_POST['productoId'] ?? 0);
-        PedidoService::eliminarProductoPedido($idPedido, $idProducto);
-        $mensajeExito = "Producto eliminado del pedido.";
+      }
+      if (!$yaEstaEnCarrito) {
+        PedidoService::insertarProductoPedido($idPedido, $idProducto, $cantidadProducto, $productoExistente->getPrecioFinal());
+      }
+      $mensajeExito = "Producto añadido al pedido.";
     }
-    elseif ($accionSolicitada === 'confirmar') {
-        $pedidoDesglosado = PedidoService::buscarDesglosadoPorId($idPedido);
-        if (count($pedidoDesglosado->getProductos()) > 0) {
-            // Calcular total final
-            $precioTotalAcumulado = 0;
-            foreach ($pedidoDesglosado->getProductos() as $productoEnPedido) {
-                $precioTotalAcumulado += $productoEnPedido->getPrecio() * $productoEnPedido->getCantidad();
-            }
-            $pedido->setTotal($precioTotalAcumulado);
-            $pedido->setEstado(Estado::Recibido); // Confirmado
-            if (PedidoService::actualizar($pedido)) {
-                header('Location: ' . RUTA_VISTAS . '/pedidos/pagar_pedido.php?id=' . $idPedido);
-                exit();
-            } else {
-                $mensajeError = "Error al confirmar el pedido.";
-            }
-        } else {
-            $mensajeError = "El pedido no tiene productos.";
-        }
+  } elseif ($accionSolicitada === 'update') {
+    $idProducto = intval($_POST['productoId'] ?? 0);
+    $cantidadProducto = intval($_POST['cantidad'] ?? 0);
+    if ($cantidadProducto > 0) {
+      PedidoService::actualizarProductoPedido($idPedido, $idProducto, $cantidadProducto);
+    } else {
+      PedidoService::eliminarProductoPedido($idPedido, $idProducto);
     }
-    elseif ($accionSolicitada === 'cancelar') {
-        if (PedidoService::cambiarEstado($idPedido, Estado::Cancelado)) {
-            header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php?modo=historial');
-            exit();
-        } else {
-            $mensajeError = "Error al cancelar el pedido.";
-        }
+    $mensajeExito = "Cantidad actualizada.";
+  } elseif ($accionSolicitada === 'delete') {
+    $idProducto = intval($_POST['productoId'] ?? 0);
+    PedidoService::eliminarProductoPedido($idPedido, $idProducto);
+    $mensajeExito = "Producto eliminado del pedido.";
+  } elseif ($accionSolicitada === 'confirmar') {
+    $pedidoDesglosado = PedidoService::buscarDesglosadoPorId($idPedido);
+    if (count($pedidoDesglosado->getProductos()) > 0) {
+      // Calcular total final
+      $precioTotalAcumulado = 0;
+      foreach ($pedidoDesglosado->getProductos() as $productoEnPedido) {
+        $precioTotalAcumulado += $productoEnPedido->getPrecio() * $productoEnPedido->getCantidad();
+      }
+      $pedido->setTotal($precioTotalAcumulado);
+      $pedido->setEstado(Estado::Recibido); // Confirmado
+      if (PedidoService::actualizar($pedido)) {
+        header('Location: ' . RUTA_VISTAS . '/pedidos/pagar_pedido.php?id=' . $idPedido);
+        exit();
+      } else {
+        $mensajeError = "Error al confirmar el pedido.";
+      }
+    } else {
+      $mensajeError = "El pedido no tiene productos.";
     }
+  } elseif ($accionSolicitada === 'cancelar') {
+    if (PedidoService::cambiarEstado($idPedido, Estado::Cancelado)) {
+      header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php?modo=historial');
+      exit();
+    } else {
+      $mensajeError = "Error al cancelar el pedido.";
+    }
+  }
 }
 
 // Carga de Datos para la Vista
@@ -134,16 +128,16 @@ $pedidoDesglosado = PedidoService::buscarDesglosadoPorId($idPedido);
 // Generación de HTML: Navegador de Productos
 $htmlNavegadorProductos = "";
 foreach ($listaCategorias as $categoria) {
-    if (!$categoria->isActiva()) continue;
-    
-    $htmlProductosCategoria = "";
-    foreach ($listaProductos as $producto) {
-        if ($producto->getCategoriaId() === $categoria->getId() && $producto->isDisponible() && $producto->isActivo()) {
-            $idProducto = $producto->getId();
-            $nombreProducto = htmlspecialchars($producto->getNombre());
-            $precioFormateado = number_format($producto->getPrecioFinal(), 2, ',', '.') . " €";
-            
-            $htmlProductosCategoria .= <<<HTML
+  if (!$categoria->isActiva()) continue;
+
+  $htmlProductosCategoria = "";
+  foreach ($listaProductos as $producto) {
+    if ($producto->getCategoriaId() === $categoria->getId() && $producto->isDisponible() && $producto->isActivo()) {
+      $idProducto = $producto->getId();
+      $nombreProducto = htmlspecialchars($producto->getNombre());
+      $precioFormateado = number_format($producto->getPrecioFinal(), 2, ',', '.') . " €";
+
+      $htmlProductosCategoria .= <<<HTML
             <div class="producto-card">
                 <div class="producto-info">
                     <strong>{$nombreProducto}</strong>
@@ -158,11 +152,11 @@ foreach ($listaCategorias as $categoria) {
                 </form>
             </div>
 HTML;
-        }
     }
+  }
 
-    if ($htmlProductosCategoria !== "") {
-        $htmlNavegadorProductos .= <<<HTML
+  if ($htmlProductosCategoria !== "") {
+    $htmlNavegadorProductos .= <<<HTML
         <div class="categoria-section">
             <h3>{$categoria->getNombre()}</h3>
             <div class="productos-grid">
@@ -170,23 +164,23 @@ HTML;
             </div>
         </div>
 HTML;
-    }
+  }
 }
 
 // Generación de HTML: Carrito
 $htmlCarritoCompras = "";
 $totalPrecioCarrito = 0;
 if (count($pedidoDesglosado->getProductos()) > 0) {
-    foreach ($pedidoDesglosado->getProductos() as $productoEnPedido) {
-        $idProducto = $productoEnPedido->getProductoId();
-        $nombreProducto = htmlspecialchars($productoEnPedido->getNombre());
-        $precioUnitario = number_format($productoEnPedido->getPrecio(), 2, ',', '.');
-        $cantidadActual = $productoEnPedido->getCantidad();
-        $subtotalItem = $productoEnPedido->getPrecio() * $cantidadActual;
-        $totalPrecioCarrito += $subtotalItem;
-        $subtotalItemFormateado = number_format($subtotalItem, 2, ',', '.');
+  foreach ($pedidoDesglosado->getProductos() as $productoEnPedido) {
+    $idProducto = $productoEnPedido->getProductoId();
+    $nombreProducto = htmlspecialchars($productoEnPedido->getNombre());
+    $precioUnitario = number_format($productoEnPedido->getPrecio(), 2, ',', '.');
+    $cantidadActual = $productoEnPedido->getCantidad();
+    $subtotalItem = $productoEnPedido->getPrecio() * $cantidadActual;
+    $totalPrecioCarrito += $subtotalItem;
+    $subtotalItemFormateado = number_format($subtotalItem, 2, ',', '.');
 
-        $htmlCarritoCompras .= <<<HTML
+    $htmlCarritoCompras .= <<<HTML
         <div class="carrito-item">
             <span class="item-nombre">{$nombreProducto}</span>
             <span class="item-precio">{$precioUnitario} €</span>
@@ -205,9 +199,9 @@ if (count($pedidoDesglosado->getProductos()) > 0) {
             </form>
         </div>
 HTML;
-    }
-    $totalPrecioCarritoFormateado = number_format($totalPrecioCarrito, 2, ',', '.');
-    $htmlCarritoCompras .= <<<HTML
+  }
+  $totalPrecioCarritoFormateado = number_format($totalPrecioCarrito, 2, ',', '.');
+  $htmlCarritoCompras .= <<<HTML
     <div class="carrito-total">
         <strong>Total: {$totalPrecioCarritoFormateado} €</strong>
     </div>
@@ -218,7 +212,7 @@ HTML;
     </form>
 HTML;
 } else {
-    $htmlCarritoCompras = "<p>El carrito está vacío.</p>";
+  $htmlCarritoCompras = "<p>El carrito está vacío.</p>";
 }
 
 // Preparación de la Vista Final
@@ -258,4 +252,3 @@ $contenidoPrincipal = <<<EOS
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');
-?>

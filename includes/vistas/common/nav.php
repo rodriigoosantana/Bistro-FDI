@@ -1,4 +1,8 @@
-<?php require_once RAIZ_APP . '/includes/Usuario/Usuario.php'; ?>
+<?php
+
+require_once dirname(__DIR__, 3) . '/includes/config.php';
+
+use es\ucm\fdi\aw\Usuario\Usuario; ?>
 
 <nav>
   <h3>Navegación</h3>

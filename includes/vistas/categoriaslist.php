@@ -1,12 +1,12 @@
 <?php
 require_once dirname(__DIR__, 2) . '/includes/config.php';
-require_once RAIZ_APP . '/includes/Producto/CategoriaService.php';
-require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
 
+use es\ucm\fdi\aw\Producto\CategoriaService;
+use es\ucm\fdi\aw\Usuario\Usuario;
 # Verificar login
 if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-    header('Location: ' . RUTA_VISTAS . '/login.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/login.php');
+  exit();
 }
 
 $esGerente = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
@@ -16,34 +16,35 @@ $categorias = CategoriaService::listarTodas(); # Obtener lista de categorías
 # Generar filas de la lista
 $filasLista = '';
 if ($categorias && count($categorias) > 0) {
-    foreach ($categorias as $cat) {
-        $nombre = htmlspecialchars($cat->getNombre());
-        $descripcion = htmlspecialchars($cat->getDescripcion());
-        
-        #Truncar la descripción a 80 caracteres para mostrar en la tabla
-        if(strlen($descripcion) > 80) {
-            $descripcion = substr($descripcion, 0, 80) . '...';
-        }
+  foreach ($categorias as $cat) {
+    $nombre = htmlspecialchars($cat->getNombre());
+    $descripcion = htmlspecialchars($cat->getDescripcion());
 
-        $badgeEstado = '';
-        $estiloItem = '';
-        if (!$cat->isActiva()) {
-            $badgeEstado = '<span style="color:red; font-size:0.9em;">[Inactiva]</span>';
-            $estiloItem = 'style=opacity:0.6;'; #Apariencia atenuada para categorías inactivas
-        }
+    $badgeEstado = '';
+    $estiloItem = '';
+    if (!$cat->isActiva()) {
+      $badgeEstado = '<span style="color:red; font-size:0.9em;">[Inactiva]</span>';
+      $estiloItem = 'style=opacity:0.6;'; #Apariencia atenuada para categorías inactivas
+    }
 
-        # Imagen o placeholder si no tiene imagen
-        $productosUrl = RUTA_VISTAS . '/productoslist.php?categoria=' . $cat->getId();
-        if ($cat->getImagen()) {
-            $rutaImagen = RUTA_APP . htmlspecialchars($cat->getImagen());
-            $htmlImagen = "<a href=\"{$productosUrl}\"><img src=\"{$rutaImagen}\" alt=\"{$nombre}\" class=\"categoria-img\" /></a>";
-        } else {
-            $htmlImagen = "<a href=\"{$productosUrl}\"><div class=\"img-placeholder\">📷<br>Sin imagen</div></a>";
-        }
+    # Imagen o placeholder si no tiene imagen
+    $productosUrl = RUTA_VISTAS . '/productoslist.php?categoria=' . $cat->getId();
+    if ($cat->getImagen()) {
+      $rutaImagen = RUTA_APP . htmlspecialchars($cat->getImagen());
+      $htmlImagen = "<a href=\"{$productosUrl}\"><img src=\"{$rutaImagen}\" alt=\"{$nombre}\" class=\"categoria-img\" /></a>";
+    } else {
+      $htmlImagen = "<a href=\"{$productosUrl}\"><div class=\"img-placeholder\">📷<br>Sin imagen</div></a>";
+    }
 
-        $verURL = RUTA_VISTAS . '/categoriasdetail.php?id=' . $cat->getId();
+    # Imagen o placeholder si no tiene imagen
+    if ($cat->getImagen()) {
+      $rutaImagen = RUTA_APP . htmlspecialchars($cat->getImagen());
+      $htmlImagen = "<img src=\"{$rutaImagen}\" alt=\"{$nombre}\" class=\"categoria-img\" />";
+    } else {
+      $htmlImagen = "<div class=\"img-placeholder\">📷<br>Sin imagen</div>";
+    }
 
-        $filasLista .= <<<FILA
+    $filasLista .= <<<FILA
         <div class="categoria-item" {$estiloItem}>
             <div class="categoria-imagen">
             {$htmlImagen}
@@ -57,9 +58,9 @@ if ($categorias && count($categorias) > 0) {
             </div>
         </div>
         FILA;
-    }
+  }
 } else {
-    $filasLista = '<p>No hay categorías disponibles.</p>';
+  $filasLista = '<p>No hay categorías disponibles.</p>';
 }
 
 $tituloPagina = 'Categorías';
@@ -68,8 +69,8 @@ $tituloHeader = 'Gestión de Categorías';
 $volverUrl  = RUTA_APP . '/index.php';
 $btnCrearNueva = '';
 if ($esGerente) {   # Solo un gerente puede crear nuevas categorías
-    $crearUrl = RUTA_VISTAS . '/categoriasdetail.php';
-    $btnCrearNueva = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">+ Crear nueva</a>";
+  $crearUrl = RUTA_VISTAS . '/categoriasdetail.php';
+  $btnCrearNueva = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">+ Crear nueva</a>";
 }
 
 $contenidoPrincipal = <<<EOS
@@ -88,4 +89,3 @@ $contenidoPrincipal = <<<EOS
 EOS;
 
 require("common/plantilla.php");
-?>

@@ -1,30 +1,29 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
+
+use es\ucm\fdi\aw\Pedido\PedidoService;
+use es\ucm\fdi\aw\Pedido\PagoService;
+use es\ucm\fdi\aw\Usuario\Usuario;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
-require_once RAIZ_APP . '/includes/Pedido/PedidoService.php';
-require_once RAIZ_APP . '/includes/Pedido/PagoService.php';
-require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
 
 // Verificar login
 if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-    header('Location: ' . RUTA_VISTAS . '/login.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/login.php');
+  exit();
 }
 
 // Se requiere id para ver un pedido
 if (!isset($_GET['id'])) {
-    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+  exit();
 }
 
 $idPedido = intval($_GET['id']);
 $pedidoDesglosado = PedidoService::buscarDesglosadoPorId($idPedido);
 if (!$pedidoDesglosado) {
-    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+  exit();
 }
 
 // Verificar que el pedido pertenece al usuario o es gerente/camarero
@@ -33,43 +32,43 @@ $esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
 $esDueno    = ($_SESSION['userId'] === $pedidoDesglosado->getClienteId());
 
 if (!$esGerente && !$esCamarero && !$esDueno) {
-    header('Location: ' . RUTA_APP . '/index.php');
-    exit();
+  header('Location: ' . RUTA_APP . '/index.php');
+  exit();
 }
 
 // Solo se puede pagar si esta en estado 'recibido'
 if ($pedidoDesglosado->getEstado() !== Estado::Recibido) {
-    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+  exit();
 }
 
 $mensajeError = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metodo_pago'])) {
-    $metodoPago = $_POST['metodo_pago'];
-    $pagoValido = false;
+  $metodoPago = $_POST['metodo_pago'];
+  $pagoValido = false;
 
-    if ($metodoPago === 'tarjeta') {
-        $numeroTarjeta = $_POST['numero_tarjeta'] ?? '';
-        $resultadoValidacion = PagoService::validarTarjeta($numeroTarjeta);
-        
-        if ($resultadoValidacion['valido']) {
-            $pagoValido = true;
-        } else {
-            $mensajeError = $resultadoValidacion['error'];
-        }
-    } elseif ($metodoPago === 'camarero') {
-        $pagoValido = true;
-    }
+  if ($metodoPago === 'tarjeta') {
+    $numeroTarjeta = $_POST['numero_tarjeta'] ?? '';
+    $resultadoValidacion = PagoService::validarTarjeta($numeroTarjeta);
 
-    if ($pagoValido) {
-        if (PedidoService::cambiarEstado($idPedido, Estado::EnPreparacion)) {
-            header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-            exit();
-        } else {
-            $mensajeError = "Error al procesar el pago.";
-        }
+    if ($resultadoValidacion['valido']) {
+      $pagoValido = true;
+    } else {
+      $mensajeError = $resultadoValidacion['error'];
     }
+  } elseif ($metodoPago === 'camarero') {
+    $pagoValido = true;
+  }
+
+  if ($pagoValido) {
+    if (PedidoService::cambiarEstado($idPedido, Estado::EnPreparacion)) {
+      header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+      exit();
+    } else {
+      $mensajeError = "Error al procesar el pago.";
+    }
+  }
 }
 
 // Datos del pedido
@@ -81,20 +80,20 @@ $productos         = $pedidoDesglosado->getProductos();
 $filasProductos    = '';
 
 if ($productos && count($productos) > 0) {
-    foreach ($productos as $prod) {
-        $pNombre    = htmlspecialchars($prod->getNombre());
-        $pPrecio    = number_format($prod->getPrecio(), 2, ',', '.');
-        $pCantidad  = (int)$prod->getCantidad();
-        $pSubtotal  = number_format($prod->getPrecio() * $pCantidad, 2, ',', '.');
+  foreach ($productos as $prod) {
+    $pNombre    = htmlspecialchars($prod->getNombre());
+    $pPrecio    = number_format($prod->getPrecio(), 2, ',', '.');
+    $pCantidad  = (int)$prod->getCantidad();
+    $pSubtotal  = number_format($prod->getPrecio() * $pCantidad, 2, ',', '.');
 
-        $filasProductos .= <<<FILA
+    $filasProductos .= <<<FILA
             <tr>
                 <td>{$pNombre}</td>
                 <td class="text-center">{$pCantidad}</td>
                 <td class="text-right">{$pSubtotal} €</td>
             </tr>
 FILA;
-    }
+  }
 }
 
 $tablaProductos = <<<TABLA
@@ -163,4 +162,3 @@ $contenidoPrincipal = <<<EOS
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');
-?>

@@ -1,7 +1,11 @@
 <?php
 
-require_once RAIZ_APP . '/includes/Pedido/Pedido.php';
-require_once RAIZ_APP . '/includes/Pedido/PedidoDesglosado.php';
+namespace es\ucm\fdi\aw\Pedido;
+
+use es\ucm\fdi\aw\Pedido\Pedido;
+use es\ucm\fdi\aw\Pedido\PedidoDesglosado;
+use es\ucm\fdi\aw\Aplicacion;
+use \DateTime;
 
 // Clase PedidoDB
 // Capa de acceso a datos para Pedido.
@@ -201,7 +205,7 @@ class PedidoDB
     }
   }
 
-   public static function insertarProductoPedido(int $pedidoId, int $productoId, int $cantidad, float $precioUnitario): bool
+  public static function insertarProductoPedido(int $pedidoId, int $productoId, int $cantidad, float $precioUnitario): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -310,7 +314,7 @@ class PedidoDB
     return $pedidos;
   }
 
-public static function getPedidoDesglosado(PedidoDesglosado $pedidoDesglosado)
+  public static function getPedidoDesglosado(PedidoDesglosado $pedidoDesglosado)
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 

@@ -1,9 +1,11 @@
 <?php
 
-require_once RAIZ_APP . '/includes/vistas/common/formularioBase.php';
-require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
-require_once RAIZ_APP . '/includes/Usuario/Rol.php';
-require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
+namespace es\ucm\fdi\aw\vistas\login;
+
+use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\Usuario\Usuario;
+use es\ucm\fdi\aw\Usuario\Rol;
+use es\ucm\fdi\aw\Usuario\UsuarioService;
 
 class FormularioRegistro extends formularioBase
 {

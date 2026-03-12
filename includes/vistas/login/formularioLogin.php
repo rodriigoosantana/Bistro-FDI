@@ -1,28 +1,31 @@
 <?php
-require_once RAIZ_APP . '/includes/vistas/common/formularioBase.php';
-require_once RAIZ_APP . '/includes/Usuario/UsuarioService.php';
-require_once RAIZ_APP . '/includes/Usuario/Rol.php';
+
+namespace es\ucm\fdi\aw\vistas\login;
+
+use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\Usuario\UsuarioService;
+use es\ucm\fdi\aw\Usuario\Rol;
 
 class formularioLogin extends formularioBase
 {
-   //region Constructor
+  //region Constructor
 
-   public function __construct()
-   {
-      parent::__construct('formLogin', ['urlRedireccion' => RUTA_APP . '/index.php']);
-   }
+  public function __construct()
+  {
+    parent::__construct('formLogin', ['urlRedireccion' => RUTA_APP . '/index.php']);
+  }
 
-   //endregion
+  //endregion
 
-   //region Métodos protegidos
+  //region Métodos protegidos
 
-   protected function generaCamposFormulario(&$datos)
-   {
-      $nombreUsuario = $datos['nombreUsuario'] ?? '';
+  protected function generaCamposFormulario(&$datos)
+  {
+    $nombreUsuario = $datos['nombreUsuario'] ?? '';
 
-      $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
-      $erroresCampos = self::generaErroresCampos(['nombreUsuario', 'password'], $this->errores);
-      $html = <<<EOF
+    $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
+    $erroresCampos = self::generaErroresCampos(['nombreUsuario', 'password'], $this->errores);
+    $html = <<<EOF
 {$htmlErroresGlobales}
 
 <fieldset>
@@ -53,46 +56,43 @@ class formularioLogin extends formularioBase
     </div>
 </fieldset>
 EOF;
-      return $html;
-   }
+    return $html;
+  }
 
-   protected function procesaFormulario(&$datos)
-   {
-      $this->errores = [];
+  protected function procesaFormulario(&$datos)
+  {
+    $this->errores = [];
 
-      $nombreUsuario = trim($datos['nombreUsuario'] ?? '');
+    $nombreUsuario = trim($datos['nombreUsuario'] ?? '');
 
-      $nombreUsuario = filter_var($nombreUsuario, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $nombreUsuario = filter_var($nombreUsuario, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-      if (!$nombreUsuario || strlen($nombreUsuario) < 4) {
-         $this->errores['nombreUsuario'] = 'El nombre de usuario no puede estar vacío o tener logitud menor a 4';
+    if (!$nombreUsuario || strlen($nombreUsuario) < 4) {
+      $this->errores['nombreUsuario'] = 'El nombre de usuario no puede estar vacío o tener logitud menor a 4';
+    }
+
+    $password = trim($datos['password'] ?? '');
+
+    $password = filter_var($password, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+    if (!$password || empty($password) || strlen($password) < 4) {
+      $this->errores['password'] = 'El password no puede estar vacío.';
+    }
+
+    if (count($this->errores) === 0) {
+      $usuario = UsuarioService::login($nombreUsuario, $password);
+
+      if (!$usuario) {
+        $this->errores[] = "El usuario o el password no coinciden";
+      } else {
+        $_SESSION['login'] = true;
+        $_SESSION['nombre'] = $usuario->getNombre();
+        $_SESSION['rolId'] = Rol::cargarRol($usuario->getId())->getId();
+        $_SESSION['userId'] = $usuario->getId();
+        $_SESSION['nombreUsuario'] = $usuario->getNombreUsuario();
       }
+    }
+  }
 
-      $password = trim($datos['password'] ?? '');
-
-      $password = filter_var($password, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
-      if (!$password || empty($password) || strlen($password) < 4) {
-         $this->errores['password'] = 'El password no puede estar vacío.';
-      }
-
-      if (count($this->errores) === 0) {
-         $usuario = UsuarioService::login($nombreUsuario, $password);
-
-         if (!$usuario) {
-            $this->errores[] = "El usuario o el password no coinciden";
-         }
-         else {
-            $_SESSION['login'] = true;
-            $_SESSION['nombre'] = $usuario->getNombre();
-            $_SESSION['rolId'] = Rol::cargarRol($usuario->getId())->getId();
-            $_SESSION['userId'] = $usuario->getId();
-            $_SESSION['nombreUsuario'] = $usuario->getNombreUsuario();
-         }
-      }
-   }
-
-//endregion
+  //endregion
 }
-
-?>
