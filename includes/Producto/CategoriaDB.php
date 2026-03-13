@@ -21,7 +21,7 @@ class CategoriaDB
             $conexion->real_escape_string($categoria->getDescripcion()),
             $conexion->real_escape_string($categoria->getImagen()),
             $categoria->isActiva() ? 1 : 0, 
-            $categoria->necesitaPrepararcion ? 1 : 0
+            $categoria->necesitaPreparacion() ? 1 : 0
         );
 
         //Eejecutar la query y manejar el resultado
@@ -33,10 +33,8 @@ class CategoriaDB
             error_log("Error BD ({$conexion->errno}): {$conexion->error}");
             return null;
         }
+        return $categoria;
     }
-
-    return $categoria;
-  }
 
   //Actualiza una categoría existente en la base de datos.
   public static function actualizar(Categoria $categoria)
@@ -57,7 +55,7 @@ class CategoriaDB
     $conexion->query($query);
 
     return true;
-  }la
+  }
 
   public static function actualizarImagen(int $id, string $rutaImagen): bool
   {
@@ -165,4 +163,5 @@ class CategoriaDB
     $conexion->query($query);
     return true;
   }
+}
 ?>

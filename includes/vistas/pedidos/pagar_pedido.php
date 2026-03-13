@@ -68,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metodo_pago'])) {
         header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
         exit();
     }
-  }
 }
 
 // Datos del pedido

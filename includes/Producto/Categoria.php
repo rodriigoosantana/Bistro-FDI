@@ -54,6 +54,11 @@ class Categoria
   {
     return (bool) $this->activa;
   }
+
+  public function necesitaPreparacion()
+  {
+    return (bool) $this->necesitaPrepararcion;
+  }
   //endregion
 
   //region setters
@@ -75,6 +80,11 @@ class Categoria
   public function setActiva($activa)
   {
     $this->activa = $activa;
+  }
+
+  public function setNecesitaPreparacion($necesitaPreparacion)
+  {
+    $this->necesitaPrepararcion = $necesitaPreparacion;
   }
 
   public function setId($id)

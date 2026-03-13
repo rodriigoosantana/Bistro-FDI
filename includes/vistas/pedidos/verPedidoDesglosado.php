@@ -3,6 +3,7 @@
 use es\ucm\fdi\aw\Pedido\PedidoService;
 use es\ucm\fdi\aw\Usuario\Usuario;
 use es\ucm\fdi\aw\Pedido\Estado;
+use es\ucm\fdi\aw\Pedido\Tipo;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 // Verificar login

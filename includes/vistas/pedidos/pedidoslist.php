@@ -4,6 +4,8 @@
 namespace es\ucm\fdi\aw\vistas\pedidos;
 
 use es\ucm\fdi\aw\Pedido\PedidoService;
+use es\ucm\fdi\aw\Pedido\Estado;
+use es\ucm\fdi\aw\Pedido\Tipo;
 use es\ucm\fdi\aw\Usuario\Usuario;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';

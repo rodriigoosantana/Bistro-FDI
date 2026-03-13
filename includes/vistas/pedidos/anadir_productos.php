@@ -3,6 +3,7 @@
 use es\ucm\fdi\aw\Pedido\PedidoService;
 use es\ucm\fdi\aw\Pedido\Pedido;
 use es\ucm\fdi\aw\Pedido\Estado;
+use es\ucm\fdi\aw\Pedido\Tipo;
 use es\ucm\fdi\aw\Producto\ProductoService;
 use es\ucm\fdi\aw\Producto\CategoriaService;
 use es\ucm\fdi\aw\Usuario\Usuario;
@@ -198,7 +199,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
   }
-}
 
 // Carga de Datos para la Vista
 $listaCategorias = CategoriaService::listarTodas();
