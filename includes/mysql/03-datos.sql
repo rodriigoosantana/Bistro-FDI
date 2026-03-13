@@ -59,11 +59,11 @@ INSERT INTO `RolesUsuario` (`usuario`, `rol`) VALUES
 
 
 -- CATEGORIAS
-INSERT INTO `Categorias` (`id`, `nombre`, `descripcion`) VALUES
-(1, 'Bocadillos', 'Bocadillos frescos preparados al momento'),
-(2, 'Bebidas',    'Refrescos, agua, zumos y bebidas calientes'),
-(3, 'Menús',      'Menús completos con primero, segundo y postre'),
-(4, 'Postres',    'Dulces y postres del día');
+INSERT INTO `Categorias` (`id`, `nombre`, `descripcion`, `imagen`) VALUES
+(1, 'Bocadillos', 'Bocadillos frescos preparados al momento', '/img/uploads/categorias/categoria_1_69b3eb6edb67c.jpg'),
+(2, 'Bebidas',    'Refrescos, agua, zumos y bebidas calientes', '/img/uploads/categorias/categoria_2_69b3eb49ad9de.jpg'),
+(3, 'Menús',      'Menús completos con primero, segundo y postre', '/img/uploads/categorias/categoria_3_69b3eba556a97.png'),
+(4, 'Postres',    'Dulces y postres del día', '/img/uploads/categorias/categoria_4_69afee1e55f4c.jpg');
 
 -- PRODUCTOS (IVA: 10% alimentación, 21% bebidas)
 INSERT INTO `Productos` (`id`, `nombre`, `descripcion`, `categoria_id`, `precio_base`, `iva`) VALUES

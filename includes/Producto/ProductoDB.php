@@ -282,7 +282,7 @@ class ProductoDB
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
-      "UPDATE Productos SET disponible = 0 WHERE categoria_id = %d",
+      "UPDATE Productos SET activo = 0 WHERE categoria_id = %d",
       $categoriaId
     );
 
