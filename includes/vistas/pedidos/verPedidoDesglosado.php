@@ -172,7 +172,7 @@ $transiciones = [];
 if ($esGerente || $esCamarero) {
     switch ($pedidoDesglosado->getEstado()) {
         case Estado::Nuevo:        $transiciones = [Estado::Cancelado->value => 'Cancelar']; break;
-        case Estado::Recibido:     $transiciones = [Estado::Cancelado->value => 'Cancelar']; break;
+        case Estado::Recibido:     $transiciones = [Estado::EnPreparacion->value => 'Cobrar']; break;
         case Estado::ListoCocina:  $transiciones = [Estado::Terminado->value => 'Marcar listo para entregar']; break;
         case Estado::Terminado:    $transiciones = [Estado::Entregado->value => 'Marcar entregado']; break;
         default: break;
@@ -198,11 +198,6 @@ foreach ($transiciones as $nuevoEstado => $etiquetaBtn) {
     BTN;
 }
 
-$btnCobrar = '';
-if (($esGerente || $esCamarero) && $pedidoDesglosado->getEstado() === Estado::Recibido) {
-    $cobrarUrl = RUTA_VISTAS . '/pedidos/pagar_pedido.php?id=' . $pedidoDesglosado->getId();
-    $btnCobrar = "<a href=\"{$cobrarUrl}\" class=\"btn btn-editar\">Cobrar pedido</a>";
-}
 
 $btnBorrar = '';
 if ($esGerente) {
@@ -240,7 +235,6 @@ $contenidoPrincipal = <<<EOS
         <div class="acciones-pagina">
             <a href="{$volverUrl}" class="btn btn-volver">Atrás</a>
             {$botonesEstado}
-            {$btnCobrar}
             {$btnBorrar}
         </div>
     </section>
