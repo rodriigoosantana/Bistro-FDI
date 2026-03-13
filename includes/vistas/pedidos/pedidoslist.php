@@ -1,15 +1,15 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
+
+namespace es\ucm\fdi\aw\vistas\pedidos;
+
+use es\ucm\fdi\aw\Pedido\PedidoService;
+use es\ucm\fdi\aw\Usuario\Usuario;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
-require_once RAIZ_APP . '/includes/Pedido/PedidoService.php';
-require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
-
 if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-    header('Location: ' . RUTA_VISTAS . '/login.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/login.php');
+  exit();
 }
 
 $esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
@@ -74,8 +74,8 @@ header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php?modo=' . ($esCocin
 $cfg = $modos[$modo];
 
 if (!$esGerente && !in_array($_SESSION['rolId'], $cfg['roles'])) {
-    header('Location: ' . RUTA_APP . '/index.php');
-    exit();
+  header('Location: ' . RUTA_APP . '/index.php');
+  exit();
 }
 
 $filtroEstado = ($esGerente && $modo === 'historial' && isset($_GET['estado']) && $_GET['estado'] !== '')
@@ -135,7 +135,7 @@ if ($esGerente && $modo === 'historial') {
 
 $rolId = $_SESSION['rolId'];
 $modosVisibles = array_filter($modos, function ($cfgModo) use ($rolId, $esGerente) {
-    return $esGerente || in_array($rolId, $cfgModo['roles']);
+  return $esGerente || in_array($rolId, $cfgModo['roles']);
 });
 
 $htmlNavModos = '';
@@ -189,15 +189,15 @@ if ($pedidos && count($pedidos) > 0) {
             </div>
         </div>
         TARJETA;
-    }
+  }
 } else {
-    $tarjetas = '<p>No hay pedidos en este apartado.</p>';
+  $tarjetas = '<p>No hay pedidos en este apartado.</p>';
 }
 
 $btnCrearNuevo = '';
 if ($esGerente || $esCamarero) {
-    $crearUrl      = RUTA_VISTAS . '/pedidos/nuevo_pedido.php';
-    $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Nuevo pedido</a>";
+  $crearUrl      = RUTA_VISTAS . '/pedidos/nuevo_pedido.php';
+  $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Nuevo pedido</a>";
 }
 
 $volverUrl    = RUTA_APP . '/index.php';
@@ -223,4 +223,3 @@ $contenidoPrincipal = <<<EOS
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');
-?>

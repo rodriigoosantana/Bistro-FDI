@@ -1,70 +1,85 @@
 <?php
-require_once dirname(__DIR__, 2) . '/includes/config.php';
-require_once RAIZ_APP . '/includes/Producto/ProductoService.php';
-require_once RAIZ_APP . '/includes/Producto/CategoriaService.php';
-require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
 
-// Verificar login
-if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+require_once dirname(__DIR__, 2) . '/includes/config.php';
+
+use es\ucm\fdi\aw\Aplicacion;
+use es\ucm\fdi\aw\Producto\ProductoService;
+use es\ucm\fdi\aw\Producto\CategoriaService;
+
+if (!Aplicacion::estaLogueado()) {
     header('Location: ' . RUTA_VISTAS . '/login.php');
     exit();
 }
+$esGerente = Aplicacion::esGerente();
 
-$esGerente = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
+$categoriaFiltro = isset($_GET['categoria']) ? intval($_GET['categoria']) : null;
 
-$esGerente = isset($_SESSION['rolId']) && $_SESSION['rolId'] === 1;
+if ($categoriaFiltro) { # Si hay filtro de categoría, mostrar solo productos de esa categoría
+  $productos = $esGerente # Si es gerente, mostrar tanto productos activos como inactivos
+    ? ProductoService::listarPorCategoria($categoriaFiltro)
+    : ProductoService::listarActivosPorCategoria($categoriaFiltro);
+} else {
+  $productos = $esGerente
+    ? ProductoService::listarTodos()
+    : ProductoService::listarActivos();
+}
 
-//Si es gerente puede ver todos los productos, si no solo los activos
-$productos = $esGerente ? ProductoService::listarTodos()  : ProductoService::listarActivos();
+// Título de contexto si hay filtro activo
+$tituloCat = '';
+if ($categoriaFiltro) {
+  $cat = CategoriaService::buscarPorId($categoriaFiltro);
+  $tituloCat = $cat ? ' — ' . htmlspecialchars($cat->getNombre()) : '';
+}
 
-$categorias = CategoriaService::listarTodas();#Obtener categorías para mostrar nombres
+$categorias = CategoriaService::listarTodas(); #Obtener categorías para mostrar nombres
 
 $mapaCategorias = []; # Crear mapa id => nombre de categoría para mostrar en tabla
 if ($categorias) {
-    foreach ($categorias as $cat) {
-        $mapaCategorias[$cat->getId()] = $cat->getNombre();
-    }
+  foreach ($categorias as $cat) {
+    $mapaCategorias[$cat->getId()] = $cat->getNombre();
+  }
 }
 
 $tarjetas = '';
 if ($productos && count($productos) > 0) {
-    foreach ($productos as $p) {
-        $nombre = htmlspecialchars($p->getNombre());
-        $nombreCat = htmlspecialchars($mapaCategorias[$p->getCategoriaId()] ?? 'Sin categoría');
-        $precioFinal = number_format($p->getPrecioFinal(), 2, ',', '.');
-        $verUrl = RUTA_VISTAS . '/productosdetail.php?id=' . $p->getId();
-        $disponible = $p->isDisponible() ? '' : '<small>(No disponible)</small>';
+  foreach ($productos as $p) {
+    $nombre = htmlspecialchars($p->getNombre());
+    $nombreCat = htmlspecialchars($mapaCategorias[$p->getCategoriaId()] ?? 'Sin categoría');
+    $precioFinal = number_format($p->getPrecioFinal(), 2, ',', '.');
+    $verUrl = RUTA_VISTAS . '/productosdetail.php?id=' . $p->getId()
+      . ($categoriaFiltro ? '&categoria=' . $categoriaFiltro : '');
+    $disponible = $p->isDisponible() ? '' : '<small>(No disponible)</small>';
 
-        // Primera imagen del producto si tiene
-        $imagenes = ProductoService::listarImagenes($p->getId());
-        if ($imagenes) {
-            $primeraRuta = htmlspecialchars(RUTA_APP . $imagenes[0]['ruta_imagen']);
-            if (count($imagenes) > 1) {
-                // Slider automático en tarjeta
-                $rutas = array_map(function ($img) {
-                    return htmlspecialchars(RUTA_APP . $img['ruta_imagen']);
-                }, $imagenes);
-                $dataImagenes = htmlspecialchars(json_encode($rutas));
+    // Primera imagen del producto si tiene
+    $imagenes = ProductoService::listarImagenes($p->getId());
+    if ($imagenes) {
+      $primeraRuta = htmlspecialchars(RUTA_APP . $imagenes[0]['ruta_imagen']);
+      if (count($imagenes) > 1) {
+        // Slider automático en tarjeta
+        $rutas = array_map(function ($img) {
+          return htmlspecialchars(RUTA_APP . $img['ruta_imagen']);
+        }, $imagenes);
+        $dataImagenes = htmlspecialchars(json_encode($rutas));
 
-                $dotsHtml = '';
-                foreach ($imagenes as $i => $img) {
-                    $active = $i === 0 ? ' active' : '';
-                    $dotsHtml .= "<span class=\"slider-dot{$active}\"></span>";
-                }
-
-                $htmlImg = '<div class="slider-wrap tarjeta-slider" data-imagenes="' . $dataImagenes . '" data-auto="true">'
-                    . '<img class="slider-img" src="' . $primeraRuta . '" alt="' . $nombre . '">'
-                    . '<div class="slider-dots">' . $dotsHtml . '</div>'
-                    . '</div>';
-            } else {
-                // Una sola imagen, sin slider
-                $htmlImg = "<img class=\"tarjeta-img-unica\" src=\"{$primeraRuta}\" alt=\"{$nombre}\">";
-            }
-        } else {
-            $htmlImg = "<div class=\"tarjeta-sin-imagen\"><em>Sin imagen</em></div>";
+        $dotsHtml = '';
+        foreach ($imagenes as $i => $img) {
+          $active = $i === 0 ? ' active' : '';
+          $dotsHtml .= "<span class=\"slider-dot{$active}\"></span>";
         }
 
-        $tarjetas .= <<<TARJETA
+        $htmlImg = '<div class="slider-wrap tarjeta-slider" data-imagenes="' . $dataImagenes . '" data-auto="true">'
+          . '<img class="slider-img" src="' . $primeraRuta . '" alt="' . $nombre . '">'
+          . '<div class="slider-dots">' . $dotsHtml . '</div>'
+          . '</div>';
+      } else {
+        // Una sola imagen, sin slider
+        $htmlImg = "<img class=\"tarjeta-img-unica\" src=\"{$primeraRuta}\" alt=\"{$nombre}\">";
+      }
+    } else {
+      $htmlImg = "<div class=\"tarjeta-sin-imagen\"><em>Sin imagen</em></div>";
+    }
+
+    $tarjetas .= <<<TARJETA
         <div class="tarjeta-producto">
             <div class="tarjeta-imagen">{$htmlImg}</div>
             <div class="tarjeta-info">
@@ -77,25 +92,30 @@ if ($productos && count($productos) > 0) {
             </div>
         </div>
         TARJETA;
-    }
+  }
 } else {
-    $tarjetas = '<p>No hay productos registrados.</p>';
+  $tarjetas = '<p>No hay productos registrados.</p>';
 }
 
 // Botón crear solo para gerente
 $btnCrearNuevo = '';
 if ($esGerente) {
-    $crearUrl = RUTA_VISTAS . '/productosdetail.php';
-    $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Crear nuevo</a>";
+  $crearUrl = RUTA_VISTAS . '/productosdetail.php';
+  $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Crear nuevo</a>";
 }
 
-$volverUrl = RUTA_APP . '/index.php';
+if ($categoriaFiltro) {
+  $volverUrl = RUTA_VISTAS . '/categoriaslist.php';
+} else {
+  $volverUrl = RUTA_APP . '/index.php';
+}
+
 $tituloPagina = 'Lista de Productos';
 $tituloHeader = 'Lista de Productos';
 
 $contenidoPrincipal = <<<EOS
     <section id="contenido">
-        <h2>Lista de productos</h2>
+        <h2>Lista de productos{$tituloCat}</h2>
         <div class="lista-productos">
             {$tarjetas}
         </div>
@@ -107,4 +127,3 @@ $contenidoPrincipal = <<<EOS
 EOS;
 
 require('common/plantilla.php');
-?>

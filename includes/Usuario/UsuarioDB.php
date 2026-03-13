@@ -1,5 +1,10 @@
 <?php
-require_once RAIZ_APP . '/includes/Usuario/Rol.php';
+
+namespace es\ucm\fdi\aw\Usuario;
+
+use es\ucm\fdi\aw\Usuario\Rol;
+use es\ucm\fdi\aw\Aplicacion;
+use es\ucm\fdi\aw\Usuario\UsuarioYaExisteException; #Importamos la excepción de dominio específica 
 
 class UsuarioDB
 {
@@ -19,12 +24,15 @@ class UsuarioDB
       $conn->real_escape_string($usuario->getPassword())
     );
 
-    if ($conn->query($query)) {
+    try { #Intentamos insertar el usuario, si el nombre de usuario ya existe, se lanzará una excepción que capturaremos para lanzar una excepción de dominio más específica.
+      $conn->query($query);
       $usuario->setId($conn->insert_id);
       return $usuario;
-    } else {
-      error_log("Error BD ({$conn->errno}): {$conn->error}");
-      return null;
+    } catch (\mysqli_sql_exception $e) { #Capturamos la excepción de MySQLi para verificar si se debe a una violación de clave única (nombre de usuario ya existente).
+      if ($conn->sqlstate === '23000') { #Código de error SQLSTATE para violación de restricción de clave única, lo que indica que el nombre de usuario ya existe.
+        throw new UsuarioYaExisteException($usuario->getNombreUsuario()); #Lanzamos una excepción de dominio específica para indicar que el nombre de usuario ya está en uso.
+      }
+      throw $e; #Si es otro tipo de error, lo relanzamos para que sea manejado por un nivel superior.
     }
   }
 
@@ -37,9 +45,7 @@ class UsuarioDB
       $usuario->getId()
     );
 
-    if (!$conn->query($query)) {
-      error_log("Error BD ({$conn->errno}): {$conn->error}");
-    }
+    $conn->query($query);
   }
 
   public static function actualizar(Usuario $usuario)
@@ -62,12 +68,11 @@ class UsuarioDB
       $usuario->getId()
     );
 
-    if (!$conn->query($query)) {
-      error_log("Error BD ({$conn->errno}): {$conn->error}");
-      return null;
-    }
+    $conn->query($query);
+
     return $usuario;
   }
+
   public static function listarTodos()
   {
     $conn = Aplicacion::getInstance()->getConexionBd();
@@ -76,18 +81,13 @@ class UsuarioDB
 
     $rs = $conn->query($query);
 
-    if ($rs) {
-      $usuarios = [];
-      while ($fila = $rs->fetch_assoc()) {
-        $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila["id"]);
-      }
-      $rs->free();
-      return $usuarios;
-    } else {
-      error_log("Error BD ({$conn->errno}): {$conn->error}");
+    $usuarios = [];
+    while ($fila = $rs->fetch_assoc()) {
+      $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila["id"]);
     }
+    $rs->free();
 
-    return [];
+    return $usuarios;
   }
 
 
@@ -99,19 +99,12 @@ class UsuarioDB
 
     $rs = $conn->query($query);
 
-    if ($rs) {
-      $fila = $rs->fetch_assoc();
-
-      $rs->free();
-
-      if ($fila) {
-        Rol::cargarRol($fila['id']);
-        $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila['id']);
-
-        return $user;
-      }
-    } else {
-      error_log("Error BD ({$conn->errno}): {$conn->error}");
+    $fila = $rs->fetch_assoc();
+    $rs->free();
+    if ($fila) {
+      Rol::cargarRol($fila['id']);
+      $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila['id']);
+      return $user;
     }
 
     return null;

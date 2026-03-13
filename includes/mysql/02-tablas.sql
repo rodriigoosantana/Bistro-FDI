@@ -18,7 +18,6 @@ DROP TABLE IF EXISTS `Roles`;
 CREATE TABLE IF NOT EXISTS `Roles` (
   `id`        int(11)     NOT NULL AUTO_INCREMENT,
   `nombre`    varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `prioridad` int(11)     NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_rol_nombre` (`nombre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

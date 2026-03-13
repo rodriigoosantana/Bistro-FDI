@@ -1,7 +1,11 @@
 <?php
 
-require_once RAIZ_APP . '/includes/Pedido/Pedido.php';
-require_once RAIZ_APP . '/includes/Pedido/PedidoDesglosado.php';
+namespace es\ucm\fdi\aw\Pedido;
+
+use es\ucm\fdi\aw\Pedido\Pedido;
+use es\ucm\fdi\aw\Pedido\PedidoDesglosado;
+use es\ucm\fdi\aw\Aplicacion;
+use \DateTime;
 
 // Clase PedidoDB
 // Capa de acceso a datos para Pedido.
@@ -28,13 +32,9 @@ class PedidoDB
       floatval($pedido->getTotal())
     );
 
-    if ($conexion->query($query) === true) {
-      $pedido->setId($conexion->insert_id);
-      return $pedido;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return null;
-    }
+    $conexion->query($query);
+    $pedido->setId($conexion->insert_id);
+    return $pedido;
   }
 
   public static function update(Pedido $pedido): bool
@@ -58,12 +58,9 @@ class PedidoDB
       intval($pedido->getId())
     );
 
-    if ($conexion->query($query)) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
-    }
+    $conexion->query($query);
+
+    return true;
   }
 
   public static function delete(int $id): bool
@@ -75,12 +72,9 @@ class PedidoDB
       intval($id)
     );
 
-    if ($conexion->query($query)) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
-    }
+    $conexion->query($query);
+
+    return true;
   }
 
   public static function togglePreparadoStatus(int $productoId, int $pedidoId, bool $nuevoEstado): bool
@@ -113,25 +107,22 @@ class PedidoDB
 
     $resultado = $conexion->query($query);
 
-    if ($resultado) {
-      $fila = $resultado->fetch_assoc();
-      $resultado->free();
+    $fila = $resultado->fetch_assoc();
+    $resultado->free();
 
-      if ($fila) {
-        return new Pedido(
-          intval($fila['numero_pedido']),
-          new DateTime($fila['fecha_creacion']),
-          Estado::from($fila['estado']),
-          Tipo::from($fila['tipo']),
-          intval($fila['cliente_id']),
-          $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
-          floatval($fila['total']),
-          intval($fila['id'])
-        );
-      }
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    if ($fila) {
+      return new Pedido(
+        intval($fila['numero_pedido']),
+        new DateTime($fila['fecha_creacion']),
+        Estado::from($fila['estado']),
+        Tipo::from($fila['tipo']),
+        intval($fila['cliente_id']),
+        $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
+        floatval($fila['total']),
+        intval($fila['id'])
+      );
     }
+
     return null;
   }
 
@@ -146,23 +137,19 @@ class PedidoDB
 
     $pedidos = [];
 
-    if ($resultado) {
-      while ($fila = $resultado->fetch_assoc()) {
-        $pedidos[] = new Pedido(
-          intval($fila['numero_pedido']),
-          new DateTime($fila['fecha_creacion']),
-          Estado::from($fila['estado']),
-          Tipo::from($fila['tipo']),
-          intval($fila['cliente_id']),
-          $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
-          floatval($fila['total']),
-          intval($fila['id'])
-        );
-      }
-      $resultado->free();
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    while ($fila = $resultado->fetch_assoc()) {
+      $pedidos[] = new Pedido(
+        intval($fila['numero_pedido']),
+        new DateTime($fila['fecha_creacion']),
+        Estado::from($fila['estado']),
+        Tipo::from($fila['tipo']),
+        intval($fila['cliente_id']),
+        $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
+        floatval($fila['total']),
+        intval($fila['id'])
+      );
     }
+    $resultado->free();
 
     return $pedidos;
   }
@@ -181,24 +168,26 @@ class PedidoDB
 
     $resultado = $conexion->query($query);
 
-    if ($resultado) {
-      if ($fila = $resultado->fetch_assoc()) {
-        $pedido = new Pedido(
-          intval($fila['numero_pedido']),
-          new DateTime($fila['fecha_creacion']),
-          Estado::from($fila['estado']),
-          Tipo::from($fila['tipo']),
-          intval($fila['cliente_id']),
-          $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
-          floatval($fila['total']),
-          intval($fila['id'])
-        );
-        $resultado->free();
-        return $pedido;
-      }
+    $fila = $resultado->fetch_assoc();
+    $resultado->free();
+    
+    if (!$fila) {
+      return null;
     }
 
-    return null;
+    $pedido = new Pedido(
+      intval($fila['numero_pedido']),
+      new DateTime($fila['fecha_creacion']),
+      Estado::from($fila['estado']),
+      Tipo::from($fila['tipo']),
+      intval($fila['cliente_id']),
+      $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
+      floatval($fila['total']),
+      intval($fila['id'])
+    );
+
+    
+    return $pedido;
   }
 
   public static function asignarCocinero(int $pedidoId, int $cocineroId): bool
@@ -229,15 +218,12 @@ class PedidoDB
       intval($id)
     );
 
-    if ($conexion->query($query)) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
-    }
+    $conexion->query($query);
+
+    return true;
   }
 
-   public static function insertarProductoPedido(int $pedidoId, int $productoId, int $cantidad, float $precioUnitario): bool
+  public static function insertarProductoPedido(int $pedidoId, int $productoId, int $cantidad, float $precioUnitario): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -250,12 +236,9 @@ class PedidoDB
       floatval($precioUnitario)
     );
 
-    if ($conexion->query($query)) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
-    }
+    $conexion->query($query);
+
+    return true;
   }
 
   public static function actualizarProductoPedido(int $pedidoId, int $productoId, int $cantidad): bool
@@ -269,12 +252,9 @@ class PedidoDB
       intval($productoId)
     );
 
-    if ($conexion->query($query)) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
-    }
+    $conexion->query($query);
+
+    return true;
   }
 
   public static function eliminarProductoPedido(int $pedidoId, int $productoId): bool
@@ -287,12 +267,9 @@ class PedidoDB
       intval($productoId)
     );
 
-    if ($conexion->query($query)) {
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      return false;
-    }
+    $conexion->query($query);
+
+    return true;
   }
 
 
@@ -329,28 +306,24 @@ class PedidoDB
 
     $pedidos = [];
 
-    if ($resultado) {
-      while ($fila = $resultado->fetch_assoc()) {
-        $pedidos[] = new Pedido(
-          intval($fila['numero_pedido']),
-          new DateTime($fila['fecha_creacion']),
-          Estado::from($fila['estado']),
-          Tipo::from($fila['tipo']),
-          intval($fila['cliente_id']),
-          $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
-          floatval($fila['total']),
-          intval($fila['id'])
-        );
-      }
-      $resultado->free();
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    while ($fila = $resultado->fetch_assoc()) {
+      $pedidos[] = new Pedido(
+        intval($fila['numero_pedido']),
+        new DateTime($fila['fecha_creacion']),
+        Estado::from($fila['estado']),
+        Tipo::from($fila['tipo']),
+        intval($fila['cliente_id']),
+        $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
+        floatval($fila['total']),
+        intval($fila['id'])
+      );
     }
+    $resultado->free();
 
     return $pedidos;
   }
 
-public static function getPedidoDesglosado(PedidoDesglosado $pedidoDesglosado)
+  public static function getPedidoDesglosado(PedidoDesglosado $pedidoDesglosado)
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -366,20 +339,16 @@ public static function getPedidoDesglosado(PedidoDesglosado $pedidoDesglosado)
 
     $productos = [];
 
-    if ($resultado) {
-      while ($fila = $resultado->fetch_assoc()) {
-        $productos[] = new ProductoEnPedido(
-          intval($fila['producto_id']),
-          $fila['nombre'],
-          floatval($fila['precio_unitario']),
-          intval($fila['cantidad']),
-          boolval($fila['preparado'])
-        );
-      }
-      $resultado->free();
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    while ($fila = $resultado->fetch_assoc()) {
+      $productos[] = new ProductoEnPedido(
+        intval($fila['producto_id']),
+        $fila['nombre'],
+        floatval($fila['precio_unitario']),
+        intval($fila['cantidad']),
+        boolval($fila['preparado'])
+      );
     }
+    $resultado->free();
 
     $pedidoDesglosado->setProductos($productos);
   }

@@ -1,8 +1,11 @@
 <?php
 
-require_once RAIZ_APP . '/includes/Pedido/Pedido.php';
-require_once RAIZ_APP . '/includes/Pedido/PedidoDB.php';
-require_once RAIZ_APP . '/includes/Pedido/PedidoDesglosado.php';
+namespace es\ucm\fdi\aw\Pedido;
+
+use es\ucm\fdi\aw\Pedido\Pedido;
+use es\ucm\fdi\aw\Pedido\PedidoDB;
+use es\ucm\fdi\aw\Pedido\PedidoDesglosado;
+use \Exception;
 
 // Clase PedidoService (Lógica de negocio)
 // Capa intermedia

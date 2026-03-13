@@ -1,4 +1,9 @@
 <?php
+
+namespace es\ucm\fdi\aw;
+
+use mysqli;
+
 class Aplicacion
 {
   const ATRIBUTOS_PETICION = 'attsPeticion';
@@ -14,7 +19,8 @@ class Aplicacion
     return self::$instancia;
   }
 
-  //Funciones para control de accesos.
+  //Funciones para control de accesos -> en vez de que cada vista consulte
+  //$_SESSION['rolId'] directamente, se centraliza el control de acceso a través de funciones como esta.
 
   //No se puede importar user por dependencia circular entre config y aplicacion
   private const ROL_GERENTE = 1;
@@ -25,6 +31,41 @@ class Aplicacion
   public static function puedeListarUsuarios()
   {
     return isset($_SESSION["rolId"]) && $_SESSION["rolId"] == self::ROL_GERENTE;
+  }
+
+  public static function estaLogueado(): bool
+  {
+    return isset($_SESSION['login']) && $_SESSION['login'] === true;
+  }
+
+  public static function esGerente(): bool
+  {
+    return isset($_SESSION['rolId']) && $_SESSION['rolId'] === self::ROL_GERENTE;
+  }
+
+  public static function esCocinero(): bool
+  {
+    return isset($_SESSION['rolId']) && $_SESSION['rolId'] === self::ROL_COCINERO;
+  }
+
+  public static function esCamarero(): bool
+  {
+    return isset($_SESSION['rolId']) && $_SESSION['rolId'] === self::ROL_CAMARERO;
+  }
+
+  public static function esCliente(): bool
+  {
+    return isset($_SESSION['rolId']) && $_SESSION['rolId'] === self::ROL_CLIENTE;
+  }
+
+  public static function getRolId(): ?int
+  {
+    return $_SESSION['rolId'] ?? null;
+  }
+
+  public static function getUserId(): ?int
+  {
+    return $_SESSION['userId'] ?? null;
   }
 
 
@@ -46,6 +87,7 @@ class Aplicacion
 
   private function __construct() {}
 
+  //Método de inicialización de la aplicación, que se llama desde el gestor global antes de procesar cualquier petición.
   public function init($bdDatosConexion)
   {
     if (! $this->inicializada) {
@@ -55,18 +97,20 @@ class Aplicacion
 
       session_start();
 
-      $this->atributosPeticion = $_SESSION[self::ATRIBUTOS_PETICION] ?? [];
-
-      unset($_SESSION[self::ATRIBUTOS_PETICION]);
+      //Paso 8.1: Implementación de atributos de petición -> cargar los atributos de petición desde la sesión, si existen
+      $this->atributosPeticion = $_SESSION[self::ATRIBUTOS_PETICION] ?? []; 
+      unset($_SESSION[self::ATRIBUTOS_PETICION]); # limpiar los atributos de petición de la sesión para evitar que persistan entre peticiones
     }
   }
 
   private function compruebaInstanciaInicializada()
   {
     if (! $this->inicializada) {
-      echo "Aplicacion no inicializa";
-
-      exit();
+      // Lanzar excepción en lugar de echo + exit
+      // El gestor global la captura y muestra pçagina de error
+      throw new \RuntimeException(
+        'Aplicacion::init() no ha sido llamado antes de usar la instancia.'
+      );
     }
   }
 
@@ -84,6 +128,14 @@ class Aplicacion
     $this->compruebaInstanciaInicializada();
 
     if (! $this->conn) {
+      /*
+      Activar excepciones en ysqli antes de abrir la conexión.
+      A partir de aquí cualquier error SQL lanza \mysqli_sql_exception
+      No es necesario comprobar el valor de retorno de las query en las clase DB del proyecto.
+      */
+      $driver = new \mysqli_driver();
+      $driver->report_mode = MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT;
+
       $bdHost = $this->bdDatosConexion['host'];
       $bdUser = $this->bdDatosConexion['user'];
       $bdPass = $this->bdDatosConexion['pass'];
@@ -91,15 +143,12 @@ class Aplicacion
 
       $conn = new mysqli($bdHost, $bdUser, $bdPass, $bd);
 
-      if ($conn->connect_errno) {
-        echo "Error de conexión a la BD ({$conn->connect_errno}):  {$conn->connect_error}";
-        exit();
-      }
+      // Con MYSQLI_REPORT_STRICT, si la conexión falla se lanza
+      // \mysqli_sql_exception antes de llegar aquí, por lo que
+      // ya no necesitamos comprobar connect_errno manualmente.
 
-      if (! $conn->set_charset("utf8mb4")) {
-        echo "Error al configurar la BD ({$conn->errno}):  {$conn->error}";
-        exit();
-      }
+      // Forzar codificación UTF-8 en la conexión
+      $conn->set_charset('utf8mb4');
 
       $this->conn = $conn;
     }
@@ -107,6 +156,7 @@ class Aplicacion
     return $this->conn;
   }
 
+  //Paso 8.2: Implementación de atributos de petición -> funciones para almacenar y recuperar datos asociados a la petición actual
   public function putAtributoPeticion($clave, $valor)
   {
     $atts = null;

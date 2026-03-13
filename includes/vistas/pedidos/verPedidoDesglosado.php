@@ -1,16 +1,14 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
+use es\ucm\fdi\aw\Pedido\PedidoService;
+use es\ucm\fdi\aw\Usuario\Usuario;
+use es\ucm\fdi\aw\Pedido\Estado;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
-require_once RAIZ_APP . '/includes/Pedido/PedidoService.php';
-require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
-
 // Verificar login
 if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-    header('Location: ' . RUTA_VISTAS . '/login.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/login.php');
+  exit();
 }
 
 $esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
@@ -18,14 +16,14 @@ $esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
 $esCocinero = ($_SESSION['rolId'] === Usuario::ROL_COCINERO);
 
 if (!isset($_GET['id'])) {
-    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+  exit();
 }
 
 $pedidoDesglosado = PedidoService::buscarDesglosadoPorId(intval($_GET['id']));
 if (!$pedidoDesglosado) {
-    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+  exit();
 }
 
 $volverUrl = RUTA_VISTAS . '/pedidos/pedidoslist.php';
@@ -54,9 +52,9 @@ $clasesEstado = [
 
 // BORRADO (Solo gerente)
 if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar') {
-    PedidoService::eliminar($pedidoDesglosado->getId());
-    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-    exit();
+  PedidoService::eliminar($pedidoDesglosado->getId());
+  header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+  exit();
 }
 
 // CAMBIO DE ESTADO
@@ -144,7 +142,7 @@ if ($productos && count($productos) > 0) {
         FILA;
     }
 } else {
-    $filasProductos = '<tr><td colspan="4"><em>Sin productos</em></td></tr>';
+  $filasProductos = '<tr><td colspan="4"><em>Sin productos</em></td></tr>';
 }
 
 $tablaProductos = <<<TABLA
@@ -207,7 +205,7 @@ if (($esGerente || $esCamarero) && $pedidoDesglosado->getEstado() === Estado::Re
 
 $btnBorrar = '';
 if ($esGerente) {
-    $btnBorrar = <<<BTN
+  $btnBorrar = <<<BTN
     <form method="POST" action="" style="display:inline"
           onsubmit="return confirm('¿Seguro que quieres borrar este pedido?')">
         <input type="hidden" name="accion" value="borrar">
@@ -248,4 +246,3 @@ $contenidoPrincipal = <<<EOS
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');
-?>

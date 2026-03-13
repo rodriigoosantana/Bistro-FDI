@@ -1,19 +1,18 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
+use es\ucm\fdi\aw\Pedido\PedidoService;
+use es\ucm\fdi\aw\Pedido\Pedido;
+use es\ucm\fdi\aw\Pedido\Estado;
+use es\ucm\fdi\aw\Producto\ProductoService;
+use es\ucm\fdi\aw\Producto\CategoriaService;
+use es\ucm\fdi\aw\Usuario\Usuario;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
-require_once RAIZ_APP . '/includes/Pedido/PedidoService.php';
-require_once RAIZ_APP . '/includes/Producto/ProductoService.php';
-require_once RAIZ_APP . '/includes/Producto/CategoriaService.php';
-require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
-require_once RAIZ_APP . '/includes/Pedido/Pedido.php';
 
 // Seguridad y Autorización
 if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-    header('Location: ' . RUTA_VISTAS . '/login.php');
-    exit();
+  header('Location: ' . RUTA_VISTAS . '/login.php');
+  exit();
 }
 
 $esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
@@ -62,12 +61,12 @@ $mensajeError = "";
 
 // Manejo de Acciones
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $accionSolicitada = $_POST['accion'] ?? '';
+  $accionSolicitada = $_POST['accion'] ?? '';
 
-    if ($accionSolicitada === 'add') {
-        $idProducto = intval($_POST['productoId'] ?? 0);
-        $cantidadProducto = intval($_POST['cantidad'] ?? 1);
-        $productoExistente = ProductoService::buscarPorId($idProducto);
+  if ($accionSolicitada === 'add') {
+    $idProducto = intval($_POST['productoId'] ?? 0);
+    $cantidadProducto = intval($_POST['cantidad'] ?? 1);
+    $productoExistente = ProductoService::buscarPorId($idProducto);
 
         if ($productoExistente && $cantidadProducto > 0) {
             if ($idPedido) {
@@ -198,6 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
     }
+  }
 }
 
 // Carga de Datos para la Vista
@@ -215,16 +215,16 @@ $hiddenPedidoOTipo = $idPedido
 // Generación de HTML: Navegador de Productos
 $htmlNavegadorProductos = "";
 foreach ($listaCategorias as $categoria) {
-    if (!$categoria->isActiva()) continue;
-    
-    $htmlProductosCategoria = "";
-    foreach ($listaProductos as $producto) {
-        if ($producto->getCategoriaId() === $categoria->getId() && $producto->isDisponible() && $producto->isActivo()) {
-            $idProducto = $producto->getId();
-            $nombreProducto = htmlspecialchars($producto->getNombre());
-            $precioFormateado = number_format($producto->getPrecioFinal(), 2, ',', '.') . " €";
-            
-            $htmlProductosCategoria .= <<<HTML
+  if (!$categoria->isActiva()) continue;
+
+  $htmlProductosCategoria = "";
+  foreach ($listaProductos as $producto) {
+    if ($producto->getCategoriaId() === $categoria->getId() && $producto->isDisponible() && $producto->isActivo()) {
+      $idProducto = $producto->getId();
+      $nombreProducto = htmlspecialchars($producto->getNombre());
+      $precioFormateado = number_format($producto->getPrecioFinal(), 2, ',', '.') . " €";
+
+      $htmlProductosCategoria .= <<<HTML
             <div class="producto-card">
                 <div class="producto-info">
                     <strong>{$nombreProducto}</strong>
@@ -239,11 +239,11 @@ foreach ($listaCategorias as $categoria) {
                 </form>
             </div>
 HTML;
-        }
     }
+  }
 
-    if ($htmlProductosCategoria !== "") {
-        $htmlNavegadorProductos .= <<<HTML
+  if ($htmlProductosCategoria !== "") {
+    $htmlNavegadorProductos .= <<<HTML
         <div class="categoria-section">
             <h3>{$categoria->getNombre()}</h3>
             <div class="productos-grid">
@@ -251,7 +251,7 @@ HTML;
             </div>
         </div>
 HTML;
-    }
+  }
 }
 
 // Generación de HTML: Carrito
@@ -277,7 +277,7 @@ if (count($productosCarrito) > 0) {
         $totalPrecioCarrito += $subtotalItem;
         $subtotalItemFormateado = number_format($subtotalItem, 2, ',', '.');
 
-        $htmlCarritoCompras .= <<<HTML
+    $htmlCarritoCompras .= <<<HTML
         <div class="carrito-item">
             <span class="item-nombre">{$nombreProducto}</span>
             <span class="item-precio">{$precioUnitario} €</span>
@@ -296,9 +296,9 @@ if (count($productosCarrito) > 0) {
             </form>
         </div>
 HTML;
-    }
-    $totalPrecioCarritoFormateado = number_format($totalPrecioCarrito, 2, ',', '.');
-    $htmlCarritoCompras .= <<<HTML
+  }
+  $totalPrecioCarritoFormateado = number_format($totalPrecioCarrito, 2, ',', '.');
+  $htmlCarritoCompras .= <<<HTML
     <div class="carrito-total">
         <strong>Total: {$totalPrecioCarritoFormateado} €</strong>
     </div>
@@ -309,7 +309,7 @@ HTML;
     </form>
 HTML;
 } else {
-    $htmlCarritoCompras = "<p>El carrito está vacío.</p>";
+  $htmlCarritoCompras = "<p>El carrito está vacío.</p>";
 }
 
 // Preparación de la Vista Final
@@ -354,4 +354,3 @@ $contenidoPrincipal = <<<EOS
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');
-?>

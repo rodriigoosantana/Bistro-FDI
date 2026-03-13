@@ -1,40 +1,47 @@
 <?php
 require_once dirname(__DIR__, 2) . '/includes/config.php';
-require_once RAIZ_APP . '/includes/Producto/ProductoService.php';
-require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
-require_once RAIZ_APP . '/includes/Producto/CategoriaService.php';
-#require_once RAIZ_APP . '/includes/vistas/productos/FormularioProducto.php';
 
-// Verificar login
-if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-    header('Location: ' . RUTA_VISTAS . '/login.php'); #Si no manda al login
+use es\ucm\fdi\aw\Producto\ProductoService;
+use es\ucm\fdi\aw\Aplicacion;
+use es\ucm\fdi\aw\Producto\CategoriaService;
+use es\ucm\fdi\aw\vistas\productos\FormularioProducto;
+
+if (!Aplicacion::estaLogueado()) {
+    header('Location: ' . RUTA_VISTAS . '/login.php');
     exit();
 }
-
-$esGerente = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
+$esGerente = Aplicacion::esGerente();
 
 // Sin id solo puede entrar el gerente (para crear)
 if (!isset($_GET['id']) && !$esGerente) {
-    header('Location: ' . RUTA_APP . '/index.php');
-    exit();
+  header('Location: ' . RUTA_APP . '/index.php');
+  exit();
 }
 
 // Comprobar si es edición (parámetro id en URL)
 $producto = null;
 if (isset($_GET['id'])) {
-    $producto = ProductoService::buscarPorId(intval($_GET['id']));
-    if (!$producto) {
-        header('Location: ' . RUTA_VISTAS . '/productoslist.php');
-        exit();
-    }
+  $producto = ProductoService::buscarPorId(intval($_GET['id']));
+  if (!$producto) {
+    header('Location: ' . RUTA_VISTAS . '/productoslist.php');
+    exit();
+  }
 }
 
-$volverUrl = RUTA_VISTAS . '/productoslist.php'; #Ruta de retorno a la lista de productos
+$categoriaOrigen = isset($_GET['categoria']) ? intval($_GET['categoria']) : null;
+$volverUrl = RUTA_VISTAS . '/productoslist.php' . ($categoriaOrigen ? '?categoria=' . $categoriaOrigen : '');
 
-#BORRADO (Solo gerente, acción POST)
+/* BORRADO (Solo gerente, acción POST) [QUITADO PARA EVITAR CONFLICTOS, SOLO BORRADO LÓGICO]
 if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar' && $producto) {
-    ProductoService::eliminar($producto->getId());
-    header('Location: ' . RUTA_VISTAS . '/productoslist.php');
+  ProductoService::eliminar($producto->getId());
+  header('Location: ' . RUTA_VISTAS . '/productoslist.php');
+  exit();
+} */
+
+#TOGGLE ACTIVO/INACTIVO (Solo gerente, acción POST)
+if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'toggleActivo' && $producto) {
+    ProductoService::cambiarEstado($producto->getId(), !$producto->isActivo());
+    header('Location: ' . RUTA_VISTAS . '/productosdetail.php?id=' . $producto->getId());
     exit();
 }
 
@@ -43,15 +50,15 @@ if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar' && $p
 $modoEdicion = ($esGerente && (isset($_GET['editar']) || isset($_POST['formId'])));
 
 if ($esGerente && ($modoEdicion || !$producto)) {
-    require_once RAIZ_APP . '/includes/vistas/productos/FormularioProducto.php';
+  require_once RAIZ_APP . '/includes/vistas/productos/FormularioProducto.php';
 
-    $form = new FormularioProducto($producto); #Se crea el formulario, con el producto si existe o null si no
-    $htmlContenido = $form->gestiona();
+  $form = new FormularioProducto($producto); #Se crea el formulario, con el producto si existe o null si no
+  $htmlContenido = $form->gestiona();
 
-    $tituloPagina = $producto ? 'Editar producto' : 'Nuevo producto'; #Si el producto existe, se marca como editar, si no, como nuevo
-    $tituloHeader = $tituloPagina;
+  $tituloPagina = $producto ? 'Editar producto' : 'Nuevo producto'; #Si el producto existe, se marca como editar, si no, como nuevo
+  $tituloHeader = $tituloPagina;
 
-    $contenidoPrincipal = <<<EOS
+  $contenidoPrincipal = <<<EOS
         <section id="contenido">
             <h2>{$tituloPagina}</h2>
             {$htmlContenido}
@@ -60,66 +67,68 @@ if ($esGerente && ($modoEdicion || !$producto)) {
         </section>
     EOS;
 } else {
-    #MODO VISTA (Para todos los usuarios)
-    $categoria = CategoriaService::buscarPorId($producto->getCategoriaId());
-    $nombreCat = $categoria ? htmlspecialchars($categoria->getNombre()) : 'Sin categoría';
-    $nombre = htmlspecialchars($producto->getNombre());
-    $descripcion = htmlspecialchars($producto->getDescripcion());
-    $precioBase = number_format($producto->getPrecioBase(), 2, ',', '.');
-    $precioFinal = number_format($producto->getPrecioFinal(), 2, ',', '.');
-    $iva = $producto->getIva();
-    $disponible = $producto->isDisponible() ? 'Sí' : 'No';
-    $ofertado = $producto->isOfertado() ? 'Sí' : 'No';
-    $activo = $producto->isActivo() ? 'Sí' : 'No';
+  #MODO VISTA (Para todos los usuarios)
+  $categoria = CategoriaService::buscarPorId($producto->getCategoriaId());
+  $nombreCat = $categoria ? htmlspecialchars($categoria->getNombre()) : 'Sin categoría';
+  $nombre = htmlspecialchars($producto->getNombre());
+  $descripcion = htmlspecialchars($producto->getDescripcion());
+  $precioBase = number_format($producto->getPrecioBase(), 2, ',', '.');
+  $precioFinal = number_format($producto->getPrecioFinal(), 2, ',', '.');
+  $iva = $producto->getIva();
+  $disponible = $producto->isDisponible() ? 'Sí' : 'No';
+  $ofertado = $producto->isOfertado() ? 'Sí' : 'No';
+  $activo = $producto->isActivo() ? 'Sí' : 'No';
 
-    // Imágenes del producto
-    $imagenes = ProductoService::listarImagenes($producto->getId());
+  // Imágenes del producto
+  $imagenes = ProductoService::listarImagenes($producto->getId());
+  $htmlImagenes = '<em>Sin imágenes</em>';
+
+  if ($imagenes) {
+    // Array de rutas para el atributo data-imagenes (JSON)
+    $rutas = array_map(function ($img) {
+      return htmlspecialchars(RUTA_APP . $img['ruta_imagen']);
+    }, $imagenes);
+    $dataImagenes = htmlspecialchars(json_encode($rutas));
+
+    $primeraRuta = htmlspecialchars(RUTA_APP . $imagenes[0]['ruta_imagen']);
+
+    // Puntos de navegación (solo si hay más de 1 imagen)
+    $dotsHtml = '';
+    if (count($imagenes) > 1) {
+      foreach ($imagenes as $i => $img) {
+        $active = $i === 0 ? ' active' : '';
+        $dotsHtml .= "<span class=\"slider-dot{$active}\"></span>";
+      }
+      $dotsHtml = "<div class=\"slider-dots\">{$dotsHtml}</div>";
+    }
+
+    $htmlImagenes = '<div class="slider-wrap" data-imagenes="' . $dataImagenes . '" data-auto="true">'
+      . '<img class="slider-img" src="' . $primeraRuta . '" alt="' . $nombre . '">'
+      . $dotsHtml
+      . '</div>';
+  } else {
     $htmlImagenes = '<em>Sin imágenes</em>';
+  }
 
-    if ($imagenes) {
-        // Array de rutas para el atributo data-imagenes (JSON)
-        $rutas = array_map(function ($img) {
-            return htmlspecialchars(RUTA_APP . $img['ruta_imagen']);
-        }, $imagenes);
-        $dataImagenes = htmlspecialchars(json_encode($rutas));
-
-        $primeraRuta = htmlspecialchars(RUTA_APP . $imagenes[0]['ruta_imagen']);
-
-        // Puntos de navegación (solo si hay más de 1 imagen)
-        $dotsHtml = '';
-        if (count($imagenes) > 1) {
-            foreach ($imagenes as $i => $img) {
-                $active = $i === 0 ? ' active' : '';
-                $dotsHtml .= "<span class=\"slider-dot{$active}\"></span>";
-            }
-            $dotsHtml = "<div class=\"slider-dots\">{$dotsHtml}</div>";
-        }
-
-        $htmlImagenes = '<div class="slider-wrap" data-imagenes="' . $dataImagenes . '" data-auto="true">'
-            . '<img class="slider-img" src="' . $primeraRuta . '" alt="' . $nombre . '">'
-            . $dotsHtml
-            . '</div>';
-    } else {
-        $htmlImagenes = '<em>Sin imágenes</em>';
-    }
-
-    // Botones de gerente
-    $botonesGerente = '';
-    if ($esGerente) {
-        $editarUrl = RUTA_VISTAS . '/productosdetail.php?id=' . $producto->getId() . '&editar=1';
-        $botonesGerente = <<<BTN
+  // Botones de gerente
+  $botonesGerente = '';
+  if ($esGerente) {
+    $editarUrl = RUTA_VISTAS . '/productosdetail.php?id=' . $producto->getId() . '&editar=1';
+    $textoEstado = $producto->isActivo() ? 'Desactivar' : 'Activar';
+    $claseEstado = $producto->isActivo() ? 'btn-borrar' : 'btn-editar';
+    $botonesGerente = <<<BTN
         <a href="{$editarUrl}" class="btn btn-editar">Modificar</a>
-        <form method="POST" action="" style="display:inline" id="formBorrar">
-            <input type="hidden" name="accion" value="borrar">
-            <button type="submit" class="btn btn-borrar">Borrar</button>
+        <form method="POST" action="" style="display:inline">
+            <input type="hidden" name="accion" value="toggleActivo">
+            <button type="submit" class="{$claseEstado}">{$textoEstado}</button>
         </form>
-        BTN;
-    }
+    BTN;
+  }
 
-    $tituloPagina = $nombre;
-    $tituloHeader = 'Ver producto';
+  $tituloPagina = $nombre;
+  $tituloHeader = 'Ver producto';
 
-    $contenidoPrincipal = <<<EOS
+  $contenidoPrincipal = <<<EOS
               <section id="contenido">
             <h2>Ver Producto</h2>
 
@@ -147,4 +156,3 @@ if ($esGerente && ($modoEdicion || !$producto)) {
 }
 
 require('common/plantilla.php');
-?>

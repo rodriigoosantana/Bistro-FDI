@@ -1,5 +1,7 @@
 <?php
 
+namespace es\ucm\fdi\aw\Producto;
+
 class Categoria
 {
     //region Campos privados
@@ -27,59 +29,59 @@ class Categoria
     }
     //endregion
 
-    //region Propiedades
-    public function getId()
-    {
-        return $this->id;
-    }
+  //region Propiedades
+  public function getId()
+  {
+    return $this->id;
+  }
 
-    public function getNombre()
-    {
-        return $this->nombre;
-    }
+  public function getNombre()
+  {
+    return $this->nombre;
+  }
 
-    public function getDescripcion()
-    {
-        return $this->descripcion;
-    }
+  public function getDescripcion()
+  {
+    return $this->descripcion;
+  }
 
-    public function getImagen()
-    {
-        return $this->imagen;
-    }
+  public function getImagen()
+  {
+    return $this->imagen;
+  }
 
-    public function isActiva()
-    {
-        return (bool) $this->activa;
-    }
-    //endregion
+  public function isActiva()
+  {
+    return (bool) $this->activa;
+  }
+  //endregion
 
-    //region setters
-    public function setNombre($nombre)
-    {
-        $this->nombre = $nombre;
-    }
+  //region setters
+  public function setNombre($nombre)
+  {
+    $this->nombre = $nombre;
+  }
 
-    public function setDescripcion($descripcion)
-    {
-        $this->descripcion = $descripcion;
-    }
+  public function setDescripcion($descripcion)
+  {
+    $this->descripcion = $descripcion;
+  }
 
-    public function setImagen($imagen)
-    {
-        $this->imagen = $imagen;
-    }
+  public function setImagen($imagen)
+  {
+    $this->imagen = $imagen;
+  }
 
-    public function setActiva($activa)
-    {
-        $this->activa = $activa;
-    }
+  public function setActiva($activa)
+  {
+    $this->activa = $activa;
+  }
 
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-    //endregion
+  public function setId($id)
+  {
+    $this->id = $id;
+  }
+  //endregion
 }
 
 ?>

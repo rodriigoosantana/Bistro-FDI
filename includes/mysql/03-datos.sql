@@ -19,11 +19,11 @@ TRUNCATE TABLE `Usuarios`;
 TRUNCATE TABLE `Roles`;
 
 -- ROLES (prioridad: 1=máximo acceso)
-INSERT INTO `Roles` (`id`, `nombre`, `prioridad`) VALUES
-(1, 'gerente',  1),
-(2, 'cocinero', 2),
-(3, 'camarero', 3),
-(4, 'cliente',  4);
+INSERT INTO `Roles` (`id`, `nombre`) VALUES
+(1, 'gerente'),
+(2, 'cocinero'),
+(3, 'camarero'),
+(4, 'cliente');
 
 -- USUARIOS
 -- password -> $2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi
@@ -59,11 +59,11 @@ INSERT INTO `RolesUsuario` (`usuario`, `rol`) VALUES
 
 
 -- CATEGORIAS
-INSERT INTO `Categorias` (`id`, `nombre`, `descripcion`, `necesita_preparacion`) VALUES
-(1, 'Bocadillos', 'Bocadillos frescos preparados al momento', 1),
-(2, 'Bebidas',    'Refrescos, agua, zumos y bebidas calientes', 0),
-(3, 'Menús',      'Menús completos con primero, segundo y postre', 1),
-(4, 'Postres',    'Dulces y postres del día', 1);
+INSERT INTO `Categorias` (`id`, `nombre`, `descripcion`, `imagen`, `necesita_preparacion`) VALUES
+(1, 'Bocadillos', 'Bocadillos frescos preparados al momento', '/img/uploads/categorias/categoria_1_69b3eb6edb67c.jpg', 1),
+(2, 'Bebidas',    'Refrescos, agua, zumos y bebidas calientes', '/img/uploads/categorias/categoria_2_69b3eb49ad9de.jpg', 0),
+(3, 'Menús',      'Menús completos con primero, segundo y postre', '/img/uploads/categorias/categoria_3_69b3eba556a97.png', 1),
+(4, 'Postres',    'Dulces y postres del día', '/img/uploads/categorias/categoria_4_69afee1e55f4c.jpg', 1);
 
 -- PRODUCTOS (IVA: 10% alimentación, 21% bebidas)
 INSERT INTO `Productos` (`id`, `nombre`, `descripcion`, `categoria_id`, `precio_base`, `iva`) VALUES

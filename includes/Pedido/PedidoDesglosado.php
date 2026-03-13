@@ -1,5 +1,7 @@
 <?php
 
+namespace es\ucm\fdi\aw\Pedido;
+
 class PedidoDesglosado extends Pedido
 {
   /** @var ProductoEnPedido[] */
@@ -93,9 +95,9 @@ class ProductoEnPedido
     $this->cantidad = $cantidad;
   }
 
-  public function setProductoId(int $productoId): void
+  public function setProductoId(int $id): void
   {
-    $this->productoId = $id;
+    $this->id = $id;
   }
 
   public function isPreparado(): bool

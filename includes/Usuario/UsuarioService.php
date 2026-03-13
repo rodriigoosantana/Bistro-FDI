@@ -1,9 +1,13 @@
 <?php
+
+namespace es\ucm\fdi\aw\Usuario;
+
+use es\ucm\fdi\aw\Usuario\Usuario;
+use es\ucm\fdi\aw\Usuario\UsuarioDB;
+use es\ucm\fdi\aw\Usuario\RolesUsuario;
+use es\ucm\fdi\aw\Usuario\Rol;
+
 require_once dirname(__DIR__, 2) . '/includes/config.php';
-require_once RAIZ_APP . '/includes/Usuario/Usuario.php';
-require_once RAIZ_APP . '/includes/Usuario/UsuarioDB.php';
-require_once RAIZ_APP . '/includes/Usuario/RolesUsuario.php';
-require_once RAIZ_APP . '/includes/Usuario/Rol.php';
 
 class UsuarioService
 {
