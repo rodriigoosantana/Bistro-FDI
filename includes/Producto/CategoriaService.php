@@ -98,10 +98,12 @@ class CategoriaService
     #Crear directorio si no existe
     $dir = RAIZ_APP . '/img/uploads/categorias/';
     if (!is_dir($dir)) {
-      mkdir($dir, 0755, true);
+      mkdir($dir, 0775, true); # crea el directorio si no existe
+    } else {
+      chmod($dir, 0775); # asegura permisos de escritura para el servidor
     }
 
-    #Generar nombre único para evitar colisiones
+    #Generar nombre único paraF evitar colisiones
     $nombreArchivo = 'categoria_' . $categoriaId . '_' . uniqid() . '.' . $extension;
     $rutaDestino = $dir . $nombreArchivo;  #Ruta completa en el servidor
     $rutaBD = '/img/uploads/categorias/' . $nombreArchivo; #Ruta    

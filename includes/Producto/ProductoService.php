@@ -118,7 +118,9 @@ class ProductoService
     #$dir = RAIZ_APP . '/img/original/productos/';
 
     if (!is_dir($dir)) {
-      mkdir($dir, 0755, true); #crea el directorio si no existe
+      mkdir($dir, 0775, true); # crea el directorio si no existe
+    } else {
+      chmod($dir, 0775); # asegura permisos de escritura para el servidor
     }
 
     $extensiones = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
@@ -157,7 +159,6 @@ class ProductoService
   // Desactiva todos los productos de una categoría
   public static function desactivarPorCategoria(int $categoriaId): bool
   {
-      return ProductoDB::desactivarPorCategoria($categoriaId);
+    return ProductoDB::desactivarPorCategoria($categoriaId);
   }
-
 }
