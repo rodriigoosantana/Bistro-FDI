@@ -23,10 +23,11 @@ $cocineroId = $esCocinero ? $_SESSION['userId'] : null;
 
 $modos = [
     'activos' => [
-        'titulo'     => 'En curso',
+        'titulo'     => 'Mis pedidos activos',
         'estados'    => [Estado::Nuevo->value, Estado::Recibido->value, Estado::EnPreparacion->value, Estado::Cocinando->value, Estado::ListoCocina->value, Estado::Terminado->value],
-        'roles'      => [Usuario::ROL_CLIENTE, Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
+        'roles'      => [Usuario::ROL_CLIENTE, Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE, Usuario::ROL_COCINERO],
         'filtroCoci' => false,
+        'filtroUsuario' => true,
     ],
     'para recoger' => [
         'titulo'     => 'Por recoger',
@@ -47,7 +48,7 @@ $modos = [
         'filtroCoci' => false,
     ],
     'mis pedidos' => [
-        'titulo'     => 'Mis pedidos en curso',
+        'titulo'     => 'Mis pedidos asignados',
         'estados'    => [Estado::Cocinando->value],
         'roles'      => [Usuario::ROL_COCINERO],
         'filtroCoci' => true,
@@ -86,10 +87,11 @@ $filtroEstado = ($esGerente && $modo === 'historial' && isset($_GET['estado']) &
 
 $estadosFiltro = $filtroEstado ? [$filtroEstado] : $cfg['estados'];
 $filtroCociId  = (!empty($cfg['filtroCoci']) && $esCocinero) ? $cocineroId : null;
+$filtroClienteId  = (!empty($cfg['filtroUsuario'])) ? intval($_SESSION['userId']) : $clienteId;
 
 $pedidos = PedidoService::listarPorEstados(
     estados:    $estadosFiltro ?: null,
-    clienteId:  $clienteId,
+    clienteId:  $filtroClienteId,
     cocineroId: $filtroCociId
 );
 
