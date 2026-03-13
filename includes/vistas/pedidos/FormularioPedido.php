@@ -1,0 +1,99 @@
+<?php
+
+namespace es\ucm\fdi\aw\vistas\pedidos;
+
+use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\Pedido\PedidoService;
+use es\ucm\fdi\aw\Pedido\PedidoDB;
+use es\ucm\fdi\aw\Pedido\Pedido;
+use \DateTime;
+use es\ucm\fdi\aw\Pedido\Tipo;
+use es\ucm\fdi\aw\Pedido\Estado;
+
+class FormularioPedido extends formularioBase
+{
+  // region Campos privados
+  private $pedido; # null = crear, Pedido = editar
+  // endregion
+
+  // region Constructor
+  public function __construct($pedido = null)
+  {
+    $this->pedido = $pedido; # Si es null es crear, si es Pedido es editar
+    parent::__construct('formPedido');
+  }
+  // endregion
+
+  // region Métodos protegidos
+  protected function generaCamposFormulario(&$datos)
+  {
+    // Valores por defecto: del pedido existente o vacíos
+    $tipo = $datos['tipo'] ?? ($this->pedido ? $this->pedido->getTipo()->value : 'local');
+
+    // Generar errores
+    $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
+    $erroresCampos = self::generaErroresCampos(
+      ['tipo'],
+      $this->errores
+    );
+
+    $tituloForm = $this->pedido ? 'Editar pedido' : 'Nuevo pedido';
+
+    $checkedLocal = ($tipo === 'local') ? 'checked' : '';
+    $checkedLlevar = ($tipo === 'llevar') ? 'checked' : '';
+
+    $html = <<<EOF
+    {$htmlErroresGlobales}
+
+    <fieldset>
+        <legend>{$tituloForm}</legend>
+        <br>
+
+        <div>
+            <label>Tipo de pedido:</label><br>
+            <label>
+                <input type="radio" name="tipo" value="local" {$checkedLocal} />
+                Para tomar aquí
+            </label>
+            <br>
+            <label>
+                <input type="radio" name="tipo" value="llevar" {$checkedLlevar} />
+                Para llevar
+            </label>
+            {$erroresCampos['tipo']}
+        </div>
+
+        <br>
+
+        <div>
+            <button type="submit" name="guardar">Continuar a productos</button>
+        </div>
+    </fieldset>
+EOF;
+    return $html;
+  }
+
+  protected function procesaFormulario(&$datos)
+  {
+    $this->errores = [];
+
+    $tipoVal = $datos['tipo'] ?? 'local';
+    $tipo = Tipo::from($tipoVal);
+
+    if (count($this->errores) === 0) {
+      if ($this->pedido) {
+        // Editar pedido existente
+        $this->pedido->setTipo($tipo);
+        if (!PedidoService::actualizar($this->pedido)) {
+          $this->errores[] = 'Error al actualizar el pedido.';
+        } else {
+          $this->urlRedireccion = RUTA_VISTAS . '/pedidos/pedidoslist.php';
+        }
+      } else {
+        $this->urlRedireccion = RUTA_VISTAS . '/pedidos/anadir_productos.php?tipo=' . urlencode($tipo->value);
+      }
+    }
+  }
+
+  //endregion
+}

@@ -1,0 +1,97 @@
+<?php
+
+namespace es\ucm\fdi\aw\Producto;
+
+class Categoria
+{
+    //region Campos privados
+    private $id;
+    private $nombre;
+    private $descripcion;
+    private $imagen;
+    private $activa;
+    private $necesitaPrepararcion;
+    //endregion
+
+    //region Constructor
+    public function __construct($nombre, $descripcion, $imagen, $activa, $id = null)
+    {
+        $this->id = $id;
+        $this->nombre = $nombre;
+        $this->descripcion = $descripcion;
+        $this->imagen = $imagen;
+        $this->activa = $activa;
+        if ($this->nombre === 'Bebidas') {
+            $this->necesitaPrepararcion = false;
+        } else {
+            $this->necesitaPrepararcion = true;
+        }
+    }
+    //endregion
+
+  //region Propiedades
+  public function getId()
+  {
+    return $this->id;
+  }
+
+  public function getNombre()
+  {
+    return $this->nombre;
+  }
+
+  public function getDescripcion()
+  {
+    return $this->descripcion;
+  }
+
+  public function getImagen()
+  {
+    return $this->imagen;
+  }
+
+  public function isActiva()
+  {
+    return (bool) $this->activa;
+  }
+
+  public function necesitaPreparacion()
+  {
+    return (bool) $this->necesitaPrepararcion;
+  }
+  //endregion
+
+  //region setters
+  public function setNombre($nombre)
+  {
+    $this->nombre = $nombre;
+  }
+
+  public function setDescripcion($descripcion)
+  {
+    $this->descripcion = $descripcion;
+  }
+
+  public function setImagen($imagen)
+  {
+    $this->imagen = $imagen;
+  }
+
+  public function setActiva($activa)
+  {
+    $this->activa = $activa;
+  }
+
+  public function setNecesitaPreparacion($necesitaPreparacion)
+  {
+    $this->necesitaPrepararcion = $necesitaPreparacion;
+  }
+
+  public function setId($id)
+  {
+    $this->id = $id;
+  }
+  //endregion
+}
+
+?>
