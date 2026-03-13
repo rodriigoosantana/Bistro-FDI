@@ -90,6 +90,7 @@ EOF;
         $_SESSION['rolId'] = Rol::cargarRol($usuario->getId())->getId();
         $_SESSION['userId'] = $usuario->getId();
         $_SESSION['nombreUsuario'] = $usuario->getNombreUsuario();
+        $_SESSION['avatar'] = $usuario->getAvatar();
       }
     }
   }
