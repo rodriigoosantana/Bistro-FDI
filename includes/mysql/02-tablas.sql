@@ -47,11 +47,12 @@ CREATE TABLE IF NOT EXISTS `RolesUsuario` (
 
 -- TABLA CATEGORIAS
 CREATE TABLE IF NOT EXISTS `Categorias` (
-  `id`          int(11)      NOT NULL AUTO_INCREMENT,
-  `nombre`      varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `descripcion` text         COLLATE utf8mb4_general_ci NOT NULL,
-  `imagen`      varchar(255) COLLATE utf8mb4_general_ci,
-  `activa`      tinyint(1)   NOT NULL DEFAULT 1,
+  `id`                        int(11)      NOT NULL AUTO_INCREMENT,
+  `nombre`                    varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `descripcion`               text         COLLATE utf8mb4_general_ci NOT NULL,
+  `imagen`                    varchar(255) COLLATE utf8mb4_general_ci,
+  `activa`                    tinyint(1)   NOT NULL DEFAULT 1,
+  `necesita_preparacion`      tinyint(1)   NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_categoria_nombre` (`nombre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -85,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `Pedidos` (
   `id`             int(11)       NOT NULL AUTO_INCREMENT,
   `numero_pedido`  int(11)       NOT NULL,
   `fecha_creacion` datetime      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `estado`         enum('nuevo', 'recibido', 'en preparacion', 'cocinando', 'listo cocina', 'entregado', 'cancelado') NOT NULL DEFAULT 'Nuevo',
+  `estado`         enum('nuevo', 'recibido', 'en preparacion', 'cocinando', 'listo cocina', 'terminado','entregado', 'cancelado') NOT NULL DEFAULT 'nuevo',
   `tipo`           enum('local','llevar') NOT NULL,
   `cliente_id`     int(11)       NOT NULL,
   `cocinero_id`    int(11),

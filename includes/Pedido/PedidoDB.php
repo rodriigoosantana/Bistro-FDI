@@ -77,6 +77,24 @@ class PedidoDB
     return true;
   }
 
+  public static function togglePreparadoStatus(int $productoId, int $pedidoId, bool $nuevoEstado): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "UPDATE PedidoProducto SET preparado = %d WHERE producto_id = %d AND pedido_id = %d",
+      $nuevoEstado ? 1 : 0,
+      intval($productoId),
+      intval($pedidoId)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
 
   public static function buscarPorId(int $id)
   {
@@ -172,6 +190,24 @@ class PedidoDB
     return $pedido;
   }
 
+  public static function asignarCocinero(int $pedidoId, int $cocineroId): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "UPDATE Pedidos SET cocinero_id=%d WHERE id=%d",
+      intval($cocineroId),
+      intval($pedidoId)
+    );
+
+    if ($conexion->query($query)) {
+      return true;
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+      return false;
+    }
+  }
+
   public static function cambiarEstado(int $id, Estado $estado)
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
@@ -237,7 +273,7 @@ class PedidoDB
   }
 
 
-  public static function listarPorEstados(array $estados = null, int $clienteId = null)
+  public static function listarPorEstados(array $estados = null, int $clienteId = null, int $cocineroId = null)
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -254,6 +290,10 @@ class PedidoDB
 
     if ($clienteId !== null) {
       $condiciones[] = "cliente_id = " . intval($clienteId);
+    }
+
+    if ($cocineroId !== null) {
+      $condiciones[] = "cocinero_id = " . intval($cocineroId);
     }
 
     if (count($condiciones) > 0) {
@@ -311,5 +351,32 @@ class PedidoDB
     $resultado->free();
 
     $pedidoDesglosado->setProductos($productos);
+  }
+
+  public static function productoEnPedidoNecesitaPreparacion(int $pedido_id, int $productoId): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "SELECT c.necesita_preparacion
+      FROM Productos p
+      JOIN Categorias c ON p.categoria_id = c.id
+      JOIN PedidoProducto pp ON p.id = pp.producto_id
+      WHERE pp.pedido_id = %d AND p.id = %d", 
+      intval($pedido_id),intval($productoId)
+    );
+
+    $resultado = $conexion->query($query);
+
+    if ($resultado) {
+      if ($fila = $resultado->fetch_assoc()) {
+        return boolval($fila['necesita_preparacion']);
+      }
+      $resultado->free();
+    } else {
+      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    }
+
+    return false;
   }
 }

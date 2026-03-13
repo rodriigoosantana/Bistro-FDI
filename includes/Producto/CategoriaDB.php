@@ -7,27 +7,34 @@ use es\ucm\fdi\aw\Aplicacion;
 
 class CategoriaDB
 {
-  //Inserta una nueva categoría en la base de datos.
-  public static function insertar(Categoria $categoria)
-  {
-    // Obtener la conexión a la base de datos
-    $conexion = Aplicacion::getInstance()->getConexionBd();
+    //Inserta una nueva categoría en la base de datos.
+    public static function insertar(Categoria $categoria)
+    {
+        // Obtener la conexión a la base de datos
+        $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    //Construcción de la query (petición SQL)
-    $query = sprintf(
-      "INSERT INTO Categorias (nombre, descripcion, imagen, activa)
-            VALUES ('%s', '%s', '%s', %d)",
-      $conexion->real_escape_string($categoria->getNombre()),
-      $conexion->real_escape_string($categoria->getDescripcion()),
-      $conexion->real_escape_string($categoria->getImagen()),
-      $categoria->isActiva() ? 1 : 0
-    );
+        //Construcción de la query (petición SQL)
+        $query = sprintf(
+            "INSERT INTO Categorias (nombre, descripcion, imagen, activa, necesita_preparacion)
+            VALUES ('%s', '%s', '%s', %d, %d)",
+            $conexion->real_escape_string($categoria->getNombre()),
+            $conexion->real_escape_string($categoria->getDescripcion()),
+            $conexion->real_escape_string($categoria->getImagen()),
+            $categoria->isActiva() ? 1 : 0, 
+            $categoria->necesitaPreparacion() ? 1 : 0
+        );
 
-    $conexion->query($query);
-    $categoria->setId($conexion->insert_id); # Asignar el ID generado por la base de datos
-
-    return $categoria;
-  }
+        //Eejecutar la query y manejar el resultado
+        if ($conexion->query($query) == TRUE) {
+            $categoria->setId($conexion->insert_id); # Asignar el ID generado por la base de datos
+            return $categoria;
+        }
+        else {
+            error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+            return null;
+        }
+        return $categoria;
+    }
 
   //Actualiza una categoría existente en la base de datos.
   public static function actualizar(Categoria $categoria)
@@ -157,3 +164,4 @@ class CategoriaDB
     return true;
   }
 }
+?>

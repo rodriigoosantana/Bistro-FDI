@@ -31,7 +31,7 @@ use es\ucm\fdi\aw\Aplicacion;
         <li><a href="<?php echo RUTA_VISTAS . '/productoslist.php' ?>">Productos</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/categoriaslist.php' ?>">Categorías</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/pedidos/nuevo_pedido.php' ?>">Nuevo Pedido</a></li>
-        <li><a href="<?php echo RUTA_VISTAS . '/pedidos/pedidoslist.php' ?>">Mis Pedidos</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/pedidos/pedidoslist.php' ?>">Pedidos</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/perfilUsuario.php?nombreUsuario=' . $_SESSION['nombreUsuario']; ?>">Mi Perfil</a></li>
       <?php endif; ?>
 

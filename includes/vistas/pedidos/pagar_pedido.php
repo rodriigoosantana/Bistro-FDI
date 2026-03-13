@@ -30,7 +30,7 @@ if (!$pedidoDesglosado) {
 // Verificar que el pedido pertenece al usuario o es gerente/camarero
 $esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
 $esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
-$esDueno    = ($_SESSION['userId'] === $pedidoDesglosado->getClienteId());
+$esDueno = (intval($_SESSION['userId']) === $pedidoDesglosado->getClienteId());
 
 if (!$esGerente && !$esCamarero && !$esDueno) {
   header('Location: ' . RUTA_APP . '/index.php');
@@ -49,27 +49,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metodo_pago'])) {
   $metodoPago = $_POST['metodo_pago'];
   $pagoValido = false;
 
-  if ($metodoPago === 'tarjeta') {
-    $numeroTarjeta = $_POST['numero_tarjeta'] ?? '';
-    $resultadoValidacion = PagoService::validarTarjeta($numeroTarjeta);
+    if ($metodoPago === 'tarjeta') {
+        $numeroTarjeta = $_POST['numero_tarjeta'] ?? '';
+        $resultadoValidacion = PagoService::validarTarjeta($numeroTarjeta);
 
-    if ($resultadoValidacion['valido']) {
-      $pagoValido = true;
-    } else {
-      $mensajeError = $resultadoValidacion['error'];
+        if ($resultadoValidacion['valido']) {
+            if (PedidoService::cambiarEstado($idPedido, Estado::EnPreparacion)) {
+                header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+                exit();
+            } else {
+                $mensajeError = "Error al procesar el pago.";
+            }
+        } else {
+            $mensajeError = $resultadoValidacion['error'];
+        }
+    } elseif ($metodoPago === 'camarero') {
+        // El pedido se queda en Recibido, el camarero lo cobrará en persona
+        header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+        exit();
     }
-  } elseif ($metodoPago === 'camarero') {
-    $pagoValido = true;
-  }
-
-  if ($pagoValido) {
-    if (PedidoService::cambiarEstado($idPedido, Estado::EnPreparacion)) {
-      header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-      exit();
-    } else {
-      $mensajeError = "Error al procesar el pago.";
-    }
-  }
 }
 
 // Datos del pedido
@@ -123,6 +121,13 @@ $tituloHeader = 'Finalizar Pago';
 
 $htmlNotificacionError = $mensajeError ? "<p class='msg-error'>{$mensajeError}</p>" : "";
 
+$opcionCamarero = (!$esCamarero) ? <<<HTML
+<div class="opcion-pago">
+    <input type="radio" id="pago_camarero" name="metodo_pago" value="camarero" onclick="alternarMetodoPago('camarero')">
+    <label for="pago_camarero">Pagar al camarero</label>
+</div>
+HTML : '';
+
 $contenidoPrincipal = <<<EOS
     <section id="contenido">
         <h2>Resumen de tu pedido</h2>
@@ -145,9 +150,8 @@ $contenidoPrincipal = <<<EOS
             </div>
 
             <div class="opcion-pago">
-                <input type="radio" id="pago_camarero" name="metodo_pago" value="camarero" onclick="alternarMetodoPago('camarero')">
-                <label for="pago_camarero">Pagar al camarero</label>
-            </div>
+            {$opcionCamarero}
+           </div>
         </form>
 
         <div class="botones-pago">

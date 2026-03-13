@@ -4,6 +4,8 @@
 namespace es\ucm\fdi\aw\vistas\pedidos;
 
 use es\ucm\fdi\aw\Pedido\PedidoService;
+use es\ucm\fdi\aw\Pedido\Estado;
+use es\ucm\fdi\aw\Pedido\Tipo;
 use es\ucm\fdi\aw\Usuario\Usuario;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
@@ -16,37 +18,59 @@ $esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
 $esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
 $esCocinero = ($_SESSION['rolId'] === Usuario::ROL_COCINERO);
 $esCliente  = ($_SESSION['rolId'] === Usuario::ROL_CLIENTE);
-$clienteId  = $esCliente ? $_SESSION['userId'] : null;
+$clienteId  = $esCliente  ? $_SESSION['userId'] : null;
+$cocineroId = $esCocinero ? $_SESSION['userId'] : null;
 
 $modos = [
-  'activos' => [
-    'titulo'  => 'Pedidos en curso',
-    'estados' => ['nuevo', 'recibido', 'en preparacion', 'cocinando', 'listo cocina', 'terminado'],
-    'roles'   => [Usuario::ROL_CLIENTE, Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
-  ],
-  'para recoger' => [
-    'titulo'  => 'Pedidos para recoger',
-    'estados' => ['listo cocina'],
-    'roles'   => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
-  ],
-  'historial' => [
-    'titulo'  => 'Historial de pedidos',
-    'estados' => [], // vacio =  sin filtro. 
-    'roles'   => [Usuario::ROL_CLIENTE, Usuario::ROL_GERENTE],
-  ],
-  'cocina' => [
-    'titulo'  => 'Cola de cocina',
-    'estados' => ['en preparacion', 'cocinando'],
-    'roles'   => [Usuario::ROL_COCINERO, Usuario::ROL_GERENTE],
-  ]
+    'activos' => [
+        'titulo'     => 'En curso',
+        'estados'    => [Estado::Nuevo->value, Estado::Recibido->value, Estado::EnPreparacion->value, Estado::Cocinando->value, Estado::ListoCocina->value, Estado::Terminado->value],
+        'roles'      => [Usuario::ROL_CLIENTE, Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
+        'filtroCoci' => false,
+    ],
+    'para recoger' => [
+        'titulo'     => 'Por recoger',
+        'estados'    => [Estado::ListoCocina->value],
+        'roles'      => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
+        'filtroCoci' => false,
+    ],
+    'historial' => [
+        'titulo'     => 'Historial',
+        'estados'    => [], // vacío = sin filtro
+        'roles'      => [Usuario::ROL_CLIENTE, Usuario::ROL_GERENTE],
+        'filtroCoci' => false,
+    ],
+    'cocina' => [
+        'titulo'     => 'En cocina',
+        'estados'    => [Estado::EnPreparacion->value, Estado::Cocinando->value],
+        'roles'      => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
+        'filtroCoci' => false,
+    ],
+    'mis pedidos' => [
+        'titulo'     => 'Mis pedidos en curso',
+        'estados'    => [Estado::Cocinando->value],
+        'roles'      => [Usuario::ROL_COCINERO],
+        'filtroCoci' => true,
+    ],
+    'pedidos a cocinar' => [
+        'titulo'     => 'Por cocinar',
+        'estados'    => [Estado::EnPreparacion->value],
+        'roles'      => [Usuario::ROL_COCINERO],
+        'filtroCoci' => false,
+    ],
+    'por cobrar' => [
+        'titulo'     => 'Por cobrar',
+        'estados'    => [Estado::Recibido->value],
+        'roles'      => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
+        'filtroCoci' => false,
+    ],
 ];
 
-
-$modo = $_GET['modo'] ?? 'activos';
+$modo = $_GET['modo'] ?? ($esCocinero ? 'mis pedidos' : 'activos');
 
 if (!isset($modos[$modo])) {
-  header('Location: ' . RUTA_VISTAS . '/pedidoslist.php?modo=activos');
-  exit();
+header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php?modo=' . ($esCocinero ? urlencode('mis pedidos') : 'activos'));
+    exit();
 }
 
 $cfg = $modos[$modo];
@@ -56,46 +80,49 @@ if (!$esGerente && !in_array($_SESSION['rolId'], $cfg['roles'])) {
   exit();
 }
 
-$filtroEstado = ($esGerente && isset($_GET['estado']) && $_GET['estado'] !== '')
-  ? trim($_GET['estado'])
-  : null;
+$filtroEstado = ($esGerente && $modo === 'historial' && isset($_GET['estado']) && $_GET['estado'] !== '')
+    ? trim($_GET['estado'])
+    : null;
 
 $estadosFiltro = $filtroEstado ? [$filtroEstado] : $cfg['estados'];
+$filtroCociId  = (!empty($cfg['filtroCoci']) && $esCocinero) ? $cocineroId : null;
+
 $pedidos = PedidoService::listarPorEstados(
-  estados: $estadosFiltro ?: null,
-  clienteId: $clienteId
+    estados:    $estadosFiltro ?: null,
+    clienteId:  $clienteId,
+    cocineroId: $filtroCociId
 );
 
 $etiquetasEstado = [
-  'nuevo'          => 'Nuevo',
-  'recibido'       => 'Recibido',
-  'en preparacion' => 'En preparación',
-  'cocinando'      => 'Cocinando',
-  'listo cocina'   => 'Listo cocina',
-  'terminado'      => 'Terminado',
-  'entregado'      => 'Entregado',
-  'cancelado'      => 'Cancelado',
+    Estado::Nuevo->value         => 'Nuevo',
+    Estado::Recibido->value      => 'Recibido',
+    Estado::EnPreparacion->value => 'En preparación',
+    Estado::Cocinando->value     => 'Cocinando',
+    Estado::ListoCocina->value   => 'Listo cocina',
+    Estado::Terminado->value     => 'Terminado',
+    Estado::Entregado->value     => 'Entregado',
+    Estado::Cancelado->value     => 'Cancelado',
 ];
 
 $clasesEstado = [
-  'nuevo'          => 'estado-nuevo',
-  'recibido'       => 'estado-recibido',
-  'en preparacion' => 'estado-preparacion',
-  'cocinando'      => 'estado-cocinando',
-  'listo cocina'   => 'estado-listo',
-  'terminado'      => 'estado-terminado',
-  'entregado'      => 'estado-entregado',
-  'cancelado'      => 'estado-cancelado',
+    Estado::Nuevo->value         => 'estado-nuevo',
+    Estado::Recibido->value      => 'estado-recibido',
+    Estado::EnPreparacion->value => 'estado-preparacion',
+    Estado::Cocinando->value     => 'estado-cocinando',
+    Estado::ListoCocina->value   => 'estado-listo',
+    Estado::Terminado->value     => 'estado-terminado',
+    Estado::Entregado->value     => 'estado-entregado',
+    Estado::Cancelado->value     => 'estado-cancelado',
 ];
 
 $htmlFiltro = '';
-if ($modo === 'historial') {
-  $opcionesFiltro = '<option value="">Todos</option>';
-  foreach ($etiquetasEstado as $valor => $etiqueta) {
-    $selected        = ($filtroEstado === $valor) ? ' selected' : '';
-    $opcionesFiltro .= "<option value=\"{$valor}\"{$selected}>{$etiqueta}</option>";
-  }
-  $htmlFiltro = <<<FILTRO
+if ($esGerente && $modo === 'historial') {
+    $opcionesFiltro = '<option value="">Todos</option>';
+    foreach ($etiquetasEstado as $valor => $etiqueta) {
+        $selected        = ($filtroEstado === $valor) ? ' selected' : '';
+        $opcionesFiltro .= "<option value=\"{$valor}\"{$selected}>{$etiqueta}</option>";
+    }
+    $htmlFiltro = <<<FILTRO
     <div class="filtros-pedidos">
         <form method="GET" action="">
             <input type="hidden" name="modo" value="{$modo}">
@@ -115,44 +142,42 @@ $modosVisibles = array_filter($modos, function ($cfgModo) use ($rolId, $esGerent
 
 $htmlNavModos = '';
 if (count($modosVisibles) > 1) {
-  $enlaces = '';
-  foreach ($modosVisibles as $claveModo => $cfgModo) {
-    $activo   = ($claveModo === $modo) ? ' class="btn btn-ver"' : ' class="btn btn-volver"';
-    $url      = RUTA_VISTAS . '/pedidos/pedidoslist.php?modo=' . $claveModo;
-    $enlaces .= "<a href=\"{$url}\"{$activo}>{$cfgModo['titulo']}</a> ";
-  }
-  $htmlNavModos = "<div class=\"nav-modos\">{$enlaces}</div>";
+    $enlaces = '';
+    foreach ($modosVisibles as $claveModo => $cfgModo) {
+        $activo   = ($claveModo === $modo) ? ' class="btn btn-ver"' : ' class="btn btn-volver"';
+        $url      = RUTA_VISTAS . '/pedidos/pedidoslist.php?modo=' . urlencode($claveModo);
+        $enlaces .= "<a href=\"{$url}\"{$activo}>{$cfgModo['titulo']}</a> ";
+    }
+    $htmlNavModos = "<div class=\"nav-modos\">{$enlaces}</div>";
 }
-
 
 $tarjetas = '';
 if ($pedidos && count($pedidos) > 0) {
-  foreach ($pedidos as $p) {
-    $id           = $p->getId();
-    $numeroPedido = htmlspecialchars($p->getNumeroPedido());
-    $fecha        = $p->getFechaCreacion()->format('d/m/Y H:i');
-    $estadoVal    = $p->getEstado()->value;
-    $estadoLabel  = htmlspecialchars($etiquetasEstado[$estadoVal] ?? $estadoVal);
-    $estadoClase  = $clasesEstado[$estadoVal] ?? '';
-    $tipoLabel    = $p->getTipo()->value === 'local' ? 'Para tomar' : 'Para llevar';
-    $tipoClase    = $p->getTipo()->value === 'local' ? 'tipo-local' : 'tipo-llevar';
+    foreach ($pedidos as $p) {
+        $id           = $p->getId();
+        $numeroPedido = htmlspecialchars($p->getNumeroPedido());
+        $fecha        = $p->getFechaCreacion()->format('d/m/Y H:i');
+        $estadoVal    = $p->getEstado()->value;
+        $estadoLabel  = htmlspecialchars($etiquetasEstado[$estadoVal] ?? $estadoVal);
+        $estadoClase  = $clasesEstado[$estadoVal] ?? '';
+        $tipoLabel    = $p->getTipo()->value === Tipo::ParaTomar->value ? 'Para tomar' : 'Para llevar';
+        $tipoClase    = $p->getTipo()->value === Tipo::ParaTomar->value ? 'tipo-local' : 'tipo-llevar';
 
-    // Redireccion según el estado
-    if ($estadoVal === 'nuevo') {
-      $verUrl = RUTA_VISTAS . '/pedidos/anadir_productos.php?id=' . $id;
-    } elseif ($estadoVal === 'recibido') {
-      $verUrl = RUTA_VISTAS . '/pedidos/pagar_pedido.php?id=' . $id;
-    } else {
-      $verUrl = RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $id;
-    }
+        if ($estadoVal === Estado::Nuevo->value) {
+            $verUrl = RUTA_VISTAS . '/pedidos/anadir_productos.php?id=' . $id;
+        } elseif ($estadoVal === Estado::Recibido->value && !$esCamarero && !$esGerente) {
+            $verUrl = RUTA_VISTAS . '/pedidos/pagar_pedido.php?id=' . $id;
+        } else {
+            $verUrl = RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $id;
+        }
 
-    $htmlTotal = '';
-    if (!$esCocinero) {
-      $total     = number_format($p->getTotal(), 2, ',', '.');
-      $htmlTotal = "<span class=\"tarjeta-precio\">{$total} €</span>";
-    }
+        $htmlTotal = '';
+        if (!$esCocinero) {
+            $total     = number_format($p->getTotal(), 2, ',', '.');
+            $htmlTotal = "<span class=\"tarjeta-precio\">{$total} €</span>";
+        }
 
-    $tarjetas .= <<<TARJETA
+        $tarjetas .= <<<TARJETA
         <div class="tarjeta-producto">
             <div class="tarjeta-info">
                 <strong>Pedido #{$numeroPedido}</strong>
