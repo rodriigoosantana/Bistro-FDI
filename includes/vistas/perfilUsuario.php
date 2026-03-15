@@ -26,23 +26,62 @@ $fila =
    </tr>";
 
 $contenidoPrincipal = <<<EOS
-   <section id="contenido">
-   <h2>usuarios</h2>
-   <table border="1">
-   <tr>
-       <th>id</th>
-       <th>nombre de Usuario</th>
-       <th>nombre</th>
-       <th>apellidos</th>
-       <th>email</th>
-       <th>avatar</th>
-       <th>rol</th>
-       <th>Modificar</th>
-       <th>Eliminar</th>
-   </tr>
-   $fila
-   </table>
-   </section>
+  <section class="perfil-usuario">
+
+  <div class="perfil-header">
+      <div class="perfil-avatar">
+          $avatar_img
+      </div>
+
+      <div class="perfil-datos-principales">
+          <h2>{$usuario->getNombreUsuario()}</h2>
+          <p>{$usuario->getNombre()} {$usuario->getApellidos()}</p>
+          <p><strong>Rol:</strong> {$rol->getNombre()}</p>
+      </div>
+  </div>
+
+  <table class="perfil-tabla">
+  <tr>
+      <th>ID</th>
+      <td>{$usuario->getId()}</td>
+  </tr>
+
+  <tr>
+      <th>Email</th>
+      <td>{$usuario->getEmail()}</td>
+  </tr>
+
+  <tr>
+      <th>Nombre</th>
+      <td>{$usuario->getNombre()}</td>
+  </tr>
+
+  <tr>
+      <th>Apellidos</th>
+      <td>{$usuario->getApellidos()}</td>
+  </tr>
+
+  <tr>
+      <th>Nombre de usuario</th>
+      <td>{$usuario->getNombreUsuario()}</td>
+  </tr>
+  </table>
+
+  <div class="acciones-pagina">
+
+  <a class="btn btn-editar" 
+  href="modificarUsuario.php?nombreUsuario={$usuario->getNombreUsuario()}">
+  Modificar datos
+  </a>
+
+  <a class="btn btn-borrar" 
+  href="eliminarUsuario.php?nombreUsuario={$usuario->getNombreUsuario()}">
+  Eliminar usuario
+  </a>
+
+  </div>
+
+  </section>
 EOS;
 
 $modUrl = "modificarUsuario.php?nombreUsuario=" . urlencode($usuario->getNombreUsuario());
