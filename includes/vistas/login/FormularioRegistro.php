@@ -86,7 +86,7 @@ class FormularioRegistro extends formularioBase
       $password2Html = <<<HTML
             <div>
                 <label for="password2">Reintroduce el password:</label><br>
-                <input id="password2" type="password" name="password2" />
+                <input id="password2" type="password" name="password2" required minlength="4"/>
                 {$erroresCampos['password2']}
             </div>
     HTML;
@@ -125,28 +125,28 @@ class FormularioRegistro extends formularioBase
 
             <div>
                 <label for="nombreUsuario">Nombre de usuario:</label><br>
-                <input id="nombreUsuario" type="text" name="nombreUsuario" value="$nombreUsuario" />
+                <input id="nombreUsuario" type="text" name="nombreUsuario" value="$nombreUsuario" required minlength="4"/>
                 {$erroresCampos['nombreUsuario']}
             </div>
             <br>
 
             <div>
                 <label for="nombre">Nombre:</label><br>
-                <input id="nombre" type="text" name="nombre" value="$nombre" />
+                <input id="nombre" type="text" name="nombre" value="$nombre" required minlength="4"/>
                 {$erroresCampos['nombre']}
             </div>
             <br>
 
             <div>
                 <label for="apellidos">Apellidos:</label><br>
-                <input id="apellidos" type="text" name="apellidos" value="$apellidos"/>
+                <input id="apellidos" type="text" name="apellidos" value="$apellidos" required minlength="4"/>
                 {$erroresCampos['apellidos']}
             </div>
             <br>
 
             <div>
                 <label for="email">Email:</label><br>
-                <input id="email" type="text" name="email" value="$email"/>
+                <input id="email" type="email" name="email" value="$email" required minlength="4"/>
                 {$erroresCampos['email']}
             </div>
 
@@ -154,7 +154,7 @@ class FormularioRegistro extends formularioBase
 
             <div>
               <label for="avatar">Añade un Avatar:</label><br>
-              <input id="avatar" type="file" name="avatar"/>
+              <input id="avatar" type="file" name="avatar"/> <!-- No es obligatorio ya que si no se sube se pone el defaul -->
               {$erroresCampos['avatar']}
             </div>
 
@@ -165,7 +165,7 @@ class FormularioRegistro extends formularioBase
 
             <div>
                 <label for="password">Password:</label><br>
-                <input id="password" type="password" name="password"/>
+                <input id="password" type="password" name="password" required minlength="4"/>
                 {$erroresCampos['password']}
             </div>
             <br>
@@ -263,6 +263,14 @@ EOF;
         'El password debe tener al menos 4 caracteres.';
     }
 
+    $password2 = trim($datos['password2'] ?? '');
+
+    $password2 = filter_var($password2, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+    if (! $password2 || $password != $password2) {
+      $this->errores['password2'] = 'Los passwords deben coincidir';
+    }
+
     if ($this->gerente) {
       $rol = intval($datos['rol']);
       //} else if ($usuarioExistente != null) {
@@ -313,7 +321,7 @@ EOF;
         }
       }
       */ else {
-        
+
         try {
           $usuarioInsertado = UsuarioService::insertar($dto);
           UsuarioService::insertarRoles($usuarioInsertado, Usuario::ROL_CLIENTE);
@@ -323,6 +331,7 @@ EOF;
           $_SESSION['rolId'] = Rol::cargarRol($usuarioInsertado->getId())->getId();
           $_SESSION['userId'] = $usuarioInsertado->getId();
           $_SESSION['nombreUsuario'] = $usuarioInsertado->getNombreUsuario();
+          $_SESSION['avatar'] = $usuario->getAvatar();
 
           $app->putAtributoPeticion('mensajes', [
             'Se ha registrado exitosamente',
