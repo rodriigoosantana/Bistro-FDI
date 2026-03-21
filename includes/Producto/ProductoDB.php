@@ -7,287 +7,197 @@ use es\ucm\fdi\aw\Aplicacion;
 
 //Clase ProductoDB
 //Capa de acceso a datos para Producto.
-//Contiene todas las operaciones SQL (INSERT, UPDATE, SELECT).
-//Recibe y devuelve objetos Producto (DTO).
+//Utiliza sentencias preparadas para prevenir inyección SQL.
 
 class ProductoDB
 {
-  //Inserta un nuevo producto en la base de datos.    
+  // Construye un objeto Producto a partir de una fila de BD
+  private static function filaAProducto(array $fila): Producto
+  {
+    return new Producto(
+      $fila['nombre'],
+      $fila['descripcion'],
+      intval($fila['categoria_id']),
+      floatval($fila['precio_base']),
+      intval($fila['iva']),
+      (bool) $fila['disponible'],
+      (bool) $fila['ofertado'],
+      (bool) $fila['activo'],
+      intval($fila['id'])
+    );
+  }
+
   public static function insertar(Producto $producto): ?Producto
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf(
+    $stmt = $conexion->prepare(
       "INSERT INTO Productos (nombre, descripcion, categoria_id, precio_base, iva, disponible, ofertado, activo)
-            VALUES ('%s', '%s', %d, %f, %f, %d, %d, %d)",
-
-      $conexion->real_escape_string($producto->getNombre()),
-      $conexion->real_escape_string($producto->getDescripcion()),
-      intval($producto->getCategoriaId()),
-      floatval($producto->getPrecioBase()),
-      floatval($producto->getIva()),
-      $producto->isDisponible() ? 1 : 0,
-      $producto->isOfertado() ? 1 : 0,
-      $producto->isActivo() ? 1 : 0
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     );
 
-    $conexion->query($query);
-    $producto->setId($conexion->insert_id); #Asignar el id al producto
+    $nombre      = $producto->getNombre();
+    $descripcion = $producto->getDescripcion();
+    $categoriaId = $producto->getCategoriaId();
+    $precioBase  = $producto->getPrecioBase();
+    $iva         = $producto->getIva();
+    $disponible  = $producto->isDisponible() ? 1 : 0;
+    $ofertado    = $producto->isOfertado()   ? 1 : 0;
+    $activo      = $producto->isActivo()     ? 1 : 0;
+
+    $stmt->bind_param("ssidiiii", $nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo);
+    $stmt->execute();
+    $producto->setId($conexion->insert_id);
+    $stmt->close();
 
     return $producto;
   }
 
-  //Actualiza un producto existente en la base de datos.
   public static function actualizar(Producto $producto): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf(
+    $stmt = $conexion->prepare(
       "UPDATE Productos
-             SET nombre='%s', descripcion='%s', categoria_id=%d,
-                 precio_base=%.2f, iva=%d, disponible=%d, ofertado=%d, activo=%d
-             WHERE id=%d",
-
-      $conexion->real_escape_string($producto->getNombre()),
-      $conexion->real_escape_string($producto->getDescripcion()),
-      intval($producto->getCategoriaId()),
-      floatval($producto->getPrecioBase()),
-      intval($producto->getIva()),
-      $producto->isDisponible() ? 1 : 0,
-      $producto->isOfertado() ? 1 : 0,
-      $producto->isActivo() ? 1 : 0,
-      intval($producto->getId())
+       SET nombre=?, descripcion=?, categoria_id=?, precio_base=?, iva=?, disponible=?, ofertado=?, activo=?
+       WHERE id=?"
     );
 
-    $conexion->query($query);
+    $nombre      = $producto->getNombre();
+    $descripcion = $producto->getDescripcion();
+    $categoriaId = $producto->getCategoriaId();
+    $precioBase  = $producto->getPrecioBase();
+    $iva         = $producto->getIva();
+    $disponible  = $producto->isDisponible() ? 1 : 0;
+    $ofertado    = $producto->isOfertado()   ? 1 : 0;
+    $activo      = $producto->isActivo()     ? 1 : 0;
+    $id          = $producto->getId();
+
+    $stmt->bind_param("ssidiiiii", $nombre, $descripcion, $categoriaId, $precioBase, $iva, $disponible, $ofertado, $activo, $id);
+    $stmt->execute();
+    $stmt->close();
 
     return true;
   }
 
-  // Elimina un producto por su id. Devuelve true si se elimina, false si falla.
   public static function eliminar(int $id): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
-
-    $query = sprintf("DELETE FROM Productos WHERE id=%d", $id);
-
-    $conexion->query($query);
-
+    $stmt = $conexion->prepare("DELETE FROM Productos WHERE id=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $stmt->close();
     return true;
   }
 
-  //Busca un producto por su id.
-  public static function buscarPorId($id): ?Producto
+  public static function buscarPorId(int $id): ?Producto
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
-
-    $query = sprintf(
-      "SELECT * FROM Productos WHERE id=%d",
-      intval($id)
-    );
-
-    $resultado = $conexion->query($query);
-
+    $stmt = $conexion->prepare("SELECT * FROM Productos WHERE id=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
     $fila = $resultado->fetch_assoc();
     $resultado->free();
-
-    if ($fila) {
-      return new Producto(
-        $fila['nombre'],
-        $fila['descripcion'],
-        intval($fila['categoria_id']),
-        floatval($fila['precio_base']),
-        intval($fila['iva']),
-        (bool) $fila['disponible'],
-        (bool) $fila['ofertado'],
-        (bool) $fila['activo'],
-        intval($fila['id'])
-      );
-    }
-
-    return null;
+    $stmt->close();
+    return $fila ? self::filaAProducto($fila) : null;
   }
 
-
-  //Lista todos los productos ordenados por nombre.
   public static function listarTodos(): array
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
-
-    $query =  "SELECT * FROM Productos ORDER BY categoria_id ASC, nombre ASC";
-
-    $resultado = $conexion->query($query);
-
+    $stmt = $conexion->prepare("SELECT * FROM Productos ORDER BY categoria_id ASC, nombre ASC");
+    $stmt->execute();
+    $resultado = $stmt->get_result();
     $productos = [];
-
     while ($fila = $resultado->fetch_assoc()) {
-      $productos[] = new Producto(
-        $fila['nombre'],
-        $fila['descripcion'],
-        intval($fila['categoria_id']),
-        floatval($fila['precio_base']),
-        intval($fila['iva']),
-        (bool) $fila['disponible'],
-        (bool) $fila['ofertado'],
-        (bool) $fila['activo'],
-        intval($fila['id'])
-      );
+      $productos[] = self::filaAProducto($fila);
     }
     $resultado->free();
-
-    return $productos; #En este caso si hay error devuelve array vacío en vez de false
+    $stmt->close();
+    return $productos;
   }
 
   public static function listarActivos(): array
   {
-    // igual que listarTodos() pero con WHERE activo = 1 AND disponible = 1
     $conexion = Aplicacion::getInstance()->getConexionBd();
-
-    $query = "SELECT * FROM Productos WHERE activo = 1 AND disponible = 1 ORDER BY categoria_id ASC, nombre ASC";
-
-    $resultado = $conexion->query($query);
-
+    $stmt = $conexion->prepare("SELECT * FROM Productos WHERE activo=1 AND disponible=1 ORDER BY categoria_id ASC, nombre ASC");
+    $stmt->execute();
+    $resultado = $stmt->get_result();
     $productos = [];
-
     while ($fila = $resultado->fetch_assoc()) {
-      $productos[] = new Producto(
-        $fila['nombre'],
-        $fila['descripcion'],
-        intval($fila['categoria_id']),
-        floatval($fila['precio_base']),
-        intval($fila['iva']),
-        (bool) $fila['disponible'],
-        (bool) $fila['ofertado'],
-        (bool) $fila['activo'],
-        intval($fila['id'])
-      );
+      $productos[] = self::filaAProducto($fila);
     }
     $resultado->free();
-
+    $stmt->close();
     return $productos;
   }
 
-
-  //Lista productos filtrados por categoría.
-  public static function listarPorCategoria($categoriaId): array
+  public static function listarPorCategoria(int $categoriaId): array
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
-
-    $query = sprintf(
-      "SELECT * FROM Productos WHERE categoria_id=%d ORDER BY nombre ASC",
-      intval($categoriaId)
-    );
-
-    $resultado = $conexion->query($query);
-
+    $stmt = $conexion->prepare("SELECT * FROM Productos WHERE categoria_id=? ORDER BY nombre ASC");
+    $stmt->bind_param("i", $categoriaId);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
     $productos = [];
-
-    if ($resultado) {
-      while ($fila = $resultado->fetch_assoc()) {
-        $productos[] = new Producto(
-          $fila['nombre'],
-          $fila['descripcion'],
-          intval($fila['categoria_id']),
-          floatval($fila['precio_base']),
-          intval($fila['iva']),
-          (bool) $fila['disponible'],
-          (bool) $fila['ofertado'],
-          (bool) $fila['activo'],
-          intval($fila['id'])
-        );
-      }
-      $resultado->free();
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
+    while ($fila = $resultado->fetch_assoc()) {
+      $productos[] = self::filaAProducto($fila);
     }
-
+    $resultado->free();
+    $stmt->close();
     return $productos;
   }
 
-  // Lista productos activos de una categoría concreta.
   public static function listarActivosPorCategoria(int $categoriaId): array
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
-
-    $query = sprintf(
-      "SELECT * FROM Productos WHERE categoria_id=%d AND activo=1 AND disponible=1 ORDER BY nombre ASC",
-      intval($categoriaId)
-    );
-
-    $resultado = $conexion->query($query);
+    $stmt = $conexion->prepare("SELECT * FROM Productos WHERE categoria_id=? AND activo=1 AND disponible=1 ORDER BY nombre ASC");
+    $stmt->bind_param("i", $categoriaId);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
     $productos = [];
-
     while ($fila = $resultado->fetch_assoc()) {
-      $productos[] = new Producto(
-        $fila['nombre'],
-        $fila['descripcion'],
-        intval($fila['categoria_id']),
-        floatval($fila['precio_base']),
-        intval($fila['iva']),
-        (bool) $fila['disponible'],
-        (bool) $fila['ofertado'],
-        (bool) $fila['activo'],
-        intval($fila['id'])
-      );
+      $productos[] = self::filaAProducto($fila);
     }
     $resultado->free();
-
+    $stmt->close();
     return $productos;
   }
 
-  //Cambia la disponibilidad de un producto.
-  public static function cambiarDisponibilidad($id, $disponible): bool
+  public static function cambiarDisponibilidad(int $id, bool $disponible): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
-
-    $query = sprintf(
-      "UPDATE Productos SET disponible=%d WHERE id=%d",
-      $disponible ? 1 : 0,
-      intval($id)
-    );
-
-    $conexion->query($query);
-
+    $valor = $disponible ? 1 : 0;
+    $stmt = $conexion->prepare("UPDATE Productos SET disponible=? WHERE id=?");
+    $stmt->bind_param("ii", $valor, $id);
+    $stmt->execute();
+    $stmt->close();
     return true;
   }
 
-
-  //Cambia el estado activo/inactivo de un producto.
-  public static function cambiarEstado($id, $activo): bool
+  public static function cambiarEstado(int $id, bool $activo): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
-
-     if ($activo) {
-        // Al activar, solo cambiamos activo (disponible lo gestiona el gerente a mano)
-        $query = sprintf(
-            "UPDATE Productos SET activo=1 WHERE id=%d",
-            intval($id)
-        );
+    if ($activo) {
+      $stmt = $conexion->prepare("UPDATE Productos SET activo=1 WHERE id=?");
     } else {
-        // Al desactivar, también quitamos disponible automáticamente
-        $query = sprintf(
-            "UPDATE Productos SET activo=0, disponible=0 WHERE id=%d",
-            intval($id)
-        );
+      // Al desactivar, también fuerza disponible=0
+      $stmt = $conexion->prepare("UPDATE Productos SET activo=0, disponible=0 WHERE id=?");
     }
-    
-    $conexion->query($query);
-
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $stmt->close();
     return true;
   }
 
-  // Desactiva todos los productos de una categoría
   public static function desactivarPorCategoria(int $categoriaId): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
-
-    $query = sprintf(
-      "UPDATE Productos SET activo = 0 WHERE categoria_id = %d",
-      $categoriaId
-    );
-
-    $conexion->query($query);
-
+    $stmt = $conexion->prepare("UPDATE Productos SET activo=0 WHERE categoria_id=?");
+    $stmt->bind_param("i", $categoriaId);
+    $stmt->execute();
+    $stmt->close();
     return true;
   }
 }

@@ -62,6 +62,14 @@ class FormularioProducto extends formularioBase
     }
 
     // Checked attributes para checkboxes
+    // IVA: valores legales en España
+    $valoresIva = [0, 4, 10, 21];
+    $opcionesIva = '';
+    foreach ($valoresIva as $v) {
+      $selected = ($iva == $v) ? 'selected' : '';
+      $opcionesIva .= "<option value=\"{$v}\" {$selected}>{$v}%</option>\n";
+    }
+
     $checkedDisponible = $disponible ? 'checked' : '';
     $checkedOfertado = $ofertado ? 'checked' : '';
     $checkedActivo = $activo ? 'checked' : '';
@@ -129,7 +137,9 @@ class FormularioProducto extends formularioBase
 
           <div>
               <label for="iva">IVA (%):</label><br>
-              <input id="iva" type="number" name="iva" value="{$iva}" min="0" max="100" required />
+              <select id="iva" name="iva" required>
+                {$opcionesIva}
+              </select>
               {$erroresCampos['iva']}
           </div>
 
@@ -211,10 +221,10 @@ EOF;
       $this->errores['precioBase'] = 'El precio debe ser mayor que 0.';
     }
 
-    // Validar IVA
+    // Validar IVA: solo valores legales en España
     $iva = intval($datos['iva'] ?? -1);
-    if ($iva < 0 || $iva > 100) {
-      $this->errores['iva'] = 'El IVA debe estar entre 0 y 100.';
+    if (!in_array($iva, [0, 4, 10, 21])) {
+      $this->errores['iva'] = 'El IVA debe ser 0%, 4%, 10% o 21%.';
     }
 
     // Checkboxes -> Si el form fue enviado, leer del POST; si no, leer del producto

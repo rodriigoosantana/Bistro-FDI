@@ -3,45 +3,46 @@
 namespace es\ucm\fdi\aw\Producto;
 
 use es\ucm\fdi\aw\Aplicacion;
-//Capa de acceso a datos para la tabla ProductoImagen
+
 class ProductoImagenDB
 {
   public static function insertar(int $productoId, string $rutaImagen): int|bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf(
-      "INSERT INTO ProductoImagen (producto_id, ruta_imagen) VALUES (%d, '%s')",
-      $productoId,
-      $conexion->real_escape_string($rutaImagen)
-    );
+    $stmt = $conexion->prepare("INSERT INTO ProductoImagen (producto_id, ruta_imagen) VALUES (?, ?)");
+    $stmt->bind_param("is", $productoId, $rutaImagen);
+    $stmt->execute();
+    $id = $conexion->insert_id;
+    $stmt->close();
 
-    $conexion->query($query);
-
-    return $conexion->insert_id;
+    return $id;
   }
 
   public static function borrarPorProducto(int $productoId): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf("DELETE FROM ProductoImagen WHERE producto_id = %d", $productoId);
-
-    $conexion->query($query);
+    $stmt = $conexion->prepare("DELETE FROM ProductoImagen WHERE producto_id=?");
+    $stmt->bind_param("i", $productoId);
+    $stmt->execute();
+    $stmt->close();
 
     return true;
   }
 
-  public static function listarPorProducto($productoId): array
+  public static function listarPorProducto(int $productoId): array
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf("SELECT * FROM ProductoImagen WHERE producto_id = %d", $productoId);
-
-    $resultado = $conexion->query($query);
-
+    $stmt = $conexion->prepare("SELECT * FROM ProductoImagen WHERE producto_id=?");
+    $stmt->bind_param("i", $productoId);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
     $imagenes = $resultado->fetch_all(MYSQLI_ASSOC);
     $resultado->free();
+    $stmt->close();
+
     return $imagenes;
   }
 }

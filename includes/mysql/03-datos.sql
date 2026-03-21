@@ -11,7 +11,6 @@ USE `bistro_fdi`;
 TRUNCATE TABLE `PedidoProducto`;
 TRUNCATE TABLE `ProductoImagen`;
 TRUNCATE TABLE `Pedidos`;
-TRUNCATE TABLE `EstadosPedido`;
 TRUNCATE TABLE `Productos`;
 TRUNCATE TABLE `Categorias`;
 TRUNCATE TABLE `RolesUsuario`;
