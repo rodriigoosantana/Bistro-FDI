@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__DIR__, 2) . '/includes/config.php';
+require_once dirname(__DIR__, 3) . '/includes/config.php';
 
 use es\ucm\fdi\aw\Producto\CategoriaService;
 use es\ucm\fdi\aw\vistas\productos\FormularioCategoria;
@@ -22,23 +22,23 @@ $categoria = null;
 if (isset($_GET['id'])) {
   $categoria = CategoriaService::buscarPorId(intval($_GET['id']));
   if (!$categoria) {
-    header('Location: ' . RUTA_VISTAS . '/categoriaslist.php');
+    header('Location: ' . RUTA_VISTAS . '/productos/categoriaslist.php');
     exit();
   }
 }
 
-$volverUrl = RUTA_VISTAS . '/categoriaslist.php';
+$volverUrl = RUTA_VISTAS . '/productos/categoriaslist.php';
 
 # BORRADO (solo gerente, acción POST)
 if ($esGerente && isset($_POST['accion']) && $categoria) {
   $accion = $_POST['accion'];
   if ($accion === 'desactivar') {
     CategoriaService::cambiarEstado($categoria->getId(), false);
-    header('Location:' . RUTA_VISTAS . '/categoriaslist.php');
+    header('Location:' . RUTA_VISTAS . '/productos/categoriaslist.php');
     exit();
   } elseif ($accion === 'reactivar') {
     CategoriaService::cambiarEstado($categoria->getId(), true);
-    header('Location: ' . RUTA_VISTAS . '/categoriaslist.php?id=' . $categoria->getId());
+    header('Location: ' . RUTA_VISTAS . '/productos/categoriaslist.php?id=' . $categoria->getId());
     exit();
   }
 }
@@ -81,7 +81,7 @@ if ($esGerente && ($modoEdicion || !$categoria)) {
   # Botones de gerente
   $botonesGerente = '';
   if ($esGerente) {
-    $editarUrl = RUTA_VISTAS . '/categoriasdetail.php?id=' . $categoria->getId() . '&editar=1';
+    $editarUrl = RUTA_VISTAS . '/productos/categoriasdetail.php?id=' . $categoria->getId() . '&editar=1';
     $botonesGerente = "<a href=\"{$editarUrl}\" class=\"btn btn-editar\">Modificar</a> ";
     if ($categoria->isActiva()) {   # Solo mostrar botón de desactivar si la categoría está activa
       $botonesGerente .= <<<BTN
@@ -126,5 +126,5 @@ if ($esGerente && ($modoEdicion || !$categoria)) {
     EOS;
 }
 
-require('common/plantilla.php');
+require(RAIZ_APP . '/includes/vistas/common/plantilla.php');
 ?>

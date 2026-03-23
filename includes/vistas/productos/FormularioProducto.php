@@ -23,7 +23,7 @@ class FormularioProducto extends formularioBase
     parent::__construct(
       'formProducto',
       [
-        'urlRedireccion' => RUTA_VISTAS . '/productoslist.php',
+        'urlRedireccion' => RUTA_VISTAS . '/productos/productoslist.php',
         'enctype' => 'multipart/form-data'
       ]
     ); #enctype necesario para subir archivos (imágenes)

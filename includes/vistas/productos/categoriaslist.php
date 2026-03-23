@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__DIR__, 2) . '/includes/config.php';
+require_once dirname(__DIR__, 3) . '/includes/config.php';
 
 use es\ucm\fdi\aw\Aplicacion;
 use es\ucm\fdi\aw\Producto\CategoriaService;
@@ -34,7 +34,7 @@ if ($categorias && count($categorias) > 0) {
     }
 
     # Imagen o placeholder si no tiene imagen
-    $productosUrl = RUTA_VISTAS . '/productoslist.php?categoria=' . $cat->getId();
+    $productosUrl = RUTA_VISTAS . '/productos/productoslist.php?categoria=' . $cat->getId();
     if ($cat->getImagen()) {
       $rutaImagen = RUTA_APP . htmlspecialchars($cat->getImagen());
       $htmlImagen = "<a href=\"{$productosUrl}\"><img src=\"{$rutaImagen}\" alt=\"{$nombre}\" class=\"categoria-img\" /></a>";
@@ -42,7 +42,7 @@ if ($categorias && count($categorias) > 0) {
       $htmlImagen = "<a href=\"{$productosUrl}\"><div class=\"img-placeholder\">📷<br>Sin imagen</div></a>";
     }
 
-    $verURL = RUTA_VISTAS . '/categoriasdetail.php?id=' . $cat->getId();
+    $verURL = RUTA_VISTAS . '/productos/categoriasdetail.php?id=' . $cat->getId();
 
     $filasLista .= <<<FILA
         <div class="categoria-item" {$estiloItem}>
@@ -69,7 +69,7 @@ $tituloHeader = 'Gestión de Categorías';
 $volverUrl  = RUTA_APP . '/index.php';
 $btnCrearNueva = '';
 if ($esGerente) {   # Solo un gerente puede crear nuevas categorías
-  $crearUrl = RUTA_VISTAS . '/categoriasdetail.php';
+  $crearUrl = RUTA_VISTAS . '/productos/categoriasdetail.php';
   $btnCrearNueva = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">+ Crear nueva</a>";
 }
 
@@ -88,4 +88,4 @@ $contenidoPrincipal = <<<EOS
     </section>
 EOS;
 
-require("common/plantilla.php");
+require(RAIZ_APP . '/includes/vistas/common/plantilla.php');

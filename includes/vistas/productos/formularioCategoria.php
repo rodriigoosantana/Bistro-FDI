@@ -20,7 +20,7 @@ class FormularioCategoria extends FormularioBase
     parent::__construct(
       'formCategoria',
       [
-        'urlRedireccion' => RUTA_VISTAS . '/categoriaslist.php',
+        'urlRedireccion' => RUTA_VISTAS . '/productos/categoriaslist.php',
         'enctype' => 'multipart/form-data'
       ]
     );
