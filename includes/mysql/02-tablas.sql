@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS `Pedidos` (
   `cliente_id`     int(11)       NOT NULL,
   `cocinero_id`    int(11),
   `total`          decimal(10,2) NOT NULL DEFAULT 0.00,
+  `descuento` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   PRIMARY KEY (`id`),
   KEY `fk_pedido_cliente`  (`cliente_id`),
   KEY `fk_pedido_cocinero` (`cocinero_id`)
@@ -108,3 +109,34 @@ CREATE TABLE IF NOT EXISTS `PedidoProducto` (
   KEY `fk_pp_pedido`   (`pedido_id`),
   KEY `fk_pp_producto` (`producto_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+/* Añadido para la Funcionalidad 4 de ofertas */
+CREATE TABLE IF NOT EXISTS `Ofertas` (
+  `id`          INT           NOT NULL AUTO_INCREMENT,
+  `nombre`      VARCHAR(150)  NOT NULL,
+  `descripcion` TEXT          NOT NULL,
+  `inicio`      DATE          NOT NULL,
+  `fin`         DATE          NOT NULL,
+  `descuento`   DECIMAL(5,4)  NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `OfertaProducto` (
+  `id`          INT  NOT NULL AUTO_INCREMENT,
+  `oferta_id`   INT  NOT NULL,
+  `producto_id` INT  NOT NULL,
+  `cantidad`    INT  NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `fk_op_oferta`   (`oferta_id`),
+  KEY `fk_op_producto` (`producto_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `PedidoOferta` (
+  `pedido_id` INT NOT NULL,
+  `oferta_id` INT NOT NULL,
+  PRIMARY KEY (`pedido_id`, `oferta_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/* También se modififca en Pedidos la cantidad del descuento para 
+que quede registrado en el pedido el coste sin descuento y el dinero descontado */
+/* Fin de la Funcionalidad 4 de ofertas */
