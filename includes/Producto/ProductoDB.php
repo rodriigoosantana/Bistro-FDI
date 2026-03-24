@@ -200,4 +200,15 @@ class ProductoDB
     $stmt->close();
     return true;
   }
+
+  public static function actualizarOfertado(int $id, bool $ofertado): bool
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+    $stmt = $conexion->prepare("UPDATE Productos SET ofertado=? WHERE id=?");
+    $val = $ofertado ? 1 : 0;
+    $stmt->bind_param('ii', $val, $id);
+    $stmt->execute();
+    $stmt->close();
+    return true;
+  }
 }
