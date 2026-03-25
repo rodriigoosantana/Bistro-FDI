@@ -21,15 +21,16 @@ class PedidoDB
     $cocineroId = $pedido->getCocineroId() !== null ? intval($pedido->getCocineroId()) : "NULL";
 
     $query = sprintf(
-      "INSERT INTO Pedidos (numero_pedido, fecha_creacion, estado, tipo, cliente_id, cocinero_id, total)
-			VALUES (%d, '%s', '%s', '%s', %d, %s, %f)",
+      "INSERT INTO Pedidos (numero_pedido, fecha_creacion, estado, tipo, cliente_id, cocinero_id, total, descuento)
+        VALUES (%d, '%s', '%s', '%s', %d, %s, %f, %f)",
       intval($pedido->getNumeroPedido()),
       $conexion->real_escape_string($pedido->getFechaCreacion()->format("Y-m-d H:i:s")),
       $conexion->real_escape_string($pedido->getEstado()->value),
       $conexion->real_escape_string($pedido->getTipo()->value),
       intval($pedido->getClienteId()),
       $cocineroId,
-      floatval($pedido->getTotal())
+      floatval($pedido->getTotal()),
+      floatval($pedido->getDescuento())
     );
 
     $conexion->query($query);
@@ -170,7 +171,7 @@ class PedidoDB
 
     $fila = $resultado->fetch_assoc();
     $resultado->free();
-    
+
     if (!$fila) {
       return null;
     }
@@ -186,7 +187,7 @@ class PedidoDB
       intval($fila['id'])
     );
 
-    
+
     return $pedido;
   }
 
@@ -362,8 +363,9 @@ class PedidoDB
       FROM Productos p
       JOIN Categorias c ON p.categoria_id = c.id
       JOIN PedidoProducto pp ON p.id = pp.producto_id
-      WHERE pp.pedido_id = %d AND p.id = %d", 
-      intval($pedido_id),intval($productoId)
+      WHERE pp.pedido_id = %d AND p.id = %d",
+      intval($pedido_id),
+      intval($productoId)
     );
 
     $resultado = $conexion->query($query);

@@ -38,10 +38,12 @@ class Pedido
   private int $clienteId;
   private ?int $cocineroId;
   private float $total;
+
+  private float $descuento;
   // endregion
 
   // region Constructor
-  public function __construct(int $numeroPedido, DateTime $fechaCreacion, Estado $estado, Tipo $tipo, int $clienteId, ?int $cocineroId, float $total, ?int $id = null)
+  public function __construct(int $numeroPedido, DateTime $fechaCreacion, Estado $estado, Tipo $tipo, int $clienteId, ?int $cocineroId, float $total, ?int $id = null, float $descuento = 0.0)
   {
     $this->id = $id;
     $this->numeroPedido = $numeroPedido;
@@ -51,6 +53,8 @@ class Pedido
     $this->clienteId = $clienteId;
     $this->cocineroId = $cocineroId;
     $this->total = $total;
+
+    $this->descuento = $descuento;
   }
   // endregion
 
@@ -95,6 +99,16 @@ class Pedido
     // TODO probablemente hay que calcular esto en base a PedidoProducto
     return $this->total;
   }
+
+  public function getDescuento(): float
+  {
+    return $this->descuento;
+  }
+
+  public function getTotalConDescuento(): float
+  {
+    return max(0.0, $this->total - $this->descuento);
+  }
   // endregion
 
   // region Setters
@@ -136,6 +150,11 @@ class Pedido
   public function setTotal(float $total)
   {
     $this->total = $total;
+  }
+
+  public function setDescuento(float $descuento): void
+  {
+    $this->descuento = $descuento;
   }
   //endregion
 }

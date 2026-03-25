@@ -135,15 +135,30 @@ class OfertaService
         if (!$oferta) return 0.0;
 
         $lineas = OfertaDB::listarLineasDeOferta($ofertaId);
-        $precioBase = 0.0;
+        $carritoIndexado = [];
+        foreach ($carrito as $item) {
+            $carritoIndexado[intval($item['producto_id'])] = intval($item['cantidad']);
+        }
+
+        // Cuántas veces cabe la oferta completa en el carrito
+        $vecesAplicable = PHP_INT_MAX;
+        foreach ($lineas as $linea) {
+            $pid = $linea->getProductoId();
+            if (!isset($carritoIndexado[$pid])) return 0.0;
+            $vecesAplicable = min($vecesAplicable, intdiv($carritoIndexado[$pid], $linea->getCantidad()));
+        }
+        if ($vecesAplicable === PHP_INT_MAX || $vecesAplicable === 0) return 0.0;
+
+        // Precio base del pack (una vez)
+        $precioUnPack = 0.0;
         foreach ($lineas as $linea) {
             $producto = ProductoDB::buscarPorId($linea->getProductoId());
             if ($producto) {
-                $precioBase += $producto->getPrecioFinal() * $linea->getCantidad();
+                $precioUnPack += $producto->getPrecioFinal() * $linea->getCantidad();
             }
         }
 
-        return round($precioBase * $oferta->getDescuento(), 2);
+        return round($precioUnPack * $oferta->getDescuento() * $vecesAplicable, 2);
     }
 
     private static function actualizarOfertadoProductos(array $lineas, bool $valor): void
