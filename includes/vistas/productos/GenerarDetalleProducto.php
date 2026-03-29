@@ -82,7 +82,7 @@ class GenerarDetalleProducto
 
     $editarUrl   = RUTA_VISTAS . '/productos/productosdetail.php?id=' . $producto->getId() . '&editar=1';
     $textoEstado = $producto->isActivo() ? 'Desactivar' : 'Activar';
-    $claseEstado = $producto->isActivo() ? 'btn-borrar' : 'btn-editar';
+    $claseEstado = $producto->isActivo() ? 'btn btn-borrar' : 'btn btn-editar';
 
     return <<<BTN
     <a href="{$editarUrl}" class="btn btn-editar">Modificar</a>

@@ -91,15 +91,14 @@ INSERT INTO `Productos` (`id`, `nombre`, `descripcion`, `categoria_id`, `precio_
 (22, 'Tarta del día',            'Tarta casera según disponibilidad',              4, 2.50, 10),
 (23, 'Arroz con leche',          'Arroz con leche espolvoreado con canela',        4, 1.80, 10),
 (24, 'Tostada con aceite',       'Pan tostado con aceite de oliva virgen extra',   5, 1.20, 10),
-(25, 'Tostada con tomate',       'Pan tostado con tomate rallado y aceite',        5, 1.30, 10),
 (26, 'Tostada aceite y tomate',  'Pan tostado con tomate y aceite de oliva',       5, 1.30, 10),
 (27, 'Tostada con mantequilla',  'Pan tostado con mantequilla y mermelada',        5, 1.40, 10),
 (28, 'Croissant',                'Croissant de mantequilla recién horneado',       5, 1.50, 10),
-(29, 'Napolitana de chocolate',  'Hojaldre relleno de crema de chocolate',         5, 1.60, 10),
-(30, 'Desayuno completo',        'Café, tostada con tomate, zumo y fruta',         5, 4.50, 10);
+(29, 'Napolitana',  'Hojaldre relleno de crema pastelera o de chocolate',         5, 1.60, 10),
+
 
 -- IMÁGENES DE PRODUCTOS (Por defecto, para que aparezca algo)
-INSERT INTO `ProductoImagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
+INSERT INTO `productoimagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
 (1, 4, '/img/uploads/productos/producto_4_69a94d9a16216.jpg'),
 (2, 3, '/img/uploads/productos/producto_3_69a94dc0c35b5.jpg'),
 (3, 1, '/img/uploads/productos/producto_1_69a94ddcb011a.jpg'),
@@ -114,7 +113,29 @@ INSERT INTO `ProductoImagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
 (12, 9, '/img/uploads/productos/producto_9_69aca8c9aec73.jpg'),
 (13, 9, '/img/uploads/productos/producto_9_69aca8c9af735.jpg'),
 (14, 8, '/img/uploads/productos/producto_8_69aca91ca2bfc.jpg'),
-(15, 7, '/img/uploads/productos/producto_7_69aca97eaa07b.jpg');
+(15, 7, '/img/uploads/productos/producto_7_69aca97eaa07b.jpg'),
+(16, 13, '/img/uploads/productos/producto_13_69c93beb7e071.jpg'),
+(17, 10, '/img/uploads/productos/producto_10_69c93c13da741.webp'),
+(18, 11, '/img/uploads/productos/producto_11_69c93c47b2c7a.webp'),
+(19, 12, '/img/uploads/productos/producto_12_69c93c696bc55.jpg'),
+(20, 14, '/img/uploads/productos/producto_14_69c93ca359b72.webp'),
+(21, 15, '/img/uploads/productos/producto_15_69c93cbe079a8.jpg'),
+(22, 16, '/img/uploads/productos/producto_16_69c93ceed406b.jpg'),
+(23, 22, '/img/uploads/productos/producto_22_69c93d2ea2ff5.jpg'),
+(24, 22, '/img/uploads/productos/producto_22_69c93d2ea3f91.jpg'),
+(25, 22, '/img/uploads/productos/producto_22_69c93d2ea4b21.jpg'),
+(26, 21, '/img/uploads/productos/producto_21_69c93d8783434.jpg'),
+(27, 23, '/img/uploads/productos/producto_23_69c93dd1c9a63.jpg'),
+(28, 28, '/img/uploads/productos/producto_28_69c93e121a913.jpg'),
+(29, 18, '/img/uploads/productos/producto_18_69c93e57b690a.jpg'),
+(30, 18, '/img/uploads/productos/producto_18_69c93e57b8151.jpg'),
+(31, 18, '/img/uploads/productos/producto_18_69c93e57b99e6.jpg'),
+(32, 18, '/img/uploads/productos/producto_18_69c93e57ba5cb.jpg'),
+(33, 24, '/img/uploads/productos/producto_24_69c93e812c5c9.jpeg'),
+(34, 26, '/img/uploads/productos/producto_26_69c93e9e97d8b.jpg'),
+(35, 27, '/img/uploads/productos/producto_27_69c93f05399bf.jpg'),
+(36, 29, '/img/uploads/productos/producto_29_69c93f27ecf2b.jpg');
+
 
 -- NUEVOS PEDIDOS DE PRUEBA
 -- Pedido 1: Cliente 1 (Koke) pide un Bocadillo de Jamón y un Refresco.
