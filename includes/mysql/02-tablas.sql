@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS `Categorias`;
 DROP TABLE IF EXISTS `RolesUsuario`;
 DROP TABLE IF EXISTS `Usuarios`;
 DROP TABLE IF EXISTS `Roles`;
+DROP TABLE IF EXISTS `Recompensas`;
 
 
 -- TABLA ROLES
@@ -140,3 +141,12 @@ CREATE TABLE IF NOT EXISTS `PedidoOferta` (
 /* También se modififca en Pedidos la cantidad del descuento para 
 que quede registrado en el pedido el coste sin descuento y el dinero descontado */
 /* Fin de la Funcionalidad 4 de ofertas */
+
+
+CREATE TABLE IF NOT EXISTS `Recompensas` (
+  `id`                     INT NOT NULL AUTO_INCREMENT,
+  `producto_id`            INT NOT NULL,
+  `bistrocoins_necesarias` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_recompensa_producto` (`producto_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

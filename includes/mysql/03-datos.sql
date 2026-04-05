@@ -16,6 +16,8 @@ TRUNCATE TABLE `Categorias`;
 TRUNCATE TABLE `RolesUsuario`;
 TRUNCATE TABLE `Usuarios`;
 TRUNCATE TABLE `Roles`;
+TRUNCATE TABLE `Recompensas`;
+
 
 -- ROLES (prioridad: 1=máximo acceso)
 INSERT INTO `Roles` (`id`, `nombre`) VALUES
@@ -32,14 +34,8 @@ INSERT INTO `Usuarios` (`id`, `nombreUsuario`, `email`, `nombre`, `apellidos`, `
 (3, 'cocinera2', 'cocinera1@bistrofdi.es', 'Sydney', 'Adamu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/avatar_69aeea1fd1896.webp', 1, '2026-03-09 16:38:09'),
 (4, 'camarero1', 'kokegoat@gmail.com', 'Koke', 'Resurrecci&oacute;n', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/avatar_69aeea882ac66.jpg', 1, '2026-03-09 16:38:09'),
 (5, 'camarero2', 'cliente2@gmail.com', 'Antoine', 'Griezmann', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/avatar_69aeeae40e227.jpg', 1, '2026-03-09 16:38:09'),
-(75, 'cliente1', 'cliente1@gmail.com', 'Big AKA &#039;Double B&#039;', 'Baut', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/default.jpg', 1, '2026-03-06 22:54:13'),
-(76, 'cliente2', 'cliente2@gmail.com', 'Dudu', 'Tous', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/default.jpg', 1, '2026-03-08 14:33:54'),
-(77, '4444', '4444', '4444', '4444', '$2y$10$GW/QTB66w3YXpXyIw1fqMOUsMN7WvZSkKfk4sGgYLgSsZWnmD14EC', '/img/uploads/avatares/avatar_69adb436dea48.jpeg', 1, '2026-03-08 18:39:03'),
-(78, '1212', '1212', '1122', '1212', '$2y$10$CSxv1OVR5POsCUz2znVIeezJmEtmI9HrKhQbM.SDVEHkXs/19LmUG', '/img/uploads/avatares/default.jpg', 1, '2026-03-08 18:45:22'),
-(83, '3333', '3333', '3333', '3333', '$2y$10$yJoRHATJCDwjGBbPc6o5k.IHafa7bAkzc9RBOjPM.NhOIbbICB.1S', '/img/uploads/avatares/avatar_predeterminado_2.jpeg', 1, '2026-03-08 19:29:49'),
-(84, '6666', '6666', '6666', '6666', '$2y$10$lnyvskkOjFF.ItFo8Tq5tODWm6SoWet8Y689IkTr/QIw3CgRdFY8i', '/img/uploads/avatares/avatar_predeterminado_1.jpeg', 1, '2026-03-08 19:37:31'),
-(87, 'webo', 'webo', 'webo', 'webo', '$2y$10$DWVwlvw/Td7StEgcNbhgI.waziunMbCFDK8ZQirx4wOFtpK/3wwyu', '/img/uploads/avatares/avatar_69aed8afbcc1b.jpeg', 1, '2026-03-09 15:25:30');
-
+(6, 'cliente1', 'cliente1@gmail.com', 'Big AKA &#039;Double B&#039;', 'Baut', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/default.jpg', 1, '2026-03-06 22:54:13'),
+(7, 'cliente2', 'cliente2@gmail.com', 'Dudu', 'Tous', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/default.jpg', 1, '2026-03-08 14:33:54');
 
 -- ROLES USUARIO
 INSERT INTO `RolesUsuario` (`usuario`, `rol`) VALUES
@@ -48,14 +44,8 @@ INSERT INTO `RolesUsuario` (`usuario`, `rol`) VALUES
 (3, 2),
 (4, 3),
 (5, 3),
-(75, 4),
-(76, 4),
-(77, 4),
-(78, 4),
-(83, 4),
-(84, 4),
-(87, 1);
-
+(6, 4),
+(7, 4);
 
 -- CATEGORIAS
 INSERT INTO `Categorias` (`id`, `nombre`, `descripcion`, `imagen`, `necesita_preparacion`) VALUES
@@ -160,3 +150,9 @@ VALUES (3, 103, 'nuevo', 'llevar', 4, NULL, 10.00);
 INSERT INTO `PedidoProducto` (`pedido_id`, `producto_id`, `cantidad`, `precio_unitario`) 
 VALUES (3, 3, 2, 4.00), -- 2x Bocadillo de calamares
        (3, 4, 2, 1.00); -- 2x Agua mineral
+
+-- RECOMPENSAS DE PRUEBA
+INSERT INTO `Recompensas` (`id`, `producto_id`, `bistrocoins_necesarias`) VALUES
+(1, 22, 25),
+(2, 18, 10),
+(3, 10, 15);
