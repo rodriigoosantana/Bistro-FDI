@@ -12,6 +12,7 @@ class Recompensa
   {
     $this->producto_id = $producto_id;
     $this->bistroCoins_necesarias = $bistroCoins_necesarias;
+    $this->id = $id;
   }
 
   public function getId()

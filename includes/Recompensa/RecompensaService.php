@@ -1,11 +1,17 @@
 <?php
+
+namespace es\ucm\fdi\aw\Recompensa;
+
+use es\ucm\fdi\aw\Recompensa\RecompensaDB;
+use es\ucm\fdi\aw\Recompensa\Recompensa;
+
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 
 class RecompensaService
 {
   public static function insertar($recompensa)
   {
-    return RecompensaBD::insertar($recompensa);;
+    return RecompensaDB::insertar($recompensa);;
   }
   public static function actualizar($recompensa)
   {

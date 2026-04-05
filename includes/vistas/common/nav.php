@@ -3,8 +3,7 @@
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
 use es\ucm\fdi\aw\Usuario\Usuario;
-use es\ucm\fdi\aw\Aplicacion; 
-; ?>
+use es\ucm\fdi\aw\Aplicacion;; ?>
 
 <nav>
   <h3>Navegación</h3>
@@ -14,25 +13,26 @@ use es\ucm\fdi\aw\Aplicacion;
     <?php if (Aplicacion::estaLogueado()): ?>
 
       <!-- Lo que pueden ver solo gerentes -->
-       <?php if (Aplicacion::esGerente()): ?>
+      <?php if (Aplicacion::esGerente()): ?>
         <li><a href="<?php echo RUTA_VISTAS . '/listaUsuarios.php' ?>">Usuarios</a></li>
       <?php endif; ?>
 
       <!-- Lo que pueden ver solo cocineros y gerentes -->
-       <?php if (Aplicacion::esGerente() || Aplicacion::esCocinero()): ?>
+      <?php if (Aplicacion::esGerente() || Aplicacion::esCocinero()): ?>
       <?php endif; ?>
 
       <!-- Lo que pueden ver solo camareros, cocineros y gerentes -->
-     <?php if (Aplicacion::esGerente() || Aplicacion::esCocinero() || Aplicacion::esCamarero()): ?>
+      <?php if (Aplicacion::esGerente() || Aplicacion::esCocinero() || Aplicacion::esCamarero()): ?>
       <?php endif; ?>
 
       <!-- Lo que pueden ver todos los usuarios registrados -->
       <?php if (Aplicacion::esGerente() || Aplicacion::esCocinero() || Aplicacion::esCamarero() || Aplicacion::esCliente()): ?>
         <li><a href="<?php echo RUTA_VISTAS . '/productos/productoslist.php' ?>">Productos</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/productos/categoriaslist.php' ?>">Categorías</a></li>
-        <li><a href="<?php echo RUTA_VISTAS . '/ofertas/ofertaslist.php' ?>">Ofertas</a></li> 
+        <li><a href="<?php echo RUTA_VISTAS . '/ofertas/ofertaslist.php' ?>">Ofertas</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/pedidos/nuevo_pedido.php' ?>">Nuevo Pedido</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/pedidos/pedidoslist.php' ?>">Pedidos</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/recompensas/listaRecompensas.php' ?>">Recompensas</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/perfilUsuario.php?nombreUsuario=' . $_SESSION['nombreUsuario']; ?>">Mi Perfil</a></li>
       <?php endif; ?>
 

@@ -59,7 +59,7 @@ class RecompensaDB
   {
     $conn = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf("SELECT * FROM Usuarios");
+    $query = sprintf("SELECT * FROM Recompensas");
 
     $rs = $conn->query($query);
 
