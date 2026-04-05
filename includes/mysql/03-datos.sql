@@ -94,11 +94,11 @@ INSERT INTO `Productos` (`id`, `nombre`, `descripcion`, `categoria_id`, `precio_
 (26, 'Tostada aceite y tomate',  'Pan tostado con tomate y aceite de oliva',       5, 1.30, 10),
 (27, 'Tostada con mantequilla',  'Pan tostado con mantequilla y mermelada',        5, 1.40, 10),
 (28, 'Croissant',                'Croissant de mantequilla recién horneado',       5, 1.50, 10),
-(29, 'Napolitana',  'Hojaldre relleno de crema pastelera o de chocolate',         5, 1.60, 10),
+(29, 'Napolitana',  'Hojaldre relleno de crema pastelera o de chocolate',         5, 1.60, 10);
 
 
 -- IMÁGENES DE PRODUCTOS (Por defecto, para que aparezca algo)
-INSERT INTO `productoimagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
+INSERT INTO `ProductoImagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
 (1, 4, '/img/uploads/productos/producto_4_69a94d9a16216.jpg'),
 (2, 3, '/img/uploads/productos/producto_3_69a94dc0c35b5.jpg'),
 (3, 1, '/img/uploads/productos/producto_1_69a94ddcb011a.jpg'),
