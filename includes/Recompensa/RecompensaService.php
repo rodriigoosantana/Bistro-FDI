@@ -32,4 +32,8 @@ class RecompensaService
   {
     return RecompensaDB::buscarPorId($id);
   }
+  public static function existePorProductoId($productoId)
+  {
+    return RecompensaDB::existePorProductoId($productoId);
+  }
 }

@@ -21,7 +21,11 @@ class detallarRecompensa
 
     if (!empty($imagenes)) {
       $ruta = htmlspecialchars(RUTA_APP . $imagenes[0]['ruta_imagen']);
-      $htmlImagen = "<img src=\"{$ruta}\" alt=\"{$nombreProducto}\">";
+      $htmlImagen = "
+        <div class='tarjeta-imagen'>
+          <img class='tarjeta-img-unica' src='{$ruta}' alt='{$nombreProducto}'>
+        </div>
+        ";
     } else {
       $htmlImagen = "<em>Sin imagen</em>";
     }

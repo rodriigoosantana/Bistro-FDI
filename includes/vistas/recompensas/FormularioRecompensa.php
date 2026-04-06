@@ -96,6 +96,21 @@ class FormularioRecompensa extends formularioBase
       $this->errores['bistrocoins'] = 'Debe ser mayor que 0.';
     }
 
+    $existe = RecompensaService::existePorProductoId($productoId);
+
+    if ($this->recompensa) {
+      if (
+        $productoId != $this->recompensa->getProductoId() &&
+        $existe
+      ) {
+        $this->errores['productoId'] = 'Este producto ya tiene recompensa.';
+      }
+    } else {
+      if ($existe) {
+        $this->errores['productoId'] = 'Este producto ya tiene recompensa.';
+      }
+    }
+
     $app = Aplicacion::getInstance();
 
     if (count($this->errores) === 0) {

@@ -14,14 +14,15 @@ class UsuarioDB
     $conn = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
-      "INSERT INTO Usuarios(nombreUsuario, nombre, apellidos, email, avatar, password) 
+      "INSERT INTO Usuarios(nombreUsuario, nombre, apellidos, email, avatar, password, saldo_bistrocoins) 
          VALUES ('%s', '%s', '%s', '%s', '%s', '%s')",
       $conn->real_escape_string($usuario->getNombreUsuario()),
       $conn->real_escape_string($usuario->getNombre()),
       $conn->real_escape_string($usuario->getApellidos()),
       $conn->real_escape_string($usuario->getEmail()),
       $conn->real_escape_string($usuario->getAvatar()),
-      $conn->real_escape_string($usuario->getPassword())
+      $conn->real_escape_string($usuario->getPassword()),
+      $conn->real_escape_string($usuario->getSaldoBistrocoins())
     );
 
     try { #Intentamos insertar el usuario, si el nombre de usuario ya existe, se lanzará una excepción que capturaremos para lanzar una excepción de dominio más específica.
@@ -58,13 +59,15 @@ class UsuarioDB
       nombre = '%s',
       apellidos = '%s',
       email = '%s',
-      avatar = '%s'
+      avatar = '%s',
+      saldo_bistrocoins = '%d'
       WHERE id = %d",
       $usuario->getNombreUsuario(),
       $usuario->getNombre(),
       $usuario->getApellidos(),
       $usuario->getEmail(),
       $usuario->getAvatar(),
+      $usuario->getSaldoBistrocoins(),
       $usuario->getId()
     );
 
@@ -83,7 +86,7 @@ class UsuarioDB
 
     $usuarios = [];
     while ($fila = $rs->fetch_assoc()) {
-      $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila["id"]);
+      $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila['saldo_bistrocoins'], $fila["id"]);
     }
     $rs->free();
 
@@ -103,7 +106,7 @@ class UsuarioDB
     $rs->free();
     if ($fila) {
       Rol::cargarRol($fila['id']);
-      $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila['id']);
+      $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila['saldo_bistrocoins'], $fila['id']);
       return $user;
     }
 

@@ -91,6 +91,7 @@ EOF;
         $_SESSION['userId'] = $usuario->getId();
         $_SESSION['nombreUsuario'] = $usuario->getNombreUsuario();
         $_SESSION['avatar'] = $usuario->getAvatar();
+        $_SESSION['saldo'] = $usuario->getSaldoBistrocoins();
       }
     }
   }

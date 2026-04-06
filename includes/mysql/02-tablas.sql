@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS `Usuarios` (
   `apellidos`      varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
   `password`       varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `avatar`         varchar(255) COLLATE utf8mb4_general_ci,
+  `saldo_bistrocoins`int(11)    NOT NULL DEFAULT 0,
   `activo`         tinyint(1)   NOT NULL DEFAULT 1,
   `fecha_creacion` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -148,5 +149,6 @@ CREATE TABLE IF NOT EXISTS `Recompensas` (
   `producto_id`            INT NOT NULL,
   `bistrocoins_necesarias` INT NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_recompensas_producto` (`producto_id`),
   KEY `fk_recompensa_producto` (`producto_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

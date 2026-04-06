@@ -12,6 +12,7 @@ class Usuario
   private $apellidos;
   private $email;
   private $avatar;
+  private $saldo_bistrocoins;
   //endregion
 
   //region Campos estaticos 
@@ -24,7 +25,7 @@ class Usuario
 
   //region Constructor
 
-  public function __construct($nombreUsuario, $password, $nombre, $apellidos, $email, $avatar, $id = null)
+  public function __construct($nombreUsuario, $password, $nombre, $apellidos, $email, $avatar, $saldo_bistrocoins = null, $id = null)
   {
     $this->id = $id;
     $this->nombreUsuario = $nombreUsuario;
@@ -33,6 +34,7 @@ class Usuario
     $this->apellidos = $apellidos;
     $this->email = $email;
     $this->avatar = $avatar;
+    $this->saldo_bistrocoins = $saldo_bistrocoins;
   }
 
   //endregion
@@ -71,6 +73,12 @@ class Usuario
     return $this->password;
   }
 
+  public function getSaldoBistrocoins()
+  {
+    return $this->saldo_bistrocoins;
+  }
+
+
   public function setId($id)
   {
     $this->id = $id;
@@ -98,5 +106,10 @@ class Usuario
   public function setPassword($password)
   {
     $this->password = $password;
+  }
+
+  public function setSaldoBistrocoins($saldo_bistrocoins)
+  {
+    $this->saldo_bistrocoins = $saldo_bistrocoins;
   }
 }

@@ -15,6 +15,7 @@ class generarPerfilUsuario
     $nombreEsc = htmlspecialchars($usuario->getNombre());
     $apellidosEsc = htmlspecialchars($usuario->getApellidos());
     $emailEsc = htmlspecialchars($usuario->getEmail());
+    $saldoEsc = htmlspecialchars($usuario->getSaldoBistrocoins()) . " BistroCoins";
 
     $avatar_img = "<img src='" . RUTA_APP . htmlspecialchars($usuario->getAvatar()) . "' width='80' height='80' alt='Avatar'>";
     $rolNombre = htmlspecialchars(Rol::cargarRol($usuario->getId())->getNombre());
@@ -30,6 +31,7 @@ class generarPerfilUsuario
                   <h2>{$nombreUsuarioEsc}</h2>
                   <p>{$nombreEsc} {$apellidosEsc}</p>
                   <p><strong>Rol:</strong> {$rolNombre}</p>
+                  <p><strong>Saldo:</strong> {$saldoEsc}</p>
               </div>
           </div>
 

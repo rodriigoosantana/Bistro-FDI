@@ -332,6 +332,7 @@ EOF;
           $_SESSION['userId'] = $usuarioInsertado->getId();
           $_SESSION['nombreUsuario'] = $usuarioInsertado->getNombreUsuario();
           $_SESSION['avatar'] = $usuario->getAvatar();
+          $_SESSION['saldo'] = $usuario->getSaldoBistrocoins();
 
           $app->putAtributoPeticion('mensajes', [
             'Se ha registrado exitosamente',

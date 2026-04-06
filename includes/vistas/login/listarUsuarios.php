@@ -19,6 +19,7 @@ class listarUsuarios
 
       $perfilUrl = "perfilUsuario.php?nombreUsuario={$u->getNombreUsuario()}";
 
+      $saldo = $u->getSaldoBistrocoins() . " BistroCoins";
       $filas .= <<<FILA
         <div class="categoria-item">
 
@@ -33,6 +34,9 @@ class listarUsuarios
                 </span>
                 <span class="categoria-descripcion">
                     {$u->getEmail()}
+                </span>
+                <span class="categoria-descripcion">
+                    {$saldo}
                 </span>
                 <small>Rol: {$rol->getNombre()}</small>
             </div>

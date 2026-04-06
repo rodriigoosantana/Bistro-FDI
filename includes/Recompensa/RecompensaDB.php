@@ -87,4 +87,18 @@ class RecompensaDB
 
     return null;
   }
+
+  public static function existePorProductoId($productoId)
+  {
+    $conn = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "SELECT 1 FROM Recompensas U WHERE U.producto_id='%s' LIMIT 1",
+      $conn->real_escape_string($productoId)
+    );
+
+    $rs = $conn->query($query);
+
+    return $rs && $rs->num_rows > 0;
+  }
 }
