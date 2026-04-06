@@ -8,7 +8,7 @@ use es\ucm\fdi\aw\Producto\ProductoService;
 
 class listarRecompensas
 {
-  public static function listarRecompensas()
+  public static function listarRecompensas(bool $esGerente): string
   {
     $tarjetas = "";
     $recompensas = RecompensaService::listarTodos();
@@ -30,7 +30,7 @@ class listarRecompensas
           $htmlImg = "<div class=\"tarjeta-sin-imagen\"><em>Sin imagen</em></div>";
         }
 
-        $detalleUrl = "detalleRecompensa.php?idRecompensa={$r->getId()}";
+        $detalleUrl = "detalleRecompensa.php?id={$r->getId()}";
 
         $tarjetas .= <<<TARJETA
         <div class="tarjeta-producto">
@@ -53,11 +53,25 @@ class listarRecompensas
       $tarjetas = '<p>No hay recompensas disponibles.</p>';
     }
 
+    // 🔙 Botón volver (igual que productos)
+    $volverUrl = RUTA_APP . '/index.php';
+
+    // ➕ Botón crear (solo gerente)
+    $btnCrearNuevo = '';
+    if ($esGerente) {
+      $crearUrl = RUTA_VISTAS . '/recompensas/detalleRecompensa.php';
+      $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Crear nueva</a>";
+    }
+
     return <<<HTML
     <section id="contenido">
-        <h2>Lista de recompensas</h2>
         <div class="lista-productos">
             {$tarjetas}
+        </div>
+
+        <div class="acciones-pagina">
+            <a href="{$volverUrl}" class="btn btn-volver">Atrás</a>
+            {$btnCrearNuevo}
         </div>
     </section>
     HTML;

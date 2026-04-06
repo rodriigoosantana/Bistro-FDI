@@ -27,4 +27,9 @@ class RecompensaService
   {
     return RecompensaDB::listarTodos();
   }
+
+  public static function buscarPorId($id)
+  {
+    return RecompensaDB::buscarPorId($id);
+  }
 }

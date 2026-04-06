@@ -12,9 +12,8 @@ class RecompensaDB
     $conn = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
-      "INSERT INTO Recompensas(id, producto_id, bistrocoins_necesarias)
-         VALUES ('%s', '%s', '%s')",
-      $conn->real_escape_string($recompensa->getId()),
+      "INSERT INTO Recompensas(producto_id, bistrocoins_necesarias)
+         VALUES ('%s', '%s')",
       $conn->real_escape_string($recompensa->getProductoId()),
       $conn->real_escape_string($recompensa->getBistroCoinsNecesarias())
     );
@@ -28,7 +27,7 @@ class RecompensaDB
     $conn = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
-      "DELETE FROM Usuarios WHERE id = '%s'",
+      "DELETE FROM Recompensas WHERE id = '%s'",
       $recompensa->getId()
     );
 
@@ -41,12 +40,11 @@ class RecompensaDB
 
     $query = sprintf(
       "UPDATE Recompensas
-      SET id = '%s',
-      producto_id = '%s',
+      SET producto_id = '%s',
       bistrocoins_necesarias = '%s'
       WHERE id = %d",
-      $recompensa->getNombreUsuario(),
-      $recompensa->getNombre(),
+      $recompensa->getProductoId(),
+      $recompensa->getBistroCoinsNecesarias(),
       $recompensa->getId()
     );
 
@@ -70,5 +68,23 @@ class RecompensaDB
     $rs->free();
 
     return $recompensas;
+  }
+
+  public static function buscarPorId($id)
+  {
+    $conn = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf("SELECT * FROM Recompensas U WHERE U.id='%s'", $conn->real_escape_string($id));
+
+    $rs = $conn->query($query);
+
+    $fila = $rs->fetch_assoc();
+    $rs->free();
+    if ($fila) {
+      $recompensa = new Recompensa($fila['producto_id'], $fila['bistrocoins_necesarias'], $fila['id']);
+      return $recompensa;
+    }
+
+    return null;
   }
 }

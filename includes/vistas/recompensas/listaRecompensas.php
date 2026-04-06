@@ -10,7 +10,8 @@ use es\ucm\fdi\aw\Aplicacion;
 $tituloPagina = 'Lista Recompensas';
 $tituloHeader = 'Lista Recompensas';
 
-$filas = listarRecompensas::listarRecompensas();
+$esGerente = Aplicacion::esGerente();
+$filas = listarRecompensas::listarRecompensas($esGerente);
 
 $contenidoPrincipal = <<<EOS
 <section id="contenido">
