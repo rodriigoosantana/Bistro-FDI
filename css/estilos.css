@@ -49,6 +49,55 @@ header .saludo img {
   border: 2px solid #9496f5;
 }
 
+header .saludo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.saldo-cliente {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(148, 150, 245, 0.55);
+  border-radius: 999px;
+  padding: 6px 12px 6px 6px;
+}
+
+.moneda-bistro {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: #3d2a00;
+  background: radial-gradient(circle at 30% 30%, #ffe08a 0%, #fbbf24 60%, #d97706 100%);
+  border: 1px solid #b45309;
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.48), 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.moneda-bistro svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: #5b3700;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.saldo-valor {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
 /* ── NAV LATERAL ── */
 /* Navegación a la izquierda */
 nav {
@@ -1166,6 +1215,22 @@ textarea {
   header .saludo img {
     width: 48px;
     height: 48px;
+  }
+  .saldo-cliente {
+    padding: 4px 9px 4px 4px;
+    gap: 7px;
+  }
+  .moneda-bistro {
+    width: 28px;
+    height: 28px;
+    font-size: 0.64rem;
+  }
+  .moneda-bistro svg {
+    width: 18px;
+    height: 18px;
+  }
+  .saldo-valor {
+    font-size: 0.82rem;
   }
 
   /* layout: columna única */
