@@ -36,4 +36,9 @@ class RecompensaService
   {
     return RecompensaDB::existePorProductoId($productoId);
   }
+
+  public static function buscarPorProductoId($productoId)
+  {
+    return RecompensaDB::buscarPorProductoId($productoId);
+  }
 }

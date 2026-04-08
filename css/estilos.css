@@ -510,7 +510,7 @@ td {
 /* SHOPPING EXPERIENCE (NEW) */
 
 #pedido-shopping {
-  max-width: 1200px;
+  max-width: 1360px;
   margin: 0 auto;
 }
 
@@ -538,7 +538,7 @@ td {
 }
 
 .cart-summary {
-  width: 350px;
+  width: 460px;
   background: #f8fafc;
   padding: 20px;
   border-radius: 12px;
@@ -597,7 +597,7 @@ td {
 
 .carrito-item {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
+  grid-template-columns: minmax(120px, 2fr) 0.9fr 1fr 1fr 1.3fr 0.5fr;
   align-items: center;
   gap: 8px;
   font-size: 0.9rem;
@@ -607,6 +607,9 @@ td {
 
 .item-nombre {
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .item-subtotal {
@@ -1303,7 +1306,7 @@ textarea {
     box-sizing: border-box;
   }
   .carrito-item {
-    grid-template-columns: 2fr 1fr 1fr 0.5fr;
+    grid-template-columns: minmax(100px, 2fr) 0.9fr 1fr 1fr 1.2fr 0.5fr;
     font-size: 0.8rem;
   }
 
