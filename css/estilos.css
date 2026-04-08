@@ -69,26 +69,23 @@ header .saludo {
   width: 34px;
   height: 34px;
   border-radius: 50%;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.03em;
-  color: #3d2a00;
-  background: radial-gradient(circle at 30% 30%, #ffe08a 0%, #fbbf24 60%, #d97706 100%);
-  border: 1px solid #b45309;
-  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.48), 0 2px 8px rgba(0, 0, 0, 0.25);
+  background: #111827;
+  border: 1px solid rgba(148, 150, 245, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-.moneda-bistro svg {
-  width: 22px;
-  height: 22px;
-  fill: none;
-  stroke: #5b3700;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.saldo-cliente .moneda-bistro img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: contain;
+  background: transparent;
+  display: block;
+  border: none;
 }
 
 .saldo-valor {
@@ -1227,10 +1224,6 @@ textarea {
     width: 28px;
     height: 28px;
     font-size: 0.64rem;
-  }
-  .moneda-bistro svg {
-    width: 18px;
-    height: 18px;
   }
   .saldo-valor {
     font-size: 0.82rem;
