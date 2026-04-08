@@ -179,15 +179,17 @@ class OfertaService
 
         foreach ($productoIds as $pid) {
             $pid = intval($pid);
-            $stmt = $conexion->prepare(
+            $query = $conexion->prepare(
                 "SELECT COUNT(*) as total FROM OfertaProducto op
          INNER JOIN Ofertas o ON op.oferta_id = o.id
          WHERE op.producto_id = ? AND o.inicio <= ? AND o.fin >= ?"
             );
-            $stmt->bind_param('iss', $pid, $hoy, $hoy);
-            $stmt->execute();
-            $fila = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
+            $query->bind_param('iss', $pid, $hoy, $hoy);
+            $query->execute();
+            $resultado = $query->get_result();
+            $fila = $resultado->fetch_assoc();
+            $resultado->free();
+            $query->close();
 
             ProductoDB::actualizarOfertado($pid, intval($fila['total']) > 0);
         }
