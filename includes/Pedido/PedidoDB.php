@@ -47,7 +47,7 @@ class PedidoDB
     $query = sprintf(
       "UPDATE Pedidos
 			SET numero_pedido=%d, fecha_creacion='%s', estado='%s',
-			tipo='%s', cliente_id=%d, cocinero_id=%s, total=%f
+			tipo='%s', cliente_id=%d, cocinero_id=%s, total=%f, descuento=%f
 			WHERE id=%d",
       intval($pedido->getNumeroPedido()),
       $conexion->real_escape_string($pedido->getFechaCreacion()->format("Y-m-d H:i:s")),
@@ -56,6 +56,7 @@ class PedidoDB
       intval($pedido->getClienteId()),
       $cocineroId,
       floatval($pedido->getTotal()),
+      floatval($pedido->getDescuento()),
       intval($pedido->getId())
     );
 
@@ -120,7 +121,8 @@ class PedidoDB
         intval($fila['cliente_id']),
         $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
         floatval($fila['total']),
-        intval($fila['id'])
+        intval($fila['id']),
+        floatval($fila['descuento'])
       );
     }
 
@@ -147,7 +149,8 @@ class PedidoDB
         intval($fila['cliente_id']),
         $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
         floatval($fila['total']),
-        intval($fila['id'])
+        intval($fila['id']),
+        floatval($fila['descuento'])
       );
     }
     $resultado->free();
@@ -184,7 +187,8 @@ class PedidoDB
       intval($fila['cliente_id']),
       $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
       floatval($fila['total']),
-      intval($fila['id'])
+      intval($fila['id']),
+      floatval($fila['descuento'])
     );
 
 
@@ -316,7 +320,8 @@ class PedidoDB
         intval($fila['cliente_id']),
         $fila['cocinero_id'] !== null ? intval($fila['cocinero_id']) : null,
         floatval($fila['total']),
-        intval($fila['id'])
+        intval($fila['id']),
+        floatval($fila['descuento'])
       );
     }
     $resultado->free();

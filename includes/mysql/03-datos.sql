@@ -129,30 +129,52 @@ INSERT INTO `ProductoImagen` (`id`, `producto_id`, `ruta_imagen`) VALUES
 
 -- NUEVOS PEDIDOS DE PRUEBA
 -- Pedido 1: Cliente 1 (Koke) pide un Bocadillo de Jamón y un Refresco.
-INSERT INTO `Pedidos` (`id`, `numero_pedido`, `estado`, `tipo`, `cliente_id`, `cocinero_id`, `total`) 
-VALUES (1, 101, 'nuevo', 'local', 4, 2, 5.00);
+INSERT INTO `Pedidos` (`id`, `numero_pedido`, `estado`, `tipo`, `cliente_id`, `cocinero_id`, `total`, `descuento`)
+VALUES (1, 101, 'nuevo', 'local', 4, 2, 5.00, 0.00);
 
 INSERT INTO `PedidoProducto` (`pedido_id`, `producto_id`, `cantidad`, `precio_unitario`) 
 VALUES (1, 1, 1, 3.50), -- Bocadillo de jamón
        (1, 5, 1, 1.50); -- Refresco
 
 -- Pedido 2: Cliente 2 (Antoine) pide el Menú del día.
-INSERT INTO `Pedidos` (`id`, `numero_pedido`, `estado`, `tipo`, `cliente_id`, `cocinero_id`, `total`) 
-VALUES (2, 102, 'en preparacion', 'local', 5, 2, 8.50);
+INSERT INTO `Pedidos` (`id`, `numero_pedido`, `estado`, `tipo`, `cliente_id`, `cocinero_id`, `total`, `descuento`) 
+VALUES (2, 102, 'en preparacion', 'local', 5, 2, 8.50, 0.00);
 
 INSERT INTO `PedidoProducto` (`pedido_id`, `producto_id`, `cantidad`, `precio_unitario`) 
 VALUES (2, 7, 1, 8.50); -- Menú del día
 
 -- Pedido 3: Cliente 1 (Koke) pide para llevar dos bocadillos de calamares y dos aguas.
-INSERT INTO `Pedidos` (`id`, `numero_pedido`, `estado`, `tipo`, `cliente_id`, `cocinero_id`, `total`) 
-VALUES (3, 103, 'nuevo', 'llevar', 4, NULL, 10.00);
+INSERT INTO `Pedidos` (`id`, `numero_pedido`, `estado`, `tipo`, `cliente_id`, `cocinero_id`, `total`, `descuento`) 
+VALUES (3, 103, 'nuevo', 'llevar', 4, NULL, 10.00, 0.00);
 
 INSERT INTO `PedidoProducto` (`pedido_id`, `producto_id`, `cantidad`, `precio_unitario`) 
 VALUES (3, 3, 2, 4.00), -- 2x Bocadillo de calamares
        (3, 4, 2, 1.00); -- 2x Agua mineral
+
+-- OFERTAS DE PRUEBA
+INSERT INTO `Ofertas` (`id`, `nombre`, `descripcion`, `inicio`, `fin`, `descuento`) VALUES
+(1, 'Desayuno Andaluz',  'Café solo + Tostada de aceite y tomate. Un desayuno clásico.',           '2025-01-01', '2026-12-31', 0.2000),
+(2, 'Pack Bocadillo',    'Cualquier bocadillo + refresco lata. La combinación perfecta.',            '2025-01-01', '2026-12-31', 0.1500),
+(3, 'Menú Universitario','Menú universitario + agua mineral. Para el día a día en la facultad.',    '2026-01-01', '2026-06-30', 0.1000);
+
+-- LÍNEAS DE PRODUCTOS DE CADA OFERTA
+INSERT INTO `OfertaProducto` (`oferta_id`, `producto_id`, `cantidad`) VALUES
+-- Desayuno Andaluz: café solo (id=6) + tostada aceite y tomate (id=26)
+(1, 6,  1),
+(1, 26, 1),
+-- Pack Bocadillo: bocadillo de jamón (id=1) + refresco lata (id=5)
+(2, 1, 1),
+(2, 5, 1),
+-- Menú Universitario: menú universitario (id=19) + agua mineral (id=4)
+(3, 19, 1),
+(3, 4,  1);
+
+-- marcar los productos incluidos en ofertas activas como ofertados
+UPDATE `Productos` SET `ofertado` = 1 WHERE `id` IN (6, 26, 1, 5, 19, 4);
 
 -- RECOMPENSAS DE PRUEBA
 INSERT INTO `Recompensas` (`id`, `producto_id`, `bistrocoins_necesarias`) VALUES
 (1, 22, 25),
 (2, 18, 10),
 (3, 10, 15);
+

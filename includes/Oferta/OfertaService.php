@@ -192,4 +192,11 @@ class OfertaService
             ProductoDB::actualizarOfertado($pid, intval($fila['total']) > 0);
         }
     }
+
+    # registra qué oferta se aplicó a un pedido y actualiza el campo descuento
+    # se llama desde anadir_productos al confirmar el pedido con oferta activa
+    public static function registrarOfertaEnPedido(int $pedidoId, int $ofertaId): void
+    {
+        OfertaDB::insertarPedidoOferta($pedidoId, $ofertaId);
+    }
 }
