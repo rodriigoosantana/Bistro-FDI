@@ -4,6 +4,7 @@ require_once dirname(__DIR__, 3) . '/includes/config.php';
 use es\ucm\fdi\aw\Producto\CategoriaService;
 use es\ucm\fdi\aw\vistas\productos\FormularioCategoria;
 use es\ucm\fdi\aw\Aplicacion;
+use es\ucm\fdi\aw\vistas\productos\GenerarDetalleCategoria;
 
 if (!Aplicacion::estaLogueado()) {
     header('Location: ' . RUTA_VISTAS . '/login.php');
@@ -65,66 +66,10 @@ if ($esGerente && ($modoEdicion || !$categoria)) {
     EOS;
 } else {
   # MODO VISTA (para todos los usuarios)
-  $nombre      = htmlspecialchars($categoria->getNombre());
-  $descripcion = htmlspecialchars($categoria->getDescripcion());
-  $activa      = $categoria->isActiva() ? 'Sí' : 'No';
-
-  # Imagen
-  $htmlImagen = '<em>Sin imagen</em>';
-  if ($categoria->getImagen()) {
-    $rutaImagen = RUTA_APP . htmlspecialchars($categoria->getImagen());
-    $htmlImagen = "<img src=\"{$rutaImagen}\" alt=\"{$nombre}\" width=\"150\" />";
-  } else {
-    $htmlImagen = "<div class=\"img-placeholder\">📷<br>Sin imagen</div>";
-  }
-
-  # Botones de gerente
-  $botonesGerente = '';
-  if ($esGerente) {
-    $editarUrl = RUTA_VISTAS . '/productos/categoriasdetail.php?id=' . $categoria->getId() . '&editar=1';
-    $botonesGerente = "<a href=\"{$editarUrl}\" class=\"btn btn-editar\">Modificar</a> ";
-    if ($categoria->isActiva()) {   # Solo mostrar botón de desactivar si la categoría está activa
-      $botonesGerente .= <<<BTN
-            <form method="POST" action="" style="display:inline"
-                  onsubmit="return confirm('¿Desactivar esta categoría? Sus productos también se desactivarán.')"> 
-                <input type="hidden" name="accion" value="desactivar">
-                <button type="submit" class="btn btn-borrar">Desactivar</button>
-            </form>
-            BTN;
-    } else { # Si la categoría está inactiva, mostrar botón de reactivar
-      $botonesGerente .= <<<BTN
-            <form method="POST" action="" style="display:inline">
-                <input type="hidden" name="accion" value="reactivar">
-                <button type="submit" class="btn btn-nuevo">Reactivar</button>
-            </form>
-            BTN;
-    }
-  }
-
-  $tituloPagina = $nombre;
+  $tituloPagina = $categoria->getNombre();
   $tituloHeader = 'Ver categoría';
-
-  $contenidoPrincipal = <<<EOS
-        <section id="contenido">
-            <h2>Ver Categoría</h2>
-            <div class="detalle-categoria">
-                <div class="detalle-imagen">
-                    {$htmlImagen}
-                </div>
-                <div class="detalle-info">
-                    <p><strong>Nombre:</strong> {$nombre}</p>
-                    <p><strong>Descripción:</strong> {$descripcion}</p>
-                    <p><strong>Activa:</strong> {$activa}</p>
-                </div>
-            </div>
-
-            <div class="acciones-pagina">
-                <a href="{$volverUrl}" class="btn btn-volver">Atrás</a>
-                {$botonesGerente}
-            </div>
-        </section>
-    EOS;
-}
+  $contenidoPrincipal = GenerarDetalleCategoria::generar($categoria, $volverUrl, $esGerente);
+  }
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');
 ?>
