@@ -12,11 +12,9 @@ class detallarRecompensa
     $productoId = $recompensa->getProductoId();
     $bistrocoins = $recompensa->getBistrocoinsNecesarias();
 
-    // Producto
     $producto = ProductoService::buscarPorId($productoId);
     $nombreProducto = htmlspecialchars($producto->getNombre());
 
-    // Imagen SIN enlace
     $imagenes = ProductoService::listarImagenes($productoId);
 
     if (!empty($imagenes)) {
@@ -30,10 +28,8 @@ class detallarRecompensa
       $htmlImagen = "<em>Sin imagen</em>";
     }
 
-    // URL producto
     $productoUrl = RUTA_VISTAS . "/productos/productosdetail.php?id={$productoId}";
 
-    // BOTONES GERENTE
     $botonesGerente = '';
 
     if ($esGerente) {

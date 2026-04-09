@@ -12,15 +12,12 @@ class listarRecompensas
     $tarjetas = "";
     $recompensas = RecompensaService::listarTodos();
 
-    // 💰 saldo usuario
     $saldo = $_SESSION['saldo'] ?? 0;
 
-    // 🔽 filtro
     $soloDisponibles = isset($_GET['disponibles']) && $_GET['disponibles'] == 1;
 
     if ($recompensas && count($recompensas) > 0) {
 
-      // 🔽 ordenar por bistrocoins ASC
       usort($recompensas, function ($a, $b) {
         return $a->getBistrocoinsNecesarias() <=> $b->getBistrocoinsNecesarias();
       });
@@ -34,25 +31,20 @@ class listarRecompensas
         $nombreProducto = htmlspecialchars($producto->getNombre());
         $bistrocoins = $r->getBistrocoinsNecesarias();
 
-        // 💡 comprobar disponibilidad
         $disponible = ($saldo >= $bistrocoins);
 
-        // 🔽 aplicar filtro
         if ($soloDisponibles && !$disponible) {
           continue;
         }
 
-        // 🎨 CLASE VISUAL (ESTA ES LA CLAVE)
         $claseDisponibilidad = $disponible
           ? 'recompensa-disponible'
           : 'recompensa-no-disponible';
 
-        // 🏷️ TEXTO VISUAL
         $estadoTexto = $disponible
           ? "<span class='recompensa-ok'>Disponible</span>"
           : "<span class='recompensa-ko'>No disponible</span>";
 
-        // 📷 imagen
         $imagenes = ProductoService::listarImagenes($producto->getId());
 
         if (!empty($imagenes)) {
@@ -64,7 +56,6 @@ class listarRecompensas
 
         $detalleUrl = "detalleRecompensa.php?id={$r->getId()}";
 
-        // 🔥 IMPORTANTE: clase añadida aquí ↓↓↓
         $tarjetas .= <<<TARJETA
         <div class="tarjeta-producto {$claseDisponibilidad}">
             
@@ -89,7 +80,6 @@ class listarRecompensas
       $tarjetas = '<p>No hay recompensas disponibles.</p>';
     }
 
-    // 🔁 botón filtro (IMPORTANTE: clase activa)
     $filtroActivo = $soloDisponibles ? 'btn-filtrar-activo' : '';
 
     $filtroUrl = $soloDisponibles
@@ -106,7 +96,6 @@ class listarRecompensas
       </a>
     HTML;
 
-    // 🔙 y ➕ botones
     $volverUrl = RUTA_APP . '/index.php';
 
     $btnCrearNuevo = '';

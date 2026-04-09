@@ -13,17 +13,11 @@ if (!Aplicacion::estaLogueado()) {
 
 $esGerente = Aplicacion::esGerente();
 
-/* =========================
-   CONTROL ACCESO CREACIÓN
-   ========================= */
 if (!isset($_GET['id']) && !$esGerente) {
   header('Location: ' . RUTA_APP . '/index.php');
   exit();
 }
 
-/* =========================
-   CARGAR RECOMPENSA
-   ========================= */
 $recompensa = null;
 
 if (isset($_GET['id'])) {
@@ -37,9 +31,6 @@ if (isset($_GET['id'])) {
 
 $volverUrl = RUTA_VISTAS . '/recompensas/listaRecompensas.php';
 
-/* =========================
-   ELIMINAR (BORRADO REAL)
-   ========================= */
 if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar' && $recompensa) {
 
   RecompensaService::eliminar($recompensa);
@@ -48,9 +39,6 @@ if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar' && $r
   exit();
 }
 
-/* =========================
-   MODO EDICIÓN
-   ========================= */
 $modoEdicion = ($esGerente && isset($_GET['editar']));
 
 if ($esGerente && ($modoEdicion || !$recompensa)) {
@@ -76,10 +64,6 @@ if ($esGerente && ($modoEdicion || !$recompensa)) {
 </section>
 HTML;
 } else {
-
-  /* =========================
-     MODO VISTA
-     ========================= */
 
   $tituloPagina = 'Detalle recompensa';
 
