@@ -18,7 +18,6 @@ function mostrarSaludo()
 $saldoCliente = null;
 if (
     Aplicacion::estaLogueado()
-    && Aplicacion::esCliente()
     && !empty($_SESSION['nombreUsuario'])
 ) {
     $usuarioActual = UsuarioDB::buscarPorNombre($_SESSION['nombreUsuario']);
