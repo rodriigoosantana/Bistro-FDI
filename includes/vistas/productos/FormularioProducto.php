@@ -72,6 +72,7 @@ class FormularioProducto extends formularioBase
 
     $checkedDisponible = $disponible ? 'checked' : '';
     $checkedOfertado = $ofertado ? 'checked' : '';
+    $disabledOfertado = 'disabled'; # ofertado se gestiona automáticamente desde OfertaService
     $checkedActivo = $activo ? 'checked' : '';
     $disabledDisponible = (!$activo) ? 'disabled' : '';
 
@@ -156,7 +157,7 @@ class FormularioProducto extends formularioBase
 
           <div>
               <label for="ofertado">
-                  <input type="checkbox" id="ofertado" name="ofertado" value="1" {$checkedOfertado} />
+                  <input type="checkbox" id="ofertado" name="ofertado" value="1" {$checkedOfertado} {$disabledOfertado} />
                   Ofertado
               </label>
           </div>
@@ -230,7 +231,8 @@ EOF;
     // Checkboxes -> Si el form fue enviado, leer del POST; si no, leer del producto
     if (isset($datos['formId'])) {
       $disponible = isset($datos['disponible']);
-      $ofertado = isset($datos['ofertado']);
+      # ofertado no se lee del POST porque es de solo lectura; ofertado lo controla OfertaService automáticamente
+      $ofertado = $this->producto ? $this->producto->isOfertado() : false;
       $activo = isset($datos['activo']);
     } else {
       $disponible = $this->producto ? $this->producto->isDisponible() : true;

@@ -152,7 +152,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     if (OfertaService::esAplicable($ofertaID, $carrito)) {
                         $descuento = OfertaService::calcularDescuento($ofertaID, $carrito);
-                        #OfertaService::registrarOfertaEnPedido($idPedido, $ofertaID);
                     }
                 }
 
@@ -213,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 # registrar qué oferta se usó y limpiar sesión
-                if ($ofertaIdSesion > 0 && $descuentoSesion > 0) {
+                if ($ofertaIDSesion > 0 && $descuentoSesion > 0) {
                     OfertaService::registrarOfertaEnPedido($pedidoCreado->getId(), $ofertaIdSesion);
                     unset($_SESSION['oferta_seleccionada']);
                 }

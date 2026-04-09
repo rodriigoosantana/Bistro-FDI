@@ -10,21 +10,37 @@ use DateTime;
 
 class OfertaDB
 {
+
+    # helper para no repetir la construcción de Oferta desde una fila
+    private static function filaAOferta(array $fila): Oferta
+    {
+        return new Oferta(
+            $fila['nombre'],
+            $fila['descripcion'],
+            new DateTime($fila['inicio']),
+            new DateTime($fila['fin']),
+            floatval($fila['descuento']),
+            intval($fila['id']),
+            (bool) $fila['activa']
+        );
+    }
+
     public static function insertar(Oferta $oferta): ?Oferta
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
         $stmt = $conexion->prepare(
-            "INSERT INTO Ofertas (nombre, descripcion, inicio, fin, descuento)
-       VALUES (?, ?, ?, ?, ?)"
+            "INSERT INTO Ofertas (nombre, descripcion, inicio, fin, descuento, activa)
+       VALUES (?, ?, ?, ?, ?, ?)"
         );
         $nombre      = $oferta->getNombre();
         $descripcion = $oferta->getDescripcion();
         $inicio      = $oferta->getInicio()->format('Y-m-d');
         $fin         = $oferta->getFin()->format('Y-m-d');
         $descuento   = $oferta->getDescuento();
+        $activa      = $oferta->isActiva() ? 1 : 0;
 
-        $stmt->bind_param('ssssd', $nombre, $descripcion, $inicio, $fin, $descuento);
+        $stmt->bind_param('ssssdi', $nombre, $descripcion, $inicio, $fin, $descuento, $activa);
         $stmt->execute();
         $oferta->setId($conexion->insert_id);
         $stmt->close();
@@ -37,7 +53,7 @@ class OfertaDB
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
         $stmt = $conexion->prepare(
-            "UPDATE Ofertas SET nombre=?, descripcion=?, inicio=?, fin=?, descuento=?
+            "UPDATE Ofertas SET nombre=?, descripcion=?, inicio=?, fin=?, descuento=?, activa=?
        WHERE id=?"
         );
         $nombre      = $oferta->getNombre();
@@ -45,9 +61,10 @@ class OfertaDB
         $inicio      = $oferta->getInicio()->format('Y-m-d');
         $fin         = $oferta->getFin()->format('Y-m-d');
         $descuento   = $oferta->getDescuento();
+        $activa      = $oferta->isActiva() ? 1 : 0;
         $id          = $oferta->getId();
 
-        $stmt->bind_param('ssssdi', $nombre, $descripcion, $inicio, $fin, $descuento, $id);
+        $stmt->bind_param('ssssdii', $nombre, $descripcion, $inicio, $fin, $descuento, $activa, $id);
         $stmt->execute();
         $stmt->close();
 
@@ -58,7 +75,7 @@ class OfertaDB
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
-        $stmt = $conexion->prepare("DELETE FROM Ofertas WHERE id=?");
+        $stmt = $conexion->prepare("UPDATE Ofertas SET activa=0 WHERE id=?");
         $stmt->bind_param('i', $id);
         $stmt->execute();
         $stmt->close();
@@ -79,14 +96,7 @@ class OfertaDB
 
         if (!$fila) return null;
 
-        return new Oferta(
-            $fila['nombre'],
-            $fila['descripcion'],
-            new DateTime($fila['inicio']),
-            new DateTime($fila['fin']),
-            floatval($fila['descuento']),
-            intval($fila['id'])
-        );
+        return self::filaAOferta($fila);
     }
 
     public static function listarTodas(): array
@@ -96,14 +106,7 @@ class OfertaDB
 
         $ofertas = [];
         while ($fila = $resultado->fetch_assoc()) {
-            $ofertas[] = new Oferta(
-                $fila['nombre'],
-                $fila['descripcion'],
-                new DateTime($fila['inicio']),
-                new DateTime($fila['fin']),
-                floatval($fila['descuento']),
-                intval($fila['id'])
-            );
+            $ofertas[] = self::filaAOferta($fila);
         }
         $resultado->free();
         return $ofertas;
@@ -115,7 +118,7 @@ class OfertaDB
         $hoy = (new DateTime())->format('Y-m-d');
 
         $stmt = $conexion->prepare(
-            "SELECT * FROM Ofertas WHERE inicio <= ? AND fin >= ? ORDER BY nombre ASC"
+            "SELECT * FROM Ofertas WHERE activa=1 AND inicio <= ? AND fin >= ? ORDER BY nombre ASC"
         );
         $stmt->bind_param('ss', $hoy, $hoy);
         $stmt->execute();
@@ -123,14 +126,7 @@ class OfertaDB
 
         $ofertas = [];
         while ($fila = $resultado->fetch_assoc()) {
-            $ofertas[] = new Oferta(
-                $fila['nombre'],
-                $fila['descripcion'],
-                new DateTime($fila['inicio']),
-                new DateTime($fila['fin']),
-                floatval($fila['descuento']),
-                intval($fila['id'])
-            );
+            $ofertas[] = self::filaAOferta($fila);
         }
         $stmt->close();
         return $ofertas;
@@ -214,16 +210,28 @@ class OfertaDB
 
         $ofertas = [];
         while ($fila = $resultado->fetch_assoc()) {
-            $ofertas[] = new Oferta(
-                $fila['nombre'],
-                $fila['descripcion'],
-                new DateTime($fila['inicio']),
-                new DateTime($fila['fin']),
-                floatval($fila['descuento']),
-                intval($fila['id'])
-            );
+            $ofertas[] = self::filaAOferta($fila);
         }
         $stmt->close();
         return $ofertas;
+    }
+
+    # cuenta cuántas ofertas vigentes (activa=1 + en fechas) contienen un producto dado
+    public static function contarOfertasVigentesDeProducto(int $productoId): int
+    {
+        $conexion = Aplicacion::getInstance()->getConexionBd();
+        $hoy = (new DateTime())->format('Y-m-d');
+
+        $stmt = $conexion->prepare(
+            "SELECT COUNT(*) as total FROM OfertaProducto op
+             INNER JOIN Ofertas o ON op.oferta_id = o.id
+             WHERE op.producto_id = ? AND o.activa = 1 AND o.inicio <= ? AND o.fin >= ?"
+        );
+        $stmt->bind_param('iss', $productoId, $hoy, $hoy);
+        $stmt->execute();
+        $fila = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        return intval($fila['total']);
     }
 }
