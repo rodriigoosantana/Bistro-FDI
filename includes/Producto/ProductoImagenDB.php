@@ -10,11 +10,11 @@ class ProductoImagenDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $stmt = $conexion->prepare("INSERT INTO ProductoImagen (producto_id, ruta_imagen) VALUES (?, ?)");
-    $stmt->bind_param("is", $productoId, $rutaImagen);
-    $stmt->execute();
+    $query = $conexion->prepare("INSERT INTO ProductoImagen (producto_id, ruta_imagen) VALUES (?, ?)");
+    $query->bind_param("is", $productoId, $rutaImagen);
+    $query->execute();
     $id = $conexion->insert_id;
-    $stmt->close();
+    $query->close();
 
     return $id;
   }
@@ -23,10 +23,10 @@ class ProductoImagenDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $stmt = $conexion->prepare("DELETE FROM ProductoImagen WHERE producto_id=?");
-    $stmt->bind_param("i", $productoId);
-    $stmt->execute();
-    $stmt->close();
+    $query = $conexion->prepare("DELETE FROM ProductoImagen WHERE producto_id=?");
+    $query->bind_param("i", $productoId);
+    $query->execute();
+    $query->close();
 
     return true;
   }
@@ -35,13 +35,13 @@ class ProductoImagenDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $stmt = $conexion->prepare("SELECT * FROM ProductoImagen WHERE producto_id=?");
-    $stmt->bind_param("i", $productoId);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
+    $query = $conexion->prepare("SELECT * FROM ProductoImagen WHERE producto_id=?");
+    $query->bind_param("i", $productoId);
+    $query->execute();
+    $resultado = $query->get_result();
     $imagenes = $resultado->fetch_all(MYSQLI_ASSOC);
     $resultado->free();
-    $stmt->close();
+    $query->close();
 
     return $imagenes;
   }

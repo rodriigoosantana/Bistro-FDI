@@ -43,7 +43,7 @@ class OfertaDB
         $stmt->bind_param('ssssdi', $nombre, $descripcion, $inicio, $fin, $descuento, $activa);
         $stmt->execute();
         $oferta->setId($conexion->insert_id);
-        $stmt->close();
+        $query->close();
 
         return $oferta;
     }
@@ -87,12 +87,13 @@ class OfertaDB
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
-        $stmt = $conexion->prepare("SELECT * FROM Ofertas WHERE id=?");
-        $stmt->bind_param('i', $id);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $query = $conexion->prepare("SELECT * FROM Ofertas WHERE id=?");
+        $query->bind_param('i', $id);
+        $query->execute();
+        $resultado = $query->get_result();
         $fila = $resultado->fetch_assoc();
-        $stmt->close();
+        $resultado->free();
+        $query->close();
 
         if (!$fila) return null;
 
@@ -102,13 +103,16 @@ class OfertaDB
     public static function listarTodas(): array
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
-        $resultado = $conexion->query("SELECT * FROM Ofertas ORDER BY inicio DESC");
+        $query = $conexion->prepare("SELECT * FROM Ofertas ORDER BY inicio DESC");
+        $query->execute();
+        $resultado = $query->get_result();
 
         $ofertas = [];
         while ($fila = $resultado->fetch_assoc()) {
             $ofertas[] = self::filaAOferta($fila);
         }
         $resultado->free();
+        $query->close();
         return $ofertas;
     }
 
@@ -120,15 +124,16 @@ class OfertaDB
         $stmt = $conexion->prepare(
             "SELECT * FROM Ofertas WHERE activa=1 AND inicio <= ? AND fin >= ? ORDER BY nombre ASC"
         );
-        $stmt->bind_param('ss', $hoy, $hoy);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $query->bind_param('ss', $hoy, $hoy);
+        $query->execute();
+        $resultado = $query->get_result();
 
         $ofertas = [];
         while ($fila = $resultado->fetch_assoc()) {
             $ofertas[] = self::filaAOferta($fila);
         }
-        $stmt->close();
+        $resultado->free();
+        $query->close();
         return $ofertas;
     }
 
@@ -136,16 +141,16 @@ class OfertaDB
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
-        $stmt = $conexion->prepare(
+        $query = $conexion->prepare(
             "INSERT INTO OfertaProducto (oferta_id, producto_id, cantidad) VALUES (?, ?, ?)"
         );
         $ofertaId   = $linea->getOfertaId();
         $productoId = $linea->getProductoId();
         $cantidad   = $linea->getCantidad();
 
-        $stmt->bind_param('iii', $ofertaId, $productoId, $cantidad);
-        $stmt->execute();
-        $stmt->close();
+        $query->bind_param('iii', $ofertaId, $productoId, $cantidad);
+        $query->execute();
+        $query->close();
         return true;
     }
 
@@ -153,10 +158,10 @@ class OfertaDB
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
-        $stmt = $conexion->prepare("DELETE FROM OfertaProducto WHERE oferta_id=?");
-        $stmt->bind_param('i', $ofertaId);
-        $stmt->execute();
-        $stmt->close();
+        $query = $conexion->prepare("DELETE FROM OfertaProducto WHERE oferta_id=?");
+        $query->bind_param('i', $ofertaId);
+        $query->execute();
+        $query->close();
         return true;
     }
 
@@ -164,10 +169,10 @@ class OfertaDB
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
-        $stmt = $conexion->prepare("SELECT * FROM OfertaProducto WHERE oferta_id=?");
-        $stmt->bind_param('i', $ofertaId);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $query = $conexion->prepare("SELECT * FROM OfertaProducto WHERE oferta_id=?");
+        $query->bind_param('i', $ofertaId);
+        $query->execute();
+        $resultado = $query->get_result();
 
         $lineas = [];
         while ($fila = $resultado->fetch_assoc()) {
@@ -178,7 +183,8 @@ class OfertaDB
                 intval($fila['id'])
             );
         }
-        $stmt->close();
+        $resultado->free();
+        $query->close();
         return $lineas;
     }
 
@@ -186,12 +192,12 @@ class OfertaDB
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
-        $stmt = $conexion->prepare(
+        $query = $conexion->prepare(
             "INSERT IGNORE INTO PedidoOferta (pedido_id, oferta_id) VALUES (?, ?)"
         );
-        $stmt->bind_param('ii', $pedidoId, $ofertaId);
-        $stmt->execute();
-        $stmt->close();
+        $query->bind_param('ii', $pedidoId, $ofertaId);
+        $query->execute();
+        $query->close();
         return true;
     }
 
@@ -199,20 +205,21 @@ class OfertaDB
     {
         $conexion = Aplicacion::getInstance()->getConexionBd();
 
-        $stmt = $conexion->prepare(
+        $query = $conexion->prepare(
             "SELECT o.* FROM Ofertas o
        INNER JOIN PedidoOferta po ON o.id = po.oferta_id
        WHERE po.pedido_id = ?"
         );
-        $stmt->bind_param('i', $pedidoId);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $query->bind_param('i', $pedidoId);
+        $query->execute();
+        $resultado = $query->get_result();
 
         $ofertas = [];
         while ($fila = $resultado->fetch_assoc()) {
             $ofertas[] = self::filaAOferta($fila);
         }
-        $stmt->close();
+        $resultado->free();
+        $query->close();
         return $ofertas;
     }
 

@@ -23,7 +23,7 @@ class CategoriaDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $stmt = $conexion->prepare(
+    $query = $conexion->prepare(
       "INSERT INTO Categorias (nombre, descripcion, imagen, activa, necesita_preparacion)
        VALUES (?, ?, ?, ?, ?)"
     );
@@ -34,10 +34,10 @@ class CategoriaDB
     $activa              = $categoria->isActiva() ? 1 : 0;
     $necesitaPreparacion = $categoria->necesitaPreparacion() ? 1 : 0;
 
-    $stmt->bind_param("sssii", $nombre, $descripcion, $imagen, $activa, $necesitaPreparacion);
-    $stmt->execute();
+    $query->bind_param("sssii", $nombre, $descripcion, $imagen, $activa, $necesitaPreparacion);
+    $query->execute();
     $categoria->setId($conexion->insert_id);
-    $stmt->close();
+    $query->close();
 
     return $categoria;
   }
@@ -46,7 +46,7 @@ class CategoriaDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $stmt = $conexion->prepare(
+    $query = $conexion->prepare(
       "UPDATE Categorias SET nombre=?, descripcion=?, imagen=?, activa=? WHERE id=?"
     );
 
@@ -56,9 +56,9 @@ class CategoriaDB
     $activa      = $categoria->isActiva() ? 1 : 0;
     $id          = $categoria->getId();
 
-    $stmt->bind_param("sssii", $nombre, $descripcion, $imagen, $activa, $id);
-    $stmt->execute();
-    $stmt->close();
+    $query->bind_param("sssii", $nombre, $descripcion, $imagen, $activa, $id);
+    $query->execute();
+    $query->close();
 
     return true;
   }
@@ -67,10 +67,10 @@ class CategoriaDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $stmt = $conexion->prepare("UPDATE Categorias SET imagen=? WHERE id=?");
-    $stmt->bind_param("si", $rutaImagen, $id);
-    $stmt->execute();
-    $stmt->close();
+    $query = $conexion->prepare("UPDATE Categorias SET imagen=? WHERE id=?");
+    $query->bind_param("si", $rutaImagen, $id);
+    $query->execute();
+    $query->close();
 
     return true;
   }
@@ -79,13 +79,13 @@ class CategoriaDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $stmt = $conexion->prepare("SELECT * FROM Categorias WHERE id=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
+    $query = $conexion->prepare("SELECT * FROM Categorias WHERE id=?");
+    $query->bind_param("i", $id);
+    $query->execute();
+    $resultado = $query->get_result();
     $fila = $resultado->fetch_assoc();
     $resultado->free();
-    $stmt->close();
+    $query->close();
 
     return $fila ? self::filaACategoria($fila) : null;
   }
@@ -94,16 +94,16 @@ class CategoriaDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $stmt = $conexion->prepare("SELECT * FROM Categorias ORDER BY nombre ASC");
-    $stmt->execute();
-    $resultado = $stmt->get_result();
+    $query = $conexion->prepare("SELECT * FROM Categorias ORDER BY nombre ASC");
+    $query->execute();
+    $resultado = $query->get_result();
 
     $categorias = [];
     while ($fila = $resultado->fetch_assoc()) {
       $categorias[] = self::filaACategoria($fila);
     }
     $resultado->free();
-    $stmt->close();
+    $query->close();
 
     return $categorias;
   }
@@ -112,16 +112,16 @@ class CategoriaDB
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
-    $stmt = $conexion->prepare("SELECT * FROM Categorias WHERE activa=1 ORDER BY nombre ASC");
-    $stmt->execute();
-    $resultado = $stmt->get_result();
+    $query = $conexion->prepare("SELECT * FROM Categorias WHERE activa=1 ORDER BY nombre ASC");
+    $query->execute();
+    $resultado = $query->get_result();
 
     $categorias = [];
     while ($fila = $resultado->fetch_assoc()) {
       $categorias[] = self::filaACategoria($fila);
     }
     $resultado->free();
-    $stmt->close();
+    $query->close();
 
     return $categorias;
   }
@@ -131,10 +131,10 @@ class CategoriaDB
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $valor = $activa ? 1 : 0;
-    $stmt = $conexion->prepare("UPDATE Categorias SET activa=? WHERE id=?");
-    $stmt->bind_param("ii", $valor, $id);
-    $stmt->execute();
-    $stmt->close();
+    $query = $conexion->prepare("UPDATE Categorias SET activa=? WHERE id=?");
+    $query->bind_param("ii", $valor, $id);
+    $query->execute();
+    $query->close();
 
     return true;
   }
