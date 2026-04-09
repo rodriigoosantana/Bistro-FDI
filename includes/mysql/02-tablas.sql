@@ -4,6 +4,10 @@
 */
 USE `bistro_fdi`;
 
+DROP TABLE IF EXISTS `PedidoOferta`;
+DROP TABLE IF EXISTS `OfertaProducto`;
+DROP TABLE IF EXISTS `Ofertas`;
+DROP TABLE IF EXISTS `Recompensas`;
 DROP TABLE IF EXISTS `PedidoProducto`;
 DROP TABLE IF EXISTS `ProductoImagen`;
 DROP TABLE IF EXISTS `Pedidos`;
@@ -12,7 +16,6 @@ DROP TABLE IF EXISTS `Categorias`;
 DROP TABLE IF EXISTS `RolesUsuario`;
 DROP TABLE IF EXISTS `Usuarios`;
 DROP TABLE IF EXISTS `Roles`;
-DROP TABLE IF EXISTS `Recompensas`;
 
 
 -- TABLA ROLES
@@ -122,6 +125,7 @@ CREATE TABLE IF NOT EXISTS `Ofertas` (
   `inicio`      DATE          NOT NULL,
   `fin`         DATE          NOT NULL,
   `descuento`   DECIMAL(5,4)  NOT NULL,
+  `activa`      TINYINT(1)    NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -138,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `OfertaProducto` (
 CREATE TABLE IF NOT EXISTS `PedidoOferta` (
   `pedido_id` INT NOT NULL,
   `oferta_id` INT NOT NULL,
-  PRIMARY KEY (`pedido_id`)  -- un solo pedido → una sola oferta
+  PRIMARY KEY (`pedido_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /* También se modififca en Pedidos la cantidad del descuento para 
 que quede registrado en el pedido el coste sin descuento y el dinero descontado */

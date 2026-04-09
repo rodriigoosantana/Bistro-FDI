@@ -16,10 +16,11 @@ class Oferta
     private DateTime $inicio;
     private DateTime $fin;
     private float $descuento; # 0.215 = 21.5%
+    private bool $activa;
     // endregion
 
     // region Constructor
-    public function __construct(string $nombre, string $descripcion, DateTime $inicio, DateTime $fin, float $descuento, ?int $id = null)
+    public function __construct(string $nombre, string $descripcion, DateTime $inicio, DateTime $fin, float $descuento, ?int $id = null, bool $activa = true)
     {
         $this->id = $id;
         $this->nombre = $nombre;
@@ -27,6 +28,7 @@ class Oferta
         $this->inicio = $inicio;
         $this->fin = $fin;
         $this->descuento = $descuento;
+        $this->activa = $activa;
     }
     // endregion
 
@@ -56,10 +58,17 @@ class Oferta
         return $this->descuento;
     }
 
+    # solo comprueba el flag de borrado lógico
     public function isActiva(): bool
     {
+        return $this->activa;
+    }
+
+    # vigente = activa (no borrada) + dentro de fechas
+    public function isVigente(): bool
+    {
         $hoy = new DateTime();
-        return $this->inicio <= $hoy && $hoy <= $this->fin;
+        return $this->activa && $this->inicio <= $hoy && $hoy <= $this->fin;
     }
     // endregion
 
@@ -87,6 +96,11 @@ class Oferta
     public function setDescuento(float $descuento): void
     {
         $this->descuento = $descuento;
+    }
+
+    public function setActiva(bool $activa): void
+    {
+        $this->activa = $activa;
     }
     // endregion
 }

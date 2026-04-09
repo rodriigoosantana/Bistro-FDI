@@ -42,17 +42,19 @@ class RolesUsuario
   {
     $conn = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf(
-      "INSERT INTO RolesUsuario(usuario, rol) VALUES (%d, %d)",
-      $this->idUsuario,
-      $this->idRol
-    );
+    $query = $conn->prepare("INSERT INTO RolesUsuario(usuario, rol) VALUES (?, ?)");
+    $idUsuario = $this->idUsuario;
+    $idRol = $this->idRol;
+    $query->bind_param("ii", $idUsuario, $idRol);
 
-    if (! $conn->query($query)) {
+    if (! $query->execute()) {
       error_log("Error BD ({$conn->errno}): {$conn->error}");
+      $query->close();
 
       return false;
     }
+
+    $query->close();
 
     return true;
   }
@@ -61,13 +63,18 @@ class RolesUsuario
   {
     $conn = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf("DELETE FROM RolesUsuario WHERE usuario=%d", $this->idUsuario);
+    $query = $conn->prepare("DELETE FROM RolesUsuario WHERE usuario=?");
+    $idUsuario = $this->idUsuario;
+    $query->bind_param("i", $idUsuario);
 
-    if (! $conn->query($query)) {
+    if (! $query->execute()) {
       error_log("Error BD ({$conn->errno}): {$conn->error}");
+      $query->close();
 
       return false;
     }
+
+    $query->close();
 
     return true;
   }

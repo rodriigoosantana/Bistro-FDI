@@ -32,7 +32,7 @@ class OfertaService
         }
 
         // Si la oferta está activa, marcar productos como ofertados
-        if ($oferta->isActiva()) {
+        if ($oferta->isVigente()) {
             self::actualizarOfertadoProductos($lineas, true);
         }
 
@@ -76,9 +76,26 @@ class OfertaService
         $lineas = OfertaDB::listarLineasDeOferta($id);
         $ids = array_map(fn($l) => $l->getProductoId(), $lineas);
 
-        OfertaDB::borrarLineasDeOferta($id);
+        # borrado lógico: pone activa=0
         OfertaDB::eliminar($id);
 
+        self::recalcularOfertado($ids);
+
+        return true;
+    }
+
+    # permite reactivar una oferta previamente desactivada
+    public static function cambiarEstado(int $id, bool $activa): bool
+    {
+        $oferta = OfertaDB::buscarPorId($id);
+        if (!$oferta) return false;
+
+        $oferta->setActiva($activa);
+        OfertaDB::actualizar($oferta);
+
+        # recalcular ofertado de los productos afectados
+        $lineas = OfertaDB::listarLineasDeOferta($id);
+        $ids = array_map(fn($l) => $l->getProductoId(), $lineas);
         self::recalcularOfertado($ids);
 
         return true;
@@ -102,6 +119,11 @@ class OfertaService
     public static function listarLineasDeOferta(int $ofertaId): array
     {
         return OfertaDB::listarLineasDeOferta($ofertaId);
+    }
+
+    public static function listarOfertasDePedido(int $pedidoId): array
+    {
+        return OfertaDB::listarOfertasDePedido($pedidoId);
     }
 
     /**
@@ -174,22 +196,10 @@ class OfertaService
      */
     private static function recalcularOfertado(array $productoIds): void
     {
-        $hoy = (new DateTime())->format('Y-m-d');
-        $conexion = \es\ucm\fdi\aw\Aplicacion::getInstance()->getConexionBd();
-
         foreach ($productoIds as $pid) {
             $pid = intval($pid);
-            $stmt = $conexion->prepare(
-                "SELECT COUNT(*) as total FROM OfertaProducto op
-         INNER JOIN Ofertas o ON op.oferta_id = o.id
-         WHERE op.producto_id = ? AND o.inicio <= ? AND o.fin >= ?"
-            );
-            $stmt->bind_param('iss', $pid, $hoy, $hoy);
-            $stmt->execute();
-            $fila = $stmt->get_result()->fetch_assoc();
-            $stmt->close();
-
-            ProductoDB::actualizarOfertado($pid, intval($fila['total']) > 0);
+            $enOfertaVigente = OfertaDB::contarOfertasVigentesDeProducto($pid) > 0;
+            ProductoDB::actualizarOfertado($pid, $enOfertaVigente);
         }
     }
 

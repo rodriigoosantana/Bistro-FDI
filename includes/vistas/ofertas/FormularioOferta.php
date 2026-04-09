@@ -33,7 +33,7 @@ class FormularioOferta extends formularioBase
 
         # descuento: almacenamos como decimal (0.215), mostramos como porcentaje (21.5)
         $descuento   = floatval($datos['descuento'] ?? ($this->oferta?->getDescuento() ?? 0));
-        $descuentoPct = $descuento > 0 ? number_format($descuento * 100, 2, '.', '') : '';
+        $descuentoPct = $descuento > 0 ? number_format($descuento * 100, 0, '.', '') : '';
 
         # errores de cada campo
         $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
@@ -138,7 +138,7 @@ class FormularioOferta extends formularioBase
                         <div>
                             <label for="descuento-pct-ui">Descuento (%)</label>
                             <input type="number" id="descuento-pct-ui"
-                                   min="0" max="100" step="0.01"
+                                   min="0" max="100" step="1"
                                    placeholder="ej: 21.50"
                                    value="{$descuentoPct}">
                         </div>
@@ -256,7 +256,6 @@ class FormularioOferta extends formularioBase
     {
         # validar nombre
         $nombre = trim($datos['nombre'] ?? '');
-        $nombre = htmlspecialchars($nombre);
         if (strlen($nombre) < 3) {
             $this->errores['nombre'] = 'El nombre debe tener al menos 3 caracteres.';
         }
@@ -283,7 +282,7 @@ class FormularioOferta extends formularioBase
 
         # validar descuento (0 ≤ d ≤ 1)
         $descuento = floatval($datos['descuento'] ?? -1);
-        if ($descuento < 0 || $descuento > 1) {
+        if ($descuento <= 0 || $descuento > 1) {
             $this->errores['descuento'] = 'El descuento debe estar entre 0 % y 100 %.';
         }
 

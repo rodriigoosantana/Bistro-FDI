@@ -17,8 +17,10 @@ TRUNCATE TABLE `RolesUsuario`;
 TRUNCATE TABLE `Usuarios`;
 TRUNCATE TABLE `Roles`;
 TRUNCATE TABLE `Recompensas`;
+TRUNCATE TABLE `PedidoOferta`;
 TRUNCATE TABLE `OfertaProducto`;
 TRUNCATE TABLE `Ofertas`;
+
 
 -- ROLES (prioridad: 1=máximo acceso)
 INSERT INTO `Roles` (`id`, `nombre`) VALUES
@@ -52,7 +54,7 @@ INSERT INTO `RolesUsuario` (`usuario`, `rol`) VALUES
 INSERT INTO `Categorias` (`id`, `nombre`, `descripcion`, `imagen`, `necesita_preparacion`) VALUES
 (1, 'Bocadillos', 'Bocadillos frescos preparados al momento', '/img/uploads/categorias/categoria_1_69b3eb6edb67c.jpg', 1),
 (2, 'Bebidas',    'Refrescos, agua, zumos y bebidas calientes', '/img/uploads/categorias/categoria_2_69b3eb49ad9de.jpg', 0),
-(3, 'Menús',      'Menús completos con primero, segundo y postre', '/img/uploads/categorias/categoria_3_69b3eba556a97.png', 1),
+(3, 'Menús',      'Menús completos con primero, segundo y bebida', '/img/uploads/categorias/categoria_3_69b3eba556a97.png', 1),
 (4, 'Postres',    'Dulces y postres del día', '/img/uploads/categorias/categoria_4_69afee1e55f4c.jpg', 1),
 (5, 'Desayunos', 'Tostadas, bollería y desayunos completos', '/img/uploads/categorias/categoria_5_69afefdd1f8a5.jpg', 1);
 
@@ -153,11 +155,10 @@ VALUES (3, 3, 2, 4.00), -- 2x Bocadillo de calamares
        (3, 4, 2, 1.00); -- 2x Agua mineral
 
 -- OFERTAS DE PRUEBA
-INSERT INTO `Ofertas` (`id`, `nombre`, `descripcion`, `inicio`, `fin`, `descuento`) VALUES
-(1, 'Desayuno Andaluz',  'Café solo + Tostada de aceite y tomate. Un desayuno clásico.',           '2025-01-01', '2026-12-31', 0.2000),
-(2, 'Pack Bocadillo',    'Cualquier bocadillo + refresco lata. La combinación perfecta.',            '2025-01-01', '2026-12-31', 0.1500),
-(3, 'Menú Universitario','Menú universitario + agua mineral. Para el día a día en la facultad.',    '2026-01-01', '2026-06-30', 0.1000);
-
+INSERT INTO `Ofertas` (`id`, `nombre`, `descripcion`, `inicio`, `fin`, `descuento`, `activa`) VALUES
+(1, 'Desayuno Andaluz',  'Café solo + Tostada de aceite y tomate. Un desayuno clásico.',           '2025-01-01', '2026-12-31', 0.2000, 1),
+(2, 'Pack Bocadillo',    'Bocadillo de jamón + refresco lata. La combinación perfecta.',            '2025-01-01', '2026-12-31', 0.1500, 1),
+(3, 'Menú Universitario','Menú universitario + flan. Para el día a día en la facultad.',    '2026-01-01', '2026-06-30', 0.1000, 1);
 -- LÍNEAS DE PRODUCTOS DE CADA OFERTA
 INSERT INTO `OfertaProducto` (`oferta_id`, `producto_id`, `cantidad`) VALUES
 -- Desayuno Andaluz: café solo (id=6) + tostada aceite y tomate (id=26)
@@ -168,7 +169,7 @@ INSERT INTO `OfertaProducto` (`oferta_id`, `producto_id`, `cantidad`) VALUES
 (2, 5, 1),
 -- Menú Universitario: menú universitario (id=19) + agua mineral (id=4)
 (3, 19, 1),
-(3, 4,  1);
+(3, 21,  1);
 
 -- marcar los productos incluidos en ofertas activas como ofertados
 UPDATE `Productos` SET `ofertado` = 1 WHERE `id` IN (6, 26, 1, 5, 19, 4);

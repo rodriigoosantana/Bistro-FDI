@@ -5,6 +5,7 @@ use es\ucm\fdi\aw\Pedido\PedidoService;
 use es\ucm\fdi\aw\Pedido\PagoService;
 use es\ucm\fdi\aw\Usuario\Usuario;
 use es\ucm\fdi\aw\Pedido\Estado;
+use es\ucm\fdi\aw\Oferta\OfertaService;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
@@ -74,6 +75,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metodo_pago'])) {
 $numeroPedido = htmlspecialchars($pedidoDesglosado->getNumeroPedido());
 $totalPagar   = number_format($pedidoDesglosado->getTotalConDescuento(), 2, ',', '.');
 
+$descuento  = $pedidoDesglosado->getDescuento();
+$descuentoF = number_format($descuento, 2, ',', '.');
+$totalFinal = number_format($pedidoDesglosado->getTotalConDescuento(), 2, ',', '.');
+
+$ofertasPedido = OfertaService::listarOfertasDePedido($pedidoDesglosado->getId());
+$nombreOferta  = !empty($ofertasPedido) ? htmlspecialchars($ofertasPedido[0]->getNombre()) : null;
+
 // Tabla de productos del pedido
 $productos         = $pedidoDesglosado->getProductos();
 $filasProductos    = '';
@@ -121,6 +129,19 @@ $tablaProductos = <<<TABLA
     </tfoot>
 </table>
 TABLA;
+
+# bloque de descuento si aplica
+$htmlDescuentoPago = '';
+if ($descuento > 0) {
+    $htmlOferta = $nombreOferta ? " ({$nombreOferta})" : '';
+    $htmlDescuentoPago = <<<DTO
+    <div class="oferta-resumen-precio" style="margin-top:10px;">
+        <span class="descuento">— Descuento: {$descuentoF} €{$htmlOferta}</span>
+        <span class="precio-con"><strong>Total a pagar: {$totalFinal} €</strong></span>
+    </div>
+DTO;
+}
+$tablaProductos .= $htmlDescuentoPago;
 
 $tituloPagina = "Pagar Pedido #{$numeroPedido}";
 $tituloHeader = 'Finalizar Pago';
