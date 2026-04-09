@@ -32,7 +32,7 @@ $modos = [
     'para recoger' => [
         'titulo'     => 'Por recoger',
         'estados'    => [Estado::ListoCocina->value],
-        'roles'      => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
+        'roles'      => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE, Usuario::ROL_COCINERO],
         'filtroCoci' => false,
     ],
     'historial' => [
@@ -44,25 +44,25 @@ $modos = [
     'cocina' => [
         'titulo'     => 'En cocina',
         'estados'    => [Estado::EnPreparacion->value, Estado::Cocinando->value],
-        'roles'      => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
+        'roles'      => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE, Usuario::ROL_COCINERO],
         'filtroCoci' => false,
     ],
     'mis pedidos' => [
         'titulo'     => 'Mis pedidos asignados',
         'estados'    => [Estado::Cocinando->value],
-        'roles'      => [Usuario::ROL_COCINERO],
+        'roles'      => [Usuario::ROL_GERENTE, Usuario::ROL_COCINERO],
         'filtroCoci' => true,
     ],
     'pedidos a cocinar' => [
         'titulo'     => 'Por cocinar',
         'estados'    => [Estado::EnPreparacion->value],
-        'roles'      => [Usuario::ROL_COCINERO],
+        'roles'      => [Usuario::ROL_GERENTE, Usuario::ROL_COCINERO],
         'filtroCoci' => false,
     ],
     'por cobrar' => [
         'titulo'     => 'Por cobrar',
         'estados'    => [Estado::Recibido->value],
-        'roles'      => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE],
+        'roles'      => [Usuario::ROL_CAMARERO, Usuario::ROL_GERENTE, Usuario::ROL_COCINERO],
         'filtroCoci' => false,
     ],
 ];
@@ -199,7 +199,7 @@ if ($pedidos && count($pedidos) > 0) {
 }
 
 $btnCrearNuevo = '';
-if ($esGerente || $esCamarero) {
+if ($esGerente || $esCamarero || $esCocinero) {
   $crearUrl      = RUTA_VISTAS . '/pedidos/nuevo_pedido.php';
   $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Nuevo pedido</a>";
 }

@@ -182,7 +182,7 @@ $tablaProductos = <<<TABLA
 TABLA;
 
 $transiciones = [];
-if ($esGerente || $esCamarero) {
+if ($esGerente || $esCamarero || $esCocinero) {
     switch ($pedidoDesglosado->getEstado()) {
         case Estado::Nuevo:
             $transiciones = [Estado::Cancelado->value => 'Cancelar'];
