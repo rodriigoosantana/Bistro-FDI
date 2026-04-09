@@ -175,7 +175,7 @@ if ($pedidos && count($pedidos) > 0) {
 
         $htmlTotal = '';
         if (!$esCocinero) {
-            $total     = number_format($p->getTotal(), 2, ',', '.');
+            $total     = number_format($p->getTotalConDescuento(), 2, ',', '.');
             $htmlTotal = "<span class=\"tarjeta-precio\">{$total} €</span>";
         }
 

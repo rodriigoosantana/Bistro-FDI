@@ -262,6 +262,22 @@ class PedidoDB
     return true;
   }
 
+  public static function actualizarProductoBitCoineado (int $pedidoId, int $productoId, int $bc): bool 
+  {
+    $conexion = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "UPDATE PedidoProducto SET bistro_coineado = %d WHERE pedido_id = %d AND producto_id = %d",
+      intval($bc),
+      intval($pedidoId),
+      intval($productoId)
+    );
+
+    $conexion->query($query);
+
+    return true;
+  }
+
   public static function eliminarProductoPedido(int $pedidoId, int $productoId): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
@@ -334,7 +350,7 @@ class PedidoDB
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
     $query = sprintf(
-      "SELECT p.id as producto_id, p.nombre, pp.precio_unitario, pp.cantidad, pp.preparado
+      "SELECT p.id as producto_id, p.nombre, pp.precio_unitario, pp.cantidad, pp.preparado, pp.bistro_coineado
       FROM PedidoProducto pp
       JOIN Productos p ON pp.producto_id = p.id
       WHERE pp.pedido_id = %d",
@@ -351,7 +367,8 @@ class PedidoDB
         $fila['nombre'],
         floatval($fila['precio_unitario']),
         intval($fila['cantidad']),
-        boolval($fila['preparado'])
+        boolval($fila['preparado']),
+        boolval($fila['bistro_coineado'] ?? 0)
       );
     }
     $resultado->free();

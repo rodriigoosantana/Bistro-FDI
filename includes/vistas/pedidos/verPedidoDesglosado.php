@@ -95,7 +95,7 @@ $estadoClase  = $clasesEstado[$estadoVal] ?? '';
 $tipoVal      = $pedidoDesglosado->getTipo()->value;
 $tipoLabel    = $tipoVal === Tipo::ParaTomar->value ? 'Para tomar' : 'Para llevar';
 $tipoClase    = $tipoVal === Tipo::ParaTomar->value ? 'tipo-local' : 'tipo-llevar';
-$total        = number_format($pedidoDesglosado->getTotal(), 2, ',', '.');
+$totalPagar   = number_format($pedidoDesglosado->getTotalConDescuento(), 2, ',', '.');
 $clienteId    = htmlspecialchars((string)$pedidoDesglosado->getClienteId());
 $cocineroId   = ($pedidoDesglosado->getCocineroId() !== null)
                 ? htmlspecialchars((string)$pedidoDesglosado->getCocineroId())
@@ -108,10 +108,14 @@ $subtotalCalculado = 0.0;
 if ($productos && count($productos) > 0) {
     foreach ($productos as $prod) {
         $pNombre   = htmlspecialchars($prod->getNombre());
-        $pPrecio   = number_format($prod->getPrecio(), 2, ',', '.');
         $pCantidad = (int)$prod->getCantidad();
-        $pSubtotal = number_format($prod->getPrecio() * $pCantidad, 2, ',', '.');
-        $subtotalCalculado += $prod->getPrecio() * $pCantidad;
+        $esCanjeado = $prod->isBistroCoineado();
+        $pPrecioValor = $esCanjeado ? 0.0 : $prod->getPrecio();
+        $pPrecio = number_format($pPrecioValor, 2, ',', '.');
+        $pSubtotalValor = $esCanjeado ? 0.0 : ($prod->getPrecio() * $pCantidad);
+        $pSubtotal = number_format($pSubtotalValor, 2, ',', '.');
+        $subtotalCalculado += $pSubtotalValor;
+        $badgeCanje = $esCanjeado ? ' <small class="marca-recompensa">(Recompensa)</small>' : '';
 
         $checkHtml = '';
         $necesitaPreparacion = PedidoService::productoEnPedidodNecesitaPreparacion($pedidoDesglosado->getId(), $prod->getId());
@@ -135,7 +139,7 @@ if ($productos && count($productos) > 0) {
 
         $filasProductos .= <<<FILA
             <tr{$filaClase}>
-                <td>{$checkHtml} {$pNombre}</td>
+                <td>{$checkHtml} {$pNombre}{$badgeCanje}</td>
                 <td class="text-center">{$pCantidad}</td>
                 <td class="text-right">{$pPrecio} €</td>
                 <td class="text-right">{$pSubtotal} €</td>
@@ -162,7 +166,7 @@ $tablaProductos = <<<TABLA
     <tfoot>
         <tr>
             <td colspan="3"><strong>Total</strong></td>
-            <td class="text-right"><strong>{$total} €</strong></td>
+            <td class="text-right"><strong>{$totalPagar} €</strong></td>
         </tr>
     </tfoot>
 </table>
@@ -225,7 +229,7 @@ $contenidoPrincipal = <<<EOS
                 <p><strong>Tipo:</strong> <span class="badge {$tipoClase}">{$tipoLabel}</span></p>
                 <p><strong>Cliente ID:</strong> {$clienteId}</p>
                 <p><strong>Cocinero ID:</strong> {$cocineroId}</p>
-                <p><strong>Total:</strong> {$total} €</p>
+                <p><strong>Total a pagar:</strong> {$totalPagar} €</p>
             </div>
         </div>
 

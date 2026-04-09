@@ -696,6 +696,11 @@ td {
   margin-top: 20px;
 }
 
+.marca-recompensa {
+  color: #0369a1;
+  font-weight: 600;
+}
+
 /* === LISTA DE CATEGORÍAS === */
 .lista-categorias {
   display: flex;

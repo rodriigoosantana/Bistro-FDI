@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metodo_pago'])) {
 
 // Datos del pedido
 $numeroPedido = htmlspecialchars($pedidoDesglosado->getNumeroPedido());
-$total        = number_format($pedidoDesglosado->getTotal(), 2, ',', '.');
+$totalPagar   = number_format($pedidoDesglosado->getTotalConDescuento(), 2, ',', '.');
 
 // Tabla de productos del pedido
 $productos         = $pedidoDesglosado->getProductos();
@@ -81,14 +81,19 @@ $filasProductos    = '';
 if ($productos && count($productos) > 0) {
   foreach ($productos as $prod) {
     $pNombre    = htmlspecialchars($prod->getNombre());
-    $pPrecio    = number_format($prod->getPrecio(), 2, ',', '.');
     $pCantidad  = (int)$prod->getCantidad();
-    $pSubtotal  = number_format($prod->getPrecio() * $pCantidad, 2, ',', '.');
+    $esCanjeado = $prod->isBistroCoineado();
+    $pPrecioValor = $esCanjeado ? 0.0 : $prod->getPrecio();
+    $pPrecio    = number_format($pPrecioValor, 2, ',', '.');
+    $pSubtotalValor = $esCanjeado ? 0.0 : ($prod->getPrecio() * $pCantidad);
+    $pSubtotal  = number_format($pSubtotalValor, 2, ',', '.');
+    $badgeCanje = $esCanjeado ? ' <small class="marca-recompensa">(Recompensa)</small>' : '';
 
     $filasProductos .= <<<FILA
             <tr>
-                <td>{$pNombre}</td>
+                <td>{$pNombre}{$badgeCanje}</td>
                 <td class="text-center">{$pCantidad}</td>
+                <td class="text-right">{$pPrecio} €</td>
                 <td class="text-right">{$pSubtotal} €</td>
             </tr>
 FILA;
@@ -101,6 +106,7 @@ $tablaProductos = <<<TABLA
         <tr>
             <th>Producto</th>
             <th class="text-center">Cantidad</th>
+            <th class="text-right">Precio ud.</th>
             <th class="text-right">Subtotal</th>
         </tr>
     </thead>
@@ -109,8 +115,8 @@ $tablaProductos = <<<TABLA
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="2"><strong>Total</strong></td>
-            <td class="text-right"><strong>{$total} €</strong></td>
+            <td colspan="3"><strong>Total</strong></td>
+            <td class="text-right"><strong>{$totalPagar} €</strong></td>
         </tr>
     </tfoot>
 </table>
