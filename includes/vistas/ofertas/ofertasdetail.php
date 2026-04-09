@@ -33,10 +33,10 @@ if (isset($_GET['id'])) {
 
 $listaUrl = RUTA_VISTAS . '/ofertas/ofertaslist.php';
 
-# acción de borrado (solo gerente, POST)
-if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar' && $oferta) {
-    OfertaService::eliminar($oferta->getId());
-    header('Location: ' . $listaUrl);
+# toggle activa/inactiva (solo gerente, POST)
+if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'toggleActiva' && $oferta) {
+    OfertaService::cambiarEstado($oferta->getId(), !$oferta->isActiva());
+    header('Location: ' . RUTA_VISTAS . '/ofertas/ofertasdetail.php?id=' . $oferta->getId());
     exit();
 }
 
@@ -67,11 +67,14 @@ if ($modoEdicion) {
     $descripcion = htmlspecialchars($oferta->getDescripcion());
     $inicio      = $oferta->getInicio()->format('d/m/Y');
     $fin         = $oferta->getFin()->format('d/m/Y');
-    $pct         = number_format($oferta->getDescuento() * 100, 1, ',', '.') . ' %';
-
+    $pct         = number_format($oferta->getDescuento() * 100, 0, ',', '.') . ' %';
+    
     # badge de estado
     $hoy = new DateTime();
-    if ($oferta->getInicio() > $hoy) {
+    $hoy = new DateTime();
+    if (!$oferta->isActiva()) {
+        $badge = '<span class="badge badge-caducada">Inactiva</span>';
+    } elseif ($oferta->getInicio() > $hoy) {
         $badge = '<span class="badge badge-futura">Próxima</span>';
     } elseif ($oferta->getFin() < $hoy) {
         $badge = '<span class="badge badge-caducada">Caducada</span>';
@@ -116,12 +119,17 @@ if ($modoEdicion) {
     $botonesGerente = '';
     if ($esGerente) {
         $editarUrl = RUTA_VISTAS . '/ofertas/ofertasdetail.php?id=' . $oferta->getId() . '&editar=1';
+        $toggleLabel = $oferta->isActiva() ? 'Desactivar' : 'Reactivar';
+        $toggleClass = $oferta->isActiva() ? 'btn btn-borrar' : 'btn btn-nuevo';
+        $confirmMsg  = $oferta->isActiva()
+            ? '¿Desactivar esta oferta?'
+            : '¿Reactivar esta oferta?';
         $botonesGerente = <<<BTN
             <a href="{$editarUrl}" class="btn btn-editar">Editar</a>
             <form method="POST" action="" style="display:inline"
-                  onsubmit="return confirm('¿Eliminar esta oferta?')">
-                <input type="hidden" name="accion" value="borrar">
-                <button type="submit" class="btn btn-borrar">Eliminar</button>
+                  onsubmit="return confirm('{$confirmMsg}')">
+                <input type="hidden" name="accion" value="toggleActiva">
+                <button type="submit" class="btn {$toggleClass}">{$toggleLabel}</button>
             </form>
         BTN;
     }

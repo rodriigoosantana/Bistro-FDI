@@ -21,19 +21,21 @@ $ofertas = $esGerente
 # construimos las filas de la lista
 $htmlItems = '';
 if ($ofertas && count($ofertas) > 0) {
-    foreach ($ofertas as $o) {
-        $nombre      = htmlspecialchars($o->getNombre());
-        $descripcion = htmlspecialchars($o->getDescripcion());
-        $inicio      = $o->getInicio()->format('d/m/Y');
-        $fin         = $o->getFin()->format('d/m/Y');
-        $pct         = number_format($o->getDescuento() * 100, 1, ',', '.') . '%';
-        $verUrl      = RUTA_VISTAS . '/ofertas/ofertasdetail.php?id=' . $o->getId();
+    foreach ($ofertas as $oferta) {
+        $nombre      = htmlspecialchars($oferta->getNombre());
+        $descripcion = htmlspecialchars($oferta->getDescripcion());
+        $inicio      = $oferta->getInicio()->format('d/m/Y');
+        $fin         = $oferta->getFin()->format('d/m/Y');
+        $pct         = number_format($oferta->getDescuento() * 100, 1, ',', '.') . '%';
+        $verUrl      = RUTA_VISTAS . '/ofertas/ofertasdetail.php?id=' . $oferta->getId();
 
         # badge según estado de la oferta
         $hoy = new DateTime();
-        if ($o->getInicio() > $hoy) {
+        if (!$oferta->isActiva()) {
+            $badge = '<span class="badge badge-caducada">Inactiva</span>';
+        } elseif ($oferta->getInicio() > $hoy) {
             $badge = '<span class="badge badge-futura">Próxima</span>';
-        } elseif ($o->getFin() < $hoy) {
+        } elseif ($oferta->getFin() < $hoy) {
             $badge = '<span class="badge badge-caducada">Caducada</span>';
         } else {
             $badge = '<span class="badge badge-activa">Activa</span>';
@@ -42,7 +44,7 @@ if ($ofertas && count($ofertas) > 0) {
         # botones de gestión solo para el gerente
         $botonesGerente = '';
         if ($esGerente) {
-            $editarUrl = RUTA_VISTAS . '/ofertas/ofertasdetail.php?id=' . $o->getId() . '&editar=1';
+            $editarUrl = RUTA_VISTAS . '/ofertas/ofertasdetail.php?id=' . $oferta->getId() . '&editar=1';
             $botonesGerente = <<<BTN
                 <a href="{$editarUrl}" class="btn btn-editar">Editar</a>
             BTN;
@@ -54,8 +56,8 @@ if ($ofertas && count($ofertas) > 0) {
                     <span class="oferta-nombre">{$nombre}</span>
                     <span class="oferta-descripcion">{$descripcion}</span>
                     <div class="oferta-meta">
-                        <span>📅 {$inicio} – {$fin}</span>
-                        <span>🏷 Descuento: {$pct}</span>
+                        <span> {$inicio} – {$fin}</span>
+                        <span> Descuento: {$pct}</span>
                         {$badge}
                     </div>
                 </div>
@@ -79,6 +81,7 @@ if ($esGerente) {
 
 $tituloPagina  = 'Gestión de Ofertas';
 $tituloHeader  = 'Gestión de Ofertas';
+$volverUrl = RUTA_APP . '/index.php';
 
 $contenidoPrincipal = <<<EOS
     <section id="contenido">
@@ -87,7 +90,7 @@ $contenidoPrincipal = <<<EOS
             {$htmlItems}
         </div>
         <div class="acciones-pagina">
-            <a href="{$_SERVER['HTTP_REFERER']}" class="btn btn-volver">Atrás</a>
+            <a href="{$volverUrl}" class="btn btn-volver">Atrás</a>
             {$btnNueva}
         </div>
     </section>
