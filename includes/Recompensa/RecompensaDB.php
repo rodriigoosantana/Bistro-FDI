@@ -97,6 +97,29 @@ class RecompensaDB
     return null;
   }
 
+  public static function buscarPorProductoId($productoId)
+  {
+    $conn = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "SELECT * FROM Recompensas U WHERE U.producto_id='%s' LIMIT 1",
+      $conn->real_escape_string($productoId)
+    );
+
+    $rs = $conn->query($query);
+
+    $fila = $rs ? $rs->fetch_assoc() : null;
+    if ($rs) {
+      $rs->free();
+    }
+
+    if ($fila) {
+      return new Recompensa($fila['producto_id'], $fila['bistrocoins_necesarias'], $fila['id']);
+    }
+
+    return null;
+  }
+
   public static function existePorProductoId($productoId)
   {
     $conn = Aplicacion::getInstance()->getConexionBd();

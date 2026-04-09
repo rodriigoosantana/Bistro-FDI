@@ -121,7 +121,7 @@ class OfertaDB
         $conexion = Aplicacion::getInstance()->getConexionBd();
         $hoy = (new DateTime())->format('Y-m-d');
 
-        $stmt = $conexion->prepare(
+        $query = $conexion->prepare(
             "SELECT * FROM Ofertas WHERE activa=1 AND inicio <= ? AND fin >= ? ORDER BY nombre ASC"
         );
         $query->bind_param('ss', $hoy, $hoy);

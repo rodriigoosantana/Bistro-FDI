@@ -37,7 +37,7 @@ INSERT INTO `Usuarios` (`id`, `nombreUsuario`, `email`, `nombre`, `apellidos`, `
 (3, 'cocinera2', 'cocinera1@bistrofdi.es', 'Sydney', 'Adamu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/avatar_69aeea1fd1896.webp', 1, '2026-03-09 16:38:09', 0),
 (4, 'camarero1', 'kokegoat@gmail.com', 'Koke', 'Resurrecci&oacute;n', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/avatar_69aeea882ac66.jpg', 1, '2026-03-09 16:38:09', 0),
 (5, 'camarero2', 'cliente2@gmail.com', 'Antoine', 'Griezmann', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/avatar_69aeeae40e227.jpg', 1, '2026-03-09 16:38:09', 50),
-(6, 'cliente1', 'cliente1@gmail.com', 'Big AKA &#039;Double B&#039;', 'Baut', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/default.jpg', 1, '2026-03-06 22:54:13', 0),
+(6, 'cliente1', 'cliente1@gmail.com', 'Big AKA &#039;Double B&#039;', 'Baut', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/default.jpg', 1, '2026-03-06 22:54:13', 100),
 (7, 'cliente2', 'cliente2@gmail.com', 'Dudu', 'Tous', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '/img/uploads/avatares/default.jpg', 1, '2026-03-08 14:33:54', 0);
 
 -- ROLES USUARIO

@@ -110,6 +110,7 @@ CREATE TABLE IF NOT EXISTS `PedidoProducto` (
   `cantidad`        int(11)       NOT NULL,
   `precio_unitario` decimal(10,2) NOT NULL,
   `preparado`       tinyint(1)    NOT NULL DEFAULT 0,
+  `bistro_coineado` tinyint(1)    DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `fk_pp_pedido`   (`pedido_id`),
   KEY `fk_pp_producto` (`producto_id`)

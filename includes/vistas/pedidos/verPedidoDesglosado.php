@@ -100,7 +100,7 @@ $total        = number_format($pedidoDesglosado->getTotal(), 2, ',', '.');
 
 $descuento    = $pedidoDesglosado->getDescuento();
 $descuentoF   = number_format($descuento, 2, ',', '.');
-$totalFinal   = number_format($pedidoDesglosado->getTotalConDescuento(), 2, ',', '.');
+$totalPagar   = number_format($pedidoDesglosado->getTotalConDescuento(), 2, ',', '.');
 # buscar qué oferta se aplicó a este pedido
 $ofertasPedido = OfertaService::listarOfertasDePedido($pedidoDesglosado->getId());
 $nombreOferta  = !empty($ofertasPedido) ? htmlspecialchars($ofertasPedido[0]->getNombre()) : null;
@@ -117,10 +117,14 @@ $subtotalCalculado = 0.0;
 if ($productos && count($productos) > 0) {
     foreach ($productos as $prod) {
         $pNombre   = htmlspecialchars($prod->getNombre());
-        $pPrecio   = number_format($prod->getPrecio(), 2, ',', '.');
         $pCantidad = (int)$prod->getCantidad();
-        $pSubtotal = number_format($prod->getPrecio() * $pCantidad, 2, ',', '.');
-        $subtotalCalculado += $prod->getPrecio() * $pCantidad;
+        $esCanjeado = $prod->isBistroCoineado();
+        $pPrecioValor = $esCanjeado ? 0.0 : $prod->getPrecio();
+        $pPrecio = number_format($pPrecioValor, 2, ',', '.');
+        $pSubtotalValor = $esCanjeado ? 0.0 : ($prod->getPrecio() * $pCantidad);
+        $pSubtotal = number_format($pSubtotalValor, 2, ',', '.');
+        $subtotalCalculado += $pSubtotalValor;
+        $badgeCanje = $esCanjeado ? ' <small class="marca-recompensa">(Recompensa)</small>' : '';
 
         $checkHtml = '';
         $necesitaPreparacion = PedidoService::productoEnPedidodNecesitaPreparacion($pedidoDesglosado->getId(), $prod->getId());
@@ -144,7 +148,7 @@ if ($productos && count($productos) > 0) {
 
         $filasProductos .= <<<FILA
             <tr{$filaClase}>
-                <td>{$checkHtml} {$pNombre}</td>
+                <td>{$checkHtml} {$pNombre}{$badgeCanje}</td>
                 <td class="text-center">{$pCantidad}</td>
                 <td class="text-right">{$pPrecio} €</td>
                 <td class="text-right">{$pSubtotal} €</td>
@@ -170,8 +174,8 @@ $tablaProductos = <<<TABLA
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="3"><strong>Subtotal</strong></td>
-            <td class="text-right"><strong>{$total} €</strong></td>
+            <td colspan="3"><strong>Total</strong></td>
+            <td class="text-right"><strong>{$totalPagar} €</strong></td>
         </tr>
     </tfoot>
 </table>
@@ -242,7 +246,7 @@ if ($descuento > 0) {
     $htmlPrecio = <<<PRECIO
                 <p><strong>Subtotal:</strong> {$total} €</p>
                 <p><strong>Descuento:</strong> -{$descuentoF} €{$htmlOferta}</p>
-                <p><strong>Total final:</strong> {$totalFinal} €</p>
+                <p><strong>Total final:</strong> {$totalPagar} €</p>
 PRECIO;
 } else {
     $htmlPrecio = "<p><strong>Total:</strong> {$total} €</p>";

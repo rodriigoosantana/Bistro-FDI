@@ -125,4 +125,47 @@ class UsuarioDB
 
     return null;
   }
+
+  public static function buscarPorId(int $id): ?Usuario
+  {
+    $conn = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf("SELECT * FROM Usuarios U WHERE U.id=%d", intval($id));
+
+    $rs = $conn->query($query);
+
+    $fila = $rs ? $rs->fetch_assoc() : null;
+    if ($rs) {
+      $rs->free();
+    }
+
+    if ($fila) {
+      Rol::cargarRol($fila['id']);
+      return new Usuario(
+        $fila['nombreUsuario'],
+        $fila['password'],
+        $fila['nombre'],
+        $fila['apellidos'],
+        $fila['email'],
+        $fila['avatar'],
+        $fila['saldo_bistrocoins'],
+        $fila['id']
+      );
+    }
+
+    return null;
+  }
+
+  public static function actualizarSaldoBistrocoins(int $id, int $saldo): bool
+  {
+    $conn = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "UPDATE Usuarios SET saldo_bistrocoins = %d WHERE id = %d",
+      intval($saldo),
+      intval($id)
+    );
+
+    return (bool) $conn->query($query);
+  }
 }

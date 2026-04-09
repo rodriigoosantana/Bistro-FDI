@@ -63,6 +63,11 @@ class PedidoService
         return PedidoDB::eliminarProductoPedido($idPedido, $idProducto);
     }
 
+    public static function actualizarProductoBitCoineado(int $idPedido, int $idProducto, int $bc): bool
+    {
+        return PedidoDB::actualizarProductoBitCoineado($idPedido, $idProducto, $bc);
+    }
+
     public static function buscarDesglosadoPorId(int $idPedido): PedidoDesglosado
     {
         $pedido = PedidoDB::buscarPorId($idPedido);

@@ -17,7 +17,8 @@ class PedidoDesglosado extends Pedido
       $pedido->getClienteId(),
       $pedido->getCocineroId(),
       $pedido->getTotal(),
-      $pedido->getId()
+      $pedido->getId(),
+      $pedido->getDescuento()
     );
     $this->productos = $productos;
   }
@@ -40,14 +41,16 @@ class ProductoEnPedido
   private int $cantidad;
   private bool $preparado;
   private int $id;
+  private bool $bistro_coineado;
 
-  public function __construct(int $id, string $n, float $p, int $c, bool $preparado)
+  public function __construct(int $id, string $n, float $p, int $c, bool $preparado, bool $bc)
   {
     $this->id = $id;
     $this->nombre = $n;
     $this->precio = $p;
     $this->cantidad = $c;
     $this->preparado = $preparado;
+    $this->bistro_coineado = $bc;
   }
 
   public function getId(): int
@@ -108,5 +111,9 @@ class ProductoEnPedido
   public function setPreparado(bool $preparado): void
   {
     $this->preparado = $preparado;
+  }
+
+  public function isBistroCoineado(): bool {
+    return $this->bistro_coineado;
   }
 }
