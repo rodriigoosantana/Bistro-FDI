@@ -267,6 +267,60 @@ $productosCarrito = $idPedido
     ? PedidoService::buscarDesglosadoPorId($idPedido)->getProductos()
     : array_values($_SESSION['carrito_temp'] ?? []);
 
+$categoriaFiltro = isset($_GET['categoria']) && $_GET['categoria'] !== ''
+    ? intval($_GET['categoria'])
+    : null;
+
+$categoriasConProductos = [];
+foreach ($listaCategorias as $categoria) {
+    if (!$categoria->isActiva()) {
+        continue;
+    }
+
+    foreach ($listaProductos as $producto) {
+        if (
+            $producto->getCategoriaId() === $categoria->getId()
+            && $producto->isDisponible()
+            && $producto->isActivo()
+        ) {
+            $categoriasConProductos[$categoria->getId()] = true;
+            break;
+        }
+    }
+}
+
+if ($categoriaFiltro !== null && !isset($categoriasConProductos[$categoriaFiltro])) {
+    $categoriaFiltro = null;
+}
+
+$parametrosBaseFiltro = [];
+if ($idPedido) {
+    $parametrosBaseFiltro['id'] = $idPedido;
+} else {
+    $parametrosBaseFiltro['tipo'] = $tipoPedido;
+}
+
+$queryTodas = http_build_query($parametrosBaseFiltro);
+$urlTodas = RUTA_VISTAS . '/pedidos/anadir_productos.php' . ($queryTodas !== '' ? '?' . $queryTodas : '');
+$claseTodas = $categoriaFiltro === null ? 'btn btn-ver' : 'btn btn-volver';
+
+$enlacesCategorias = '<a href="' . htmlspecialchars($urlTodas) . '" class="' . $claseTodas . '">Todas</a>';
+foreach ($listaCategorias as $categoria) {
+    if (!$categoria->isActiva() || !isset($categoriasConProductos[$categoria->getId()])) {
+        continue;
+    }
+
+    $parametrosCategoria = $parametrosBaseFiltro;
+    $parametrosCategoria['categoria'] = $categoria->getId();
+    $urlCategoria = RUTA_VISTAS . '/pedidos/anadir_productos.php?' . http_build_query($parametrosCategoria);
+    $claseBoton = $categoriaFiltro === $categoria->getId() ? 'btn btn-ver' : 'btn btn-volver';
+    $nombreCategoria = htmlspecialchars($categoria->getNombre());
+
+    $enlacesCategorias .= ' <a href="' . htmlspecialchars($urlCategoria) . '" class="' . $claseBoton . '">' . $nombreCategoria . '</a>';
+}
+
+$htmlNavCategorias = '<div class="nav-categorias">' . $enlacesCategorias . '</div>';
+
 # Funcionalidad de ofertas: cargar ofertas activas y calcular si la seleccionada aplica al carrito actual
 # cargar ofertas activas y calcular si la seleccionada aplica al carrito actual
 $ofertasActivas = OfertaService::listarActivas();
@@ -304,6 +358,7 @@ $hiddenPedidoOTipo = $idPedido
 $htmlNavegadorProductos = "";
 foreach ($listaCategorias as $categoria) {
     if (!$categoria->isActiva()) continue;
+    if ($categoriaFiltro !== null && $categoria->getId() !== $categoriaFiltro) continue;
 
     $htmlProductosCategoria = "";
     foreach ($listaProductos as $producto) {
@@ -491,6 +546,7 @@ $contenidoPrincipal = <<<EOS
 
     <div class="shopping-layout">
         <div class="product-browser">
+            {$htmlNavCategorias}
             {$htmlNavegadorProductos}
         </div>
         

@@ -488,6 +488,14 @@ td {
   flex: 1;
 }
 
+.nav-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 6px;
+  row-gap: 6px;
+  margin-bottom: 18px;
+}
+
 .cart-summary {
   width: 350px;
   background: #f8fafc;
