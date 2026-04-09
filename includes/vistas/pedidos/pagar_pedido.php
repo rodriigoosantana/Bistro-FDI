@@ -31,9 +31,10 @@ if (!$pedidoDesglosado) {
 // Verificar que el pedido pertenece al usuario o es gerente/camarero
 $esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
 $esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
+$esCocinero = ($_SESSION['rolId'] === Usuario::ROL_COCINERO);
 $esDueno = (intval($_SESSION['userId']) === $pedidoDesglosado->getClienteId());
 
-if (!$esGerente && !$esCamarero && !$esDueno) {
+if (!$esGerente && !$esCamarero && !esCocinero && !$esDueno) {
   header('Location: ' . RUTA_APP . '/index.php');
   exit();
 }
@@ -148,7 +149,7 @@ $tituloHeader = 'Finalizar Pago';
 
 $htmlNotificacionError = $mensajeError ? "<p class='msg-error'>{$mensajeError}</p>" : "";
 
-$opcionCamarero = (!$esCamarero) ? <<<HTML
+$opcionCamarero = (!$esCamarero && !$esCocinero) ? <<<HTML
 <div class="opcion-pago">
     <input type="radio" id="pago_camarero" name="metodo_pago" value="camarero" onclick="alternarMetodoPago('camarero')">
     <label for="pago_camarero">Pagar al camarero</label>
