@@ -1209,6 +1209,13 @@ textarea {
     position: static;
     box-sizing: border-box;
   }
+
+  aside.cart-summary {
+    display: block;
+    width: 100%;
+    position: static;
+    box-sizing: border-box;
+  }
 }
 
 /* móvil: ≤600px */
@@ -1395,5 +1402,12 @@ textarea {
   .oferta-ko {
     background: #fee2e2;
     color: #991b1b;
+  }
+
+  aside.cart-summary {
+    display: block;
+    width: 100%;
+    position: static;
+    box-sizing: border-box;
   }
 }

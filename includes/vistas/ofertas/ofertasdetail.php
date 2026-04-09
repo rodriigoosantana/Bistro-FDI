@@ -53,12 +53,30 @@ if ($modoEdicion) {
     $tituloPagina   = $oferta ? 'Editar oferta' : 'Nueva oferta';
     $tituloHeader   = $tituloPagina;
 
+    # botón desactivar/reactivar solo si estamos editando una oferta existente
+    $btnToggleEdicion = '';
+    if ($oferta) {
+        $toggleLabel = $oferta->isActiva() ? 'Desactivar' : 'Reactivar';
+        $toggleClass = $oferta->isActiva() ? 'btn btn-borrar' : 'btn btn-nuevo';
+        $confirmMsg  = $oferta->isActiva() ? '¿Desactivar esta oferta?' : '¿Reactivar esta oferta?';
+        $toggleUrl   = RUTA_VISTAS . '/ofertas/ofertasdetail.php?id=' . $oferta->getId();
+        $btnToggleEdicion = <<<BTN
+            <form method="POST" action="{$toggleUrl}" style="display:inline"
+                  onsubmit="return confirm('{$confirmMsg}')">
+                <input type="hidden" name="accion" value="toggleActiva">
+                <button type="submit" class="{$toggleClass}">{$toggleLabel}</button>
+            </form>
+        BTN;
+    }
+
     $contenidoPrincipal = <<<EOS
         <section id="contenido">
             <h2>{$tituloPagina}</h2>
             {$htmlContenido}
-            <br>
-            <a href="{$listaUrl}" class="btn btn-volver">← Volver a la lista</a>
+            <div class="acciones-pagina">
+                <a href="{$listaUrl}" class="btn btn-volver">← Volver a la lista</a>
+                {$btnToggleEdicion}
+            </div>
         </section>
     EOS;
 } else {
@@ -70,7 +88,6 @@ if ($modoEdicion) {
     $pct         = number_format($oferta->getDescuento() * 100, 0, ',', '.') . ' %';
     
     # badge de estado
-    $hoy = new DateTime();
     $hoy = new DateTime();
     if (!$oferta->isActiva()) {
         $badge = '<span class="badge badge-caducada">Inactiva</span>';
