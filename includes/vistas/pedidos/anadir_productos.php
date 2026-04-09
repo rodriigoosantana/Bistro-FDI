@@ -654,7 +654,6 @@ HTML;
         <div class="carrito-item">
             <span class="item-nombre">{$nombreProducto}</span>
             <span class="item-precio">{$precioUnitario} €</span>
-            {$htmlCanjeRecompensa}
             <form method="POST" class="form-update-cart">
                 {$hiddenPedidoOTipo}
                 <input type="hidden" name="productoId" value="{$idProducto}" />
@@ -662,6 +661,7 @@ HTML;
                 <input type="number" name="cantidad" value="{$cantidadActual}" min="0" class="input-mini" onchange="this.form.submit()" />
             </form>
             <span class="item-subtotal">{$subtotalItemFormateado} €</span>
+            {$htmlCanjeRecompensa}
             <form method="POST" class="form-delete-cart">
                 {$hiddenPedidoOTipo}
                 <input type="hidden" name="productoId" value="{$idProducto}" />
