@@ -3,7 +3,6 @@
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 
 use es\ucm\fdi\aw\Usuario\UsuarioService;
-use es\ucm\fdi\aw\Usuario\Rol;
 
 $nombreUsuario = $_GET['nombreUsuario'] ?? null;
 $usuario = UsuarioService::buscarPorNombre($nombreUsuario);
@@ -24,37 +23,45 @@ if (isset($_POST['cancelar'])) {
   exit();
 }
 
-
 $eliminarButton = <<<HTML
-  <form method="POST">
-    <div>
-        <button type="submit" name="eliminar">
-            Si
-        </button>
-    </div>
+<form method="POST">
+    <button type="submit" name="eliminar" class="btn btn-borrar">
+        Sí, eliminar usuario
+    </button>
 </form>
 HTML;
 
-
 $cancelarButton = <<<HTML
-  <form method="POST">
-    <div>
-        <button type="submit" name="cancelar">
-            No
-        </button>
-    </div>
+<form method="POST">
+    <button type="submit" name="cancelar" class="btn btn-volver">
+        Cancelar
+    </button>
 </form>
 HTML;
 
 $tituloPagina = 'Eliminar Usuario';
 $tituloHeader = 'Eliminar Usuario';
+
 $contenidoPrincipal = <<<EOS
-   <section id="contenido">
-   <h2>Eliminar</h2>
-   <p> Se van a eliminar los datos de {$usuario->getNombreUsuario()} de forma permanente. ¿Deseas continuar?</p>
-   $eliminarButton
-   $cancelarButton
-   </section>
+<section id="contenido">
+
+<h2>Eliminar usuario</h2>
+
+<div class="msg-error">
+<p>
+Se van a eliminar los datos del usuario 
+<strong>{$usuario->getNombreUsuario()}</strong> de forma permanente.
+</p>
+
+<p><strong>Esta acción no se puede deshacer.</strong></p>
+</div>
+
+<div class="acciones-pagina">
+$eliminarButton
+$cancelarButton
+</div>
+
+</section>
 EOS;
 
 require("common/plantilla.php");

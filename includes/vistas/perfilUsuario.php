@@ -1,7 +1,10 @@
 <?php
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once dirname(__DIR__, 2) . '/includes/config.php';
 
+use es\ucm\fdi\aw\vistas\login\generarPerfilUsuario;
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 use es\ucm\fdi\aw\Usuario\Rol;
 
@@ -10,40 +13,8 @@ $usuario = UsuarioService::buscarPorNombre($nombreUsuario);
 
 $tituloPagina = 'Perfil';
 $tituloHeader = "Perfil de {$usuario->getNombreUsuario()}";
-$rol = Rol::cargarRol($usuario->getId());
-$avatar_img = "<img src='" . RUTA_APP . $usuario->getAvatar() . "' width='80' height='80'>";
-$fila =
-  "<tr>
-      <td>{$usuario->getId()}</td>
-      <td>{$usuario->getNombreUsuario()}</td>
-      <td>{$usuario->getNombre()}</td>
-      <td>{$usuario->getApellidos()}</td>
-      <td>{$usuario->getEmail()}</td>
-      <td>$avatar_img</td>
-      <td>{$rol->getNombre()}</td>
-      <td> <a href=\"modificarUsuario.php?nombreUsuario={$usuario->getNombreUsuario()}\">Modificar Datos</a> </td>
-      <td> <a href=\"eliminarUsuario.php?nombreUsuario={$usuario->getNombreUsuario()}\">Eliminar Usuario</a> </td>
-   </tr>";
 
-$contenidoPrincipal = <<<EOS
-   <section id="contenido">
-   <h2>usuarios</h2>
-   <table border="1">
-   <tr>
-       <th>id</th>
-       <th>nombre de Usuario</th>
-       <th>nombre</th>
-       <th>apellidos</th>
-       <th>email</th>
-       <th>avatar</th>
-       <th>rol</th>
-       <th>Modificar</th>
-       <th>Eliminar</th>
-   </tr>
-   $fila
-   </table>
-   </section>
-EOS;
+$contenidoPrincipal = generarPerfilUsuario::generarPerfil($usuario);
 
 $modUrl = "modificarUsuario.php?nombreUsuario=" . urlencode($usuario->getNombreUsuario());
 $logoutUrl = RUTA_VISTAS . '/logout.php';

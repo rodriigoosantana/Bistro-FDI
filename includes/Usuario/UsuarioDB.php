@@ -10,22 +10,25 @@ class UsuarioDB
 {
   public static function insertar(Usuario $usuario)
   {
-
     $conn = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf(
-      "INSERT INTO Usuarios(nombreUsuario, nombre, apellidos, email, avatar, password) 
-         VALUES ('%s', '%s', '%s', '%s', '%s', '%s')",
-      $conn->real_escape_string($usuario->getNombreUsuario()),
-      $conn->real_escape_string($usuario->getNombre()),
-      $conn->real_escape_string($usuario->getApellidos()),
-      $conn->real_escape_string($usuario->getEmail()),
-      $conn->real_escape_string($usuario->getAvatar()),
-      $conn->real_escape_string($usuario->getPassword())
+    $query = $conn->prepare(
+      "INSERT INTO Usuarios(nombreUsuario, nombre, apellidos, email, avatar, password, saldo_bistrocoins) 
+         VALUES (?, ?, ?, ?, ?, ?, ?)",
     );
 
+    $nombreUsuario	= $usuario->getNombreUsuario();
+    $nombre		= $usuario->getNombre();
+    $apellidos		= $usuario->getApellidos();
+    $email		= $usuario->getEmail();
+    $avatar		= $usuario->getAvatar();
+    $password		= $usuario->getPassword();
+    $saldoBistroCoins	= $usuario->getSaldoBistrocoins();
+
+    $query->bind_param("ssssssd", $nombreUsuario, $nombre, $apellidos, $email, $avatar, $password, $saldoBistroCoins);
     try { #Intentamos insertar el usuario, si el nombre de usuario ya existe, se lanzará una excepción que capturaremos para lanzar una excepción de dominio más específica.
-      $conn->query($query);
+      $query->execute();
+
       $usuario->setId($conn->insert_id);
       return $usuario;
     } catch (\mysqli_sql_exception $e) { #Capturamos la excepción de MySQLi para verificar si se debe a una violación de clave única (nombre de usuario ya existente).
@@ -33,6 +36,8 @@ class UsuarioDB
         throw new UsuarioYaExisteException($usuario->getNombreUsuario()); #Lanzamos una excepción de dominio específica para indicar que el nombre de usuario ya está en uso.
       }
       throw $e; #Si es otro tipo de error, lo relanzamos para que sea manejado por un nivel superior.
+    } finally {
+      $query->close();
     }
   }
 
@@ -40,35 +45,43 @@ class UsuarioDB
   {
     $conn = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf(
-      "DELETE FROM Usuarios WHERE id = '%s'",
-      $usuario->getId()
+    $query = $conn->prepare(
+      "DELETE FROM Usuarios WHERE id = ?",
     );
 
-    $conn->query($query);
+    $idUsuario = $usuario->getId();
+    $query->bind_param("i", $idUsuario);
+
+    $query->execute();
+    $query->close();
   }
 
   public static function actualizar(Usuario $usuario)
   {
     $conn = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf(
+    $query = $conn->prepare(
       "UPDATE Usuarios
-      SET nombreUsuario = '%s',
-      nombre = '%s',
-      apellidos = '%s',
-      email = '%s',
-      avatar = '%s'
-      WHERE id = %d",
-      $usuario->getNombreUsuario(),
-      $usuario->getNombre(),
-      $usuario->getApellidos(),
-      $usuario->getEmail(),
-      $usuario->getAvatar(),
-      $usuario->getId()
+      SET nombreUsuario = ?,
+      nombre = ?,
+      apellidos = ?,
+      email = ?,
+      avatar = ?,
+      saldo_bistrocoins = ?
+      WHERE id = ?",
     );
 
-    $conn->query($query);
+    $nombreUsuario	= $usuario->getNombreUsuario();
+    $nombre		= $usuario->getNombre();
+    $apellidos		= $usuario->getApellidos();
+    $email		= $usuario->getEmail();
+    $avatar		= $usuario->getAvatar();
+    $saldoBistroCoins	= $usuario->getSaldoBistrocoins();
+    $id			= $usuario->getId();
+
+    $query->bind_param("sssssdi", $nombreUsuario, $nombre, $apellidos, $email, $avatar, $saldoBistroCoins, $id);
+    $query->execute();
+    $query->close();
 
     return $usuario;
   }
@@ -77,15 +90,16 @@ class UsuarioDB
   {
     $conn = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf("SELECT * FROM Usuarios");
-
-    $rs = $conn->query($query);
+    $query = $conn->prepare("SELECT * FROM Usuarios");
+    $query->execute();
+    $rs = $query->get_result();
 
     $usuarios = [];
     while ($fila = $rs->fetch_assoc()) {
-      $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila["id"]);
+      $usuarios[] = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila['saldo_bistrocoins'], $fila["id"]);
     }
     $rs->free();
+    $query->close();
 
     return $usuarios;
   }
@@ -95,18 +109,63 @@ class UsuarioDB
   {
     $conn = Aplicacion::getInstance()->getConexionBd();
 
-    $query = sprintf("SELECT * FROM Usuarios U WHERE U.nombreUsuario='%s'", $conn->real_escape_string($nombreUsuario));
-
-    $rs = $conn->query($query);
+    $query = $conn->prepare("SELECT * FROM Usuarios U WHERE U.nombreUsuario=?");
+    $query->bind_param("s", $nombreUsuario);
+    $query->execute();
+    $rs = $query->get_result();
 
     $fila = $rs->fetch_assoc();
     $rs->free();
+    $query->close();
     if ($fila) {
       Rol::cargarRol($fila['id']);
-      $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila['id']);
+      $user = new Usuario($fila['nombreUsuario'], $fila['password'], $fila['nombre'], $fila['apellidos'], $fila['email'], $fila['avatar'], $fila['saldo_bistrocoins'], $fila['id']);
       return $user;
     }
 
     return null;
+  }
+
+  public static function buscarPorId(int $id): ?Usuario
+  {
+    $conn = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf("SELECT * FROM Usuarios U WHERE U.id=%d", intval($id));
+
+    $rs = $conn->query($query);
+
+    $fila = $rs ? $rs->fetch_assoc() : null;
+    if ($rs) {
+      $rs->free();
+    }
+
+    if ($fila) {
+      Rol::cargarRol($fila['id']);
+      return new Usuario(
+        $fila['nombreUsuario'],
+        $fila['password'],
+        $fila['nombre'],
+        $fila['apellidos'],
+        $fila['email'],
+        $fila['avatar'],
+        $fila['saldo_bistrocoins'],
+        $fila['id']
+      );
+    }
+
+    return null;
+  }
+
+  public static function actualizarSaldoBistrocoins(int $id, int $saldo): bool
+  {
+    $conn = Aplicacion::getInstance()->getConexionBd();
+
+    $query = sprintf(
+      "UPDATE Usuarios SET saldo_bistrocoins = %d WHERE id = %d",
+      intval($saldo),
+      intval($id)
+    );
+
+    return (bool) $conn->query($query);
   }
 }

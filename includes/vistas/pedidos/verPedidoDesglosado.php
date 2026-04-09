@@ -4,12 +4,13 @@ use es\ucm\fdi\aw\Pedido\PedidoService;
 use es\ucm\fdi\aw\Usuario\Usuario;
 use es\ucm\fdi\aw\Pedido\Estado;
 use es\ucm\fdi\aw\Pedido\Tipo;
+use es\ucm\fdi\aw\Oferta\OfertaService;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 // Verificar login
 if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-  header('Location: ' . RUTA_VISTAS . '/login.php');
-  exit();
+    header('Location: ' . RUTA_VISTAS . '/login.php');
+    exit();
 }
 
 $esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
@@ -17,14 +18,14 @@ $esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
 $esCocinero = ($_SESSION['rolId'] === Usuario::ROL_COCINERO);
 
 if (!isset($_GET['id'])) {
-  header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-  exit();
+    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+    exit();
 }
 
 $pedidoDesglosado = PedidoService::buscarDesglosadoPorId(intval($_GET['id']));
 if (!$pedidoDesglosado) {
-  header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-  exit();
+    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+    exit();
 }
 
 $volverUrl = RUTA_VISTAS . '/pedidos/pedidoslist.php';
@@ -53,9 +54,9 @@ $clasesEstado = [
 
 // BORRADO (Solo gerente)
 if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar') {
-  PedidoService::eliminar($pedidoDesglosado->getId());
-  header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-  exit();
+    PedidoService::eliminar($pedidoDesglosado->getId());
+    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+    exit();
 }
 
 // CAMBIO DE ESTADO
@@ -96,10 +97,18 @@ $tipoVal      = $pedidoDesglosado->getTipo()->value;
 $tipoLabel    = $tipoVal === Tipo::ParaTomar->value ? 'Para tomar' : 'Para llevar';
 $tipoClase    = $tipoVal === Tipo::ParaTomar->value ? 'tipo-local' : 'tipo-llevar';
 $total        = number_format($pedidoDesglosado->getTotal(), 2, ',', '.');
+
+$descuento    = $pedidoDesglosado->getDescuento();
+$descuentoF   = number_format($descuento, 2, ',', '.');
+$totalPagar   = number_format($pedidoDesglosado->getTotalConDescuento(), 2, ',', '.');
+# buscar qué oferta se aplicó a este pedido
+$ofertasPedido = OfertaService::listarOfertasDePedido($pedidoDesglosado->getId());
+$nombreOferta  = !empty($ofertasPedido) ? htmlspecialchars($ofertasPedido[0]->getNombre()) : null;
+
 $clienteId    = htmlspecialchars((string)$pedidoDesglosado->getClienteId());
 $cocineroId   = ($pedidoDesglosado->getCocineroId() !== null)
-                ? htmlspecialchars((string)$pedidoDesglosado->getCocineroId())
-                : 'Sin asignar';
+    ? htmlspecialchars((string)$pedidoDesglosado->getCocineroId())
+    : 'Sin asignar';
 
 $productos         = $pedidoDesglosado->getProductos();
 $filasProductos    = '';
@@ -108,10 +117,14 @@ $subtotalCalculado = 0.0;
 if ($productos && count($productos) > 0) {
     foreach ($productos as $prod) {
         $pNombre   = htmlspecialchars($prod->getNombre());
-        $pPrecio   = number_format($prod->getPrecio(), 2, ',', '.');
         $pCantidad = (int)$prod->getCantidad();
-        $pSubtotal = number_format($prod->getPrecio() * $pCantidad, 2, ',', '.');
-        $subtotalCalculado += $prod->getPrecio() * $pCantidad;
+        $esCanjeado = $prod->isBistroCoineado();
+        $pPrecioValor = $esCanjeado ? 0.0 : $prod->getPrecio();
+        $pPrecio = number_format($pPrecioValor, 2, ',', '.');
+        $pSubtotalValor = $esCanjeado ? 0.0 : ($prod->getPrecio() * $pCantidad);
+        $pSubtotal = number_format($pSubtotalValor, 2, ',', '.');
+        $subtotalCalculado += $pSubtotalValor;
+        $badgeCanje = $esCanjeado ? ' <small class="marca-recompensa">(Recompensa)</small>' : '';
 
         $checkHtml = '';
         $necesitaPreparacion = PedidoService::productoEnPedidodNecesitaPreparacion($pedidoDesglosado->getId(), $prod->getId());
@@ -135,7 +148,7 @@ if ($productos && count($productos) > 0) {
 
         $filasProductos .= <<<FILA
             <tr{$filaClase}>
-                <td>{$checkHtml} {$pNombre}</td>
+                <td>{$checkHtml} {$pNombre}{$badgeCanje}</td>
                 <td class="text-center">{$pCantidad}</td>
                 <td class="text-right">{$pPrecio} €</td>
                 <td class="text-right">{$pSubtotal} €</td>
@@ -143,7 +156,7 @@ if ($productos && count($productos) > 0) {
         FILA;
     }
 } else {
-  $filasProductos = '<tr><td colspan="4"><em>Sin productos</em></td></tr>';
+    $filasProductos = '<tr><td colspan="4"><em>Sin productos</em></td></tr>';
 }
 
 $tablaProductos = <<<TABLA
@@ -162,27 +175,41 @@ $tablaProductos = <<<TABLA
     <tfoot>
         <tr>
             <td colspan="3"><strong>Total</strong></td>
-            <td class="text-right"><strong>{$total} €</strong></td>
+            <td class="text-right"><strong>{$totalPagar} €</strong></td>
         </tr>
     </tfoot>
 </table>
 TABLA;
 
 $transiciones = [];
-if ($esGerente || $esCamarero) {
+if ($esGerente || $esCamarero || $esCocinero) {
     switch ($pedidoDesglosado->getEstado()) {
-        case Estado::Nuevo:        $transiciones = [Estado::Cancelado->value => 'Cancelar']; break;
-        case Estado::Recibido:     $transiciones = [Estado::EnPreparacion->value => 'Cobrar']; break;
-        case Estado::ListoCocina:  $transiciones = [Estado::Terminado->value => 'Marcar listo para entregar']; break;
-        case Estado::Terminado:    $transiciones = [Estado::Entregado->value => 'Marcar entregado']; break;
-        default: break;
+        case Estado::Nuevo:
+            $transiciones = [Estado::Cancelado->value => 'Cancelar'];
+            break;
+        case Estado::Recibido:
+            $transiciones = [Estado::EnPreparacion->value => 'Cobrar'];
+            break;
+        case Estado::ListoCocina:
+            $transiciones = [Estado::Terminado->value => 'Marcar listo para entregar'];
+            break;
+        case Estado::Terminado:
+            $transiciones = [Estado::Entregado->value => 'Marcar entregado'];
+            break;
+        default:
+            break;
     }
 }
 if ($esGerente || $esCocinero) {
     switch ($pedidoDesglosado->getEstado()) {
-        case Estado::EnPreparacion: $transiciones[Estado::Cocinando->value]    = 'Empezar a cocinar'; break;
-        case Estado::Cocinando:     $transiciones[Estado::ListoCocina->value]  = 'Marcar listo cocina'; break;
-        default: break;
+        case Estado::EnPreparacion:
+            $transiciones[Estado::Cocinando->value]    = 'Empezar a cocinar';
+            break;
+        case Estado::Cocinando:
+            $transiciones[Estado::ListoCocina->value]  = 'Marcar listo cocina';
+            break;
+        default:
+            break;
     }
 }
 
@@ -201,7 +228,7 @@ foreach ($transiciones as $nuevoEstado => $etiquetaBtn) {
 
 $btnBorrar = '';
 if ($esGerente) {
-  $btnBorrar = <<<BTN
+    $btnBorrar = <<<BTN
     <form method="POST" action="" style="display:inline"
           onsubmit="return confirm('¿Seguro que quieres borrar este pedido?')">
         <input type="hidden" name="accion" value="borrar">
@@ -212,6 +239,18 @@ if ($esGerente) {
 
 $tituloPagina = "Pedido #{$numeroPedido}";
 $tituloHeader = 'Ver pedido';
+
+# bloque de precio con o sin descuento
+if ($descuento > 0) {
+    $htmlOferta = $nombreOferta ? " ({$nombreOferta})" : '';
+    $htmlPrecio = <<<PRECIO
+                <p><strong>Subtotal:</strong> {$total} €</p>
+                <p><strong>Descuento:</strong> -{$descuentoF} €{$htmlOferta}</p>
+                <p><strong>Total final:</strong> {$totalPagar} €</p>
+PRECIO;
+} else {
+    $htmlPrecio = "<p><strong>Total:</strong> {$total} €</p>";
+}
 
 $contenidoPrincipal = <<<EOS
     <section id="contenido">
@@ -225,7 +264,7 @@ $contenidoPrincipal = <<<EOS
                 <p><strong>Tipo:</strong> <span class="badge {$tipoClase}">{$tipoLabel}</span></p>
                 <p><strong>Cliente ID:</strong> {$clienteId}</p>
                 <p><strong>Cocinero ID:</strong> {$cocineroId}</p>
-                <p><strong>Total:</strong> {$total} €</p>
+                {$htmlPrecio}
             </div>
         </div>
 

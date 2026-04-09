@@ -45,6 +45,16 @@ class UsuarioService
     }
     return false;
   }
+
+  public static function buscarPorId(int $id): ?Usuario
+  {
+    return UsuarioDB::buscarPorId($id);
+  }
+
+  public static function actualizarSaldoBistrocoins(int $id, int $saldo): bool
+  {
+    return UsuarioDB::actualizarSaldoBistrocoins($id, $saldo);
+  }
   private static function compruebaPassword($usuario, $password)
   {
     return password_verify($password, $usuario->getPassword());

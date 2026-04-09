@@ -23,7 +23,7 @@ class FormularioProducto extends formularioBase
     parent::__construct(
       'formProducto',
       [
-        'urlRedireccion' => RUTA_VISTAS . '/productoslist.php',
+        'urlRedireccion' => RUTA_VISTAS . '/productos/productoslist.php',
         'enctype' => 'multipart/form-data'
       ]
     ); #enctype necesario para subir archivos (imágenes)
@@ -62,8 +62,17 @@ class FormularioProducto extends formularioBase
     }
 
     // Checked attributes para checkboxes
+    // IVA: valores legales en España
+    $valoresIva = [0, 4, 10, 21];
+    $opcionesIva = '';
+    foreach ($valoresIva as $v) {
+      $selected = ($iva == $v) ? 'selected' : '';
+      $opcionesIva .= "<option value=\"{$v}\" {$selected}>{$v}%</option>\n";
+    }
+
     $checkedDisponible = $disponible ? 'checked' : '';
     $checkedOfertado = $ofertado ? 'checked' : '';
+    $disabledOfertado = 'disabled'; # ofertado se gestiona automáticamente desde OfertaService
     $checkedActivo = $activo ? 'checked' : '';
     $disabledDisponible = (!$activo) ? 'disabled' : '';
 
@@ -129,7 +138,9 @@ class FormularioProducto extends formularioBase
 
           <div>
               <label for="iva">IVA (%):</label><br>
-              <input id="iva" type="number" name="iva" value="{$iva}" min="0" max="100" required />
+              <select id="iva" name="iva" required>
+                {$opcionesIva}
+              </select>
               {$erroresCampos['iva']}
           </div>
 
@@ -146,7 +157,7 @@ class FormularioProducto extends formularioBase
 
           <div>
               <label for="ofertado">
-                  <input type="checkbox" id="ofertado" name="ofertado" value="1" {$checkedOfertado} />
+                  <input type="checkbox" id="ofertado" name="ofertado" value="1" {$checkedOfertado} {$disabledOfertado} />
                   Ofertado
               </label>
           </div>
@@ -211,16 +222,17 @@ EOF;
       $this->errores['precioBase'] = 'El precio debe ser mayor que 0.';
     }
 
-    // Validar IVA
+    // Validar IVA: solo valores legales en España
     $iva = intval($datos['iva'] ?? -1);
-    if ($iva < 0 || $iva > 100) {
-      $this->errores['iva'] = 'El IVA debe estar entre 0 y 100.';
+    if (!in_array($iva, [0, 4, 10, 21])) {
+      $this->errores['iva'] = 'El IVA debe ser 0%, 4%, 10% o 21%.';
     }
 
     // Checkboxes -> Si el form fue enviado, leer del POST; si no, leer del producto
     if (isset($datos['formId'])) {
       $disponible = isset($datos['disponible']);
-      $ofertado = isset($datos['ofertado']);
+      # ofertado no se lee del POST porque es de solo lectura; ofertado lo controla OfertaService automáticamente
+      $ofertado = $this->producto ? $this->producto->isOfertado() : false;
       $activo = isset($datos['activo']);
     } else {
       $disponible = $this->producto ? $this->producto->isDisponible() : true;

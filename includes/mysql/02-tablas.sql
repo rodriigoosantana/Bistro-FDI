@@ -4,6 +4,10 @@
 */
 USE `bistro_fdi`;
 
+DROP TABLE IF EXISTS `PedidoOferta`;
+DROP TABLE IF EXISTS `OfertaProducto`;
+DROP TABLE IF EXISTS `Ofertas`;
+DROP TABLE IF EXISTS `Recompensas`;
 DROP TABLE IF EXISTS `PedidoProducto`;
 DROP TABLE IF EXISTS `ProductoImagen`;
 DROP TABLE IF EXISTS `Pedidos`;
@@ -31,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `Usuarios` (
   `apellidos`      varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
   `password`       varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `avatar`         varchar(255) COLLATE utf8mb4_general_ci,
+  `saldo_bistrocoins`int(11)    NOT NULL DEFAULT 0,
   `activo`         tinyint(1)   NOT NULL DEFAULT 1,
   `fecha_creacion` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -91,6 +96,7 @@ CREATE TABLE IF NOT EXISTS `Pedidos` (
   `cliente_id`     int(11)       NOT NULL,
   `cocinero_id`    int(11),
   `total`          decimal(10,2) NOT NULL DEFAULT 0.00,
+  `descuento` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   PRIMARY KEY (`id`),
   KEY `fk_pedido_cliente`  (`cliente_id`),
   KEY `fk_pedido_cocinero` (`cocinero_id`)
@@ -104,7 +110,50 @@ CREATE TABLE IF NOT EXISTS `PedidoProducto` (
   `cantidad`        int(11)       NOT NULL,
   `precio_unitario` decimal(10,2) NOT NULL,
   `preparado`       tinyint(1)    NOT NULL DEFAULT 0,
+  `bistro_coineado` tinyint(1)    DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `fk_pp_pedido`   (`pedido_id`),
   KEY `fk_pp_producto` (`producto_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+/* Añadido para la Funcionalidad 4 de ofertas */
+CREATE TABLE IF NOT EXISTS `Ofertas` (
+  `id`          INT           NOT NULL AUTO_INCREMENT,
+  `nombre`      VARCHAR(150)  NOT NULL,
+  `descripcion` TEXT          NOT NULL,
+  `inicio`      DATE          NOT NULL,
+  `fin`         DATE          NOT NULL,
+  `descuento`   DECIMAL(5,4)  NOT NULL,
+  `activa`      TINYINT(1)    NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `OfertaProducto` (
+  `id`          INT  NOT NULL AUTO_INCREMENT,
+  `oferta_id`   INT  NOT NULL,
+  `producto_id` INT  NOT NULL,
+  `cantidad`    INT  NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `fk_op_oferta`   (`oferta_id`),
+  KEY `fk_op_producto` (`producto_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `PedidoOferta` (
+  `pedido_id` INT NOT NULL,
+  `oferta_id` INT NOT NULL,
+  PRIMARY KEY (`pedido_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/* También se modififca en Pedidos la cantidad del descuento para 
+que quede registrado en el pedido el coste sin descuento y el dinero descontado */
+/* Fin de la Funcionalidad 4 de ofertas */
+
+
+CREATE TABLE IF NOT EXISTS `Recompensas` (
+  `id`                     INT NOT NULL AUTO_INCREMENT,
+  `producto_id`            INT NOT NULL,
+  `bistrocoins_necesarias` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_recompensas_producto` (`producto_id`),
+  KEY `fk_recompensa_producto` (`producto_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
