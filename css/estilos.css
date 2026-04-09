@@ -1204,6 +1204,12 @@ textarea {
   .shopping-layout {
     flex-direction: column;
   }
+  #pedido-shopping .cart-summary {
+    order: -1;
+  }
+  #pedido-shopping .product-browser {
+    order: 0;
+  }
   .cart-summary {
     width: 100%;
     position: static;
@@ -1312,6 +1318,12 @@ textarea {
   /* carrito */
   .shopping-layout {
     flex-direction: column;
+  }
+  #pedido-shopping .cart-summary {
+    order: -1;
+  }
+  #pedido-shopping .product-browser {
+    order: 0;
   }
   .cart-summary {
     width: 100%;

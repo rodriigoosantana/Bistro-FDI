@@ -789,12 +789,12 @@ $contenidoPrincipal = <<<EOS
             {$htmlNavegadorProductos}
         </div>
         
-        <aside class="cart-summary">
+        <div class="cart-summary">
             <h3>Tu Pedido</h3>
             <div class="carrito-contenedor">
                 {$htmlCarritoCompras}
             </div>
-        </aside>
+        </div>
     </div>
 </section>
 <script src="../../js/pedidos.js"></script>
