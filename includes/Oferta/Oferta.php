@@ -15,7 +15,7 @@ class Oferta
     private string $descripcion;
     private DateTime $inicio;
     private DateTime $fin;
-    private float $descuento; # 0.215 = 21.5%
+    private float $descuento; # 0.21 = 21%
     private bool $activa;
     // endregion
 

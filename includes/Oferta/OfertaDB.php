@@ -43,7 +43,7 @@ class OfertaDB
         $stmt->bind_param('ssssdi', $nombre, $descripcion, $inicio, $fin, $descuento, $activa);
         $stmt->execute();
         $oferta->setId($conexion->insert_id);
-        $query->close();
+        $stmt->close();
 
         return $oferta;
     }

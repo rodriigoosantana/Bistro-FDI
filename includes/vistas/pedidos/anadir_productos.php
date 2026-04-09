@@ -281,7 +281,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                         if (OfertaService::esAplicable($ofertaID, $carrito)) {
                             $descuento = OfertaService::calcularDescuento($ofertaID, $carrito);
-                            #OfertaService::registrarOfertaEnPedido($idPedido, $ofertaID);
                         }
                     }
 

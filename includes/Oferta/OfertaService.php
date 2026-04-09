@@ -60,7 +60,7 @@ class OfertaService
 
         // Recalcular ofertado: desmarcar los que ya no están en ninguna oferta activa
         self::recalcularOfertado($idsAnteriores);
-        if ($oferta->isActiva()) {
+        if ($oferta->isVigente()) {
             $idsNuevos = array_column($nuevasLineas, 'producto_id');
             self::actualizarOfertadoProductos(array_map(fn($id) => ['producto_id' => $id], $idsNuevos), true);
         }
