@@ -1,0 +1,209 @@
+/* ── BASE Y LAYOUT ── */
+
+body {
+  background-color: white;
+  font-family: "Lexend", "Montserrat", sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+#contenedor {
+  width: 100%;
+  display: flex;
+  flex: 1;
+}
+
+
+/* ── HEADER ── */
+
+header {
+  background-color: #000000;
+  color: white;
+  padding: 10px 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  color: white;
+}
+
+header img {
+  max-width: 225px;
+  height: auto;
+  margin-top: 0;
+}
+
+header .saludo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+header .saludo img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #9496f5;
+}
+
+.saldo-cliente {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(148, 150, 245, 0.55);
+  border-radius: 999px;
+  padding: 6px 12px 6px 6px;
+}
+
+.moneda-bistro {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #111827;
+  border: 1px solid rgba(148, 150, 245, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.saldo-cliente .moneda-bistro img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: contain;
+  background: transparent;
+  display: block;
+  border: none;
+}
+
+.saldo-valor {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
+
+/* ── NAV LATERAL ── */
+
+nav {
+  width: 15%;
+  flex-shrink: 0;
+  background-color: #9496f5;
+  padding: 20px;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav li {
+  margin-bottom: 10px;
+}
+
+nav a {
+  display: block;
+  padding: 10px;
+  background-color: black;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+nav a:hover {
+  background-color: #4f46e5;
+}
+
+
+/* ── ASIDE ── */
+
+aside {
+  width: 15%;
+  background-color: white;
+  padding: 20px;
+  border-left: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+
+/* ── MAIN ── */
+
+main {
+  flex-grow: 1;
+  background-color: white;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+main h1,
+main p {
+  max-width: 900px;
+  width: 100%;
+}
+
+
+/* ── FOOTER ── */
+
+footer {
+  background-color: black;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  margin-top: auto;
+}
+
+
+/* ── TIPOGRAFÍA ── */
+
+h1 {
+  color: black;
+  margin-bottom: 15px;
+}
+
+h2 {
+  color: black;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #9496f5;
+  padding-bottom: 8px;
+}
+
+h3 {
+  color: black;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+p {
+  margin-bottom: 12px;
+  text-align: justify;
+  line-height: 1.6;
+}
+
+main a,
+aside a {
+  color: #9496f5;
+  text-decoration: none;
+}
+
+main a:hover,
+aside a:hover {
+  color: #9496f5;
+  text-decoration: underline;
+}

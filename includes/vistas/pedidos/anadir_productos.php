@@ -10,17 +10,18 @@ use es\ucm\fdi\aw\Usuario\Usuario;
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 use es\ucm\fdi\aw\Oferta\OfertaService;
 use es\ucm\fdi\aw\Recompensa\RecompensaService;
+use es\ucm\fdi\aw\Aplicacion;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
 // Seguridad y Autorización
-if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+if (!Aplicacion::estaLogueado()){
     header('Location: ' . RUTA_VISTAS . '/login.php');
     exit();
 }
 
-$esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
-$esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
+$esGerente  = (Aplicacion::getRolId() === Usuario::ROL_GERENTE);
+$esCamarero = (Aplicacion::getRolId() === Usuario::ROL_CAMARERO);
 
 $idPedido  = $_GET['id'] ?? $_POST['pedidoId'] ?? null;
 $tipoPedido = $_GET['tipo'] ?? $_POST['tipoPedido'] ?? null;
@@ -42,7 +43,7 @@ if ($idPedido) {
         }
     }
 
-    $esDueno = (intval($_SESSION['userId']) === $pedido->getClienteId());
+    $esDueno = (intval(Aplicacion::getUserId()) === $pedido->getClienteId());
     if (!$esGerente && !$esCamarero && !$esDueno) {
         header('Location: ' . RUTA_APP . '/index.php');
         exit();
@@ -108,9 +109,9 @@ $calcularCanje = function (array $carrito, array $canjes, array $recompensasProd
     return [$costeBistrocoins, $descuentoCanje];
 };
 
-$clienteIdPedidoActual = $idPedido ? intval($pedido->getClienteId()) : intval($_SESSION['userId']);
+$clienteIdPedidoActual = $idPedido ? intval($pedido->getClienteId()) : intval(Aplicacion::getUserId());
 $usuarioSaldoActual = UsuarioService::buscarPorId($clienteIdPedidoActual);
-$saldoBistrocoinsCliente = ($clienteIdPedidoActual === intval($_SESSION['userId']) && isset($_SESSION['saldo']))
+$saldoBistrocoinsCliente = ($clienteIdPedidoActual === intval(Aplicacion::getUserId()) && isset($_SESSION['saldo']))
     ? intval($_SESSION['saldo'])
     : ($usuarioSaldoActual ? intval($usuarioSaldoActual->getSaldoBistrocoins()) : 0);
 
@@ -305,7 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if (!$saldoActualizado) {
                             $mensajeError = "El pedido se confirmó, pero no se pudo actualizar el saldo de BistroCoins.";
                         } else {
-                            if ($clienteIdPedido === intval($_SESSION['userId'])) {
+                            if ($clienteIdPedido === intval(Aplicacion::getUserId())) {
                                 $_SESSION['saldo'] = $nuevoSaldoCliente;
                             }
                             unset($_SESSION['recompensas_canjeadas']);
@@ -326,7 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ultimo_pedido_hoy = PedidoService::obtenerUltimoPedidoDelDia($fecha_creacion);
             $numero_pedido = $ultimo_pedido_hoy ? $ultimo_pedido_hoy->getNumeroPedido() + 1 : 1;
 
-            $clienteIdPedido = intval($_SESSION['userId']);
+            $clienteIdPedido = intval(Aplicacion::getUserId());
             $usuarioClientePedido = UsuarioService::buscarPorId($clienteIdPedido);
             $saldoCliente = $usuarioClientePedido ? intval($usuarioClientePedido->getSaldoBistrocoins()) : 0;
 

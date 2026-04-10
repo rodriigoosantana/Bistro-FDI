@@ -1,0 +1,28 @@
+/* ── RECOMPENSAS ── */
+
+.tarjeta-producto.recompensa-disponible {
+  background-color: white;
+  box-shadow: 0 4px 14px rgba(76, 175, 80, 0.25);
+  transform: scale(1.02);
+  transition: all 0.2s ease-in-out;
+}
+
+.tarjeta-producto.recompensa-disponible:hover {
+  box-shadow: 0 6px 18px rgba(76, 175, 80, 0.35);
+  transform: scale(1.03);
+}
+
+.tarjeta-producto.recompensa-no-disponible {
+  opacity: 0.55;
+  background-color: #f5f5f5;
+  filter: grayscale(40%);
+  transition: all 0.2s ease-in-out;
+}
+
+.tarjeta-producto.recompensa-no-disponible:hover {
+  opacity: 0.7;
+  filter: grayscale(20%);
+}
+
+.recompensa-ok { color: #2e7d32; font-weight: bold; }
+.recompensa-ko { color: #c62828; }
