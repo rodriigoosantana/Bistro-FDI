@@ -203,10 +203,45 @@ class OfertaService
         }
     }
 
-    # registra qué oferta se aplicó a un pedido y actualiza el campo descuento
-    # se llama desde anadir_productos al confirmar el pedido con oferta activa
-    public static function registrarOfertaEnPedido(int $pedidoId, int $ofertaId): void
+    # registra todas las ofertas aplicadas a un pedido
+    # $ofertasIds: array de ids
+    public static function registrarOfertasEnPedido(int $pedidoId, array $ofertasIds): void
     {
-        OfertaDB::insertarPedidoOferta($pedidoId, $ofertaId);
+        foreach ($ofertasIds as $id) {
+            OfertaDB::insertarPedidoOferta($pedidoId, intval($id));
+        }
+    }
+
+    # comprueba si una oferta se solapa en productos con alguna de las ya seleccionadas
+    # $ofertasYaSeleccionadas: array de ids de ofertas ya activas en el pedido
+    public static function seSolapaConOtras(int $ofertaId, array $ofertasYaSeleccionadas): bool
+    {
+        if (empty($ofertasYaSeleccionadas)) return false;
+
+        # productos que requiere la nueva oferta
+        $lineasNueva = OfertaDB::listarLineasDeOferta($ofertaId);
+        $idsNueva = array_map(fn($l) => $l->getProductoId(), $lineasNueva);
+
+        # comparar con cada oferta ya seleccionada
+        foreach ($ofertasYaSeleccionadas as $idExistente) {
+            if ($idExistente === $ofertaId) return true; # misma oferta
+            $lineasExistente = OfertaDB::listarLineasDeOferta(intval($idExistente));
+            $idsExistente = array_map(fn($l) => $l->getProductoId(), $lineasExistente);
+            if (!empty(array_intersect($idsNueva, $idsExistente))) {
+                return true; # comparten al menos un producto
+            }
+        }
+        return false;
+    }
+
+    # calcula el descuento total sumando todas las ofertas seleccionadas
+    # $ofertasIds: array de ids de ofertas activas
+    public static function calcularDescuentoMultiple(array $ofertasIds, array $carrito): float
+    {
+        $total = 0.0;
+        foreach ($ofertasIds as $id) {
+            $total += self::calcularDescuento(intval($id), $carrito);
+        }
+        return round($total, 2);
     }
 }
