@@ -89,14 +89,9 @@ class PedidoDB
     $estadoPreparado = $nuevoEstado ? 1 : 0;
     $query->bind_param("iii", $estadoPreparado, $productoId, $pedidoId);
 
-    if ($query->execute()) {
-      $query->close();
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      $query->close();
-      return false;
-    }
+    $query->execute();
+    $query->close();
+    return true;
   }
 
   public static function buscarPorId(int $id)
@@ -205,14 +200,9 @@ class PedidoDB
     $query = $conexion->prepare("UPDATE Pedidos SET cocinero_id=? WHERE id=?");
     $query->bind_param("ii", $cocineroId, $pedidoId);
 
-    if ($query->execute()) {
-      $query->close();
-      return true;
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-      $query->close();
-      return false;
-    }
+    $query->execute();
+    $query->close();
+    return true;
   }
 
   public static function cambiarEstado(int $id, Estado $estado)
@@ -255,7 +245,7 @@ class PedidoDB
     return true;
   }
 
-  public static function actualizarProductoBitCoineado (int $pedidoId, int $productoId, int $bc): bool 
+  public static function actualizarProductoBitCoineado(int $pedidoId, int $productoId, int $bc): bool
   {
     $conexion = Aplicacion::getInstance()->getConexionBd();
 
@@ -408,9 +398,7 @@ class PedidoDB
         return boolval($fila['necesita_preparacion']);
       }
       $resultado->free();
-    } else {
-      error_log("Error BD ({$conexion->errno}): {$conexion->error}");
-    }
+    } 
 
     $query->close();
 

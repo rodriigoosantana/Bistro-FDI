@@ -6,11 +6,11 @@ use es\ucm\fdi\aw\Pedido\PagoService;
 use es\ucm\fdi\aw\Usuario\Usuario;
 use es\ucm\fdi\aw\Pedido\Estado;
 use es\ucm\fdi\aw\Oferta\OfertaService;
+use es\ucm\fdi\aw\Aplicacion; 
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
-// Verificar login
-if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+if (!Aplicacion::estaLogueado()) {
   header('Location: ' . RUTA_VISTAS . '/login.php');
   exit();
 }
@@ -29,10 +29,10 @@ if (!$pedidoDesglosado) {
 }
 
 // Verificar que el pedido pertenece al usuario o es gerente/camarero
-$esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
-$esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
-$esCocinero = ($_SESSION['rolId'] === Usuario::ROL_COCINERO);
-$esDueno = (intval($_SESSION['userId']) === $pedidoDesglosado->getClienteId());
+$esGerente  = (Aplicacion::getRolId() === Usuario::ROL_GERENTE);
+$esCamarero = (Aplicacion::getRolId() === Usuario::ROL_CAMARERO);
+$esCocinero = (Aplicacion::getRolId() === Usuario::ROL_COCINERO);
+$esDueno = (intval(Aplicacion::getUserId()) === $pedidoDesglosado->getClienteId());
 
 if (!$esGerente && !$esCamarero && !$esCocinero && !$esDueno) {
   header('Location: ' . RUTA_APP . '/index.php');

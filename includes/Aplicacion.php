@@ -98,7 +98,7 @@ class Aplicacion
       session_start();
 
       //Paso 8.1: Implementación de atributos de petición -> cargar los atributos de petición desde la sesión, si existen
-      $this->atributosPeticion = $_SESSION[self::ATRIBUTOS_PETICION] ?? []; 
+      $this->atributosPeticion = $_SESSION[self::ATRIBUTOS_PETICION] ?? [];
       unset($_SESSION[self::ATRIBUTOS_PETICION]); # limpiar los atributos de petición de la sesión para evitar que persistan entre peticiones
     }
   }
@@ -181,5 +181,10 @@ class Aplicacion
     }
 
     return $result;
+  }
+
+  public static function getNombreUsuario(): ?string
+  {
+    return $_SESSION['nombreUsuario'] ?? null;
   }
 }

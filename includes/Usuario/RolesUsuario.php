@@ -46,36 +46,19 @@ class RolesUsuario
     $idUsuario = $this->idUsuario;
     $idRol = $this->idRol;
     $query->bind_param("ii", $idUsuario, $idRol);
-
-    if (! $query->execute()) {
-      error_log("Error BD ({$conn->errno}): {$conn->error}");
-      $query->close();
-
-      return false;
-    }
-
+    $query->execute();
     $query->close();
-
     return true;
   }
 
   public function eliminar()
   {
     $conn = Aplicacion::getInstance()->getConexionBd();
-
     $query = $conn->prepare("DELETE FROM RolesUsuario WHERE usuario=?");
     $idUsuario = $this->idUsuario;
     $query->bind_param("i", $idUsuario);
-
-    if (! $query->execute()) {
-      error_log("Error BD ({$conn->errno}): {$conn->error}");
-      $query->close();
-
-      return false;
-    }
-
+    $query->execute();
     $query->close();
-
     return true;
   }
 }
