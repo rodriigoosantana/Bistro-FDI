@@ -34,7 +34,7 @@ $esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
 $esCocinero = ($_SESSION['rolId'] === Usuario::ROL_COCINERO);
 $esDueno = (intval($_SESSION['userId']) === $pedidoDesglosado->getClienteId());
 
-if (!$esGerente && !$esCamarero && !esCocinero && !$esDueno) {
+if (!$esGerente && !$esCamarero && !$esCocinero && !$esDueno) {
   header('Location: ' . RUTA_APP . '/index.php');
   exit();
 }
