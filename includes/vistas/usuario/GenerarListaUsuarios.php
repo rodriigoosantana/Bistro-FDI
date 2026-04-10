@@ -5,7 +5,7 @@ namespace es\ucm\fdi\aw\vistas\login;
 use es\ucm\fdi\aw\Usuario\Rol;
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 
-class listarUsuarios
+class GenerarListaUsuarios
 {
   public static function listarUsuarios()
   {

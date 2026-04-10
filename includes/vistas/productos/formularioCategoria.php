@@ -3,7 +3,7 @@
 namespace es\ucm\fdi\aw\vistas\productos;
 
 use es\ucm\fdi\aw\Aplicacion;
-use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\vistas\common\FormularioBase;
 use es\ucm\fdi\aw\Producto\CategoriaService;
 use es\ucm\fdi\aw\Producto\Categoria;
 

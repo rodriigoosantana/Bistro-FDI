@@ -5,7 +5,7 @@ namespace es\ucm\fdi\aw\vistas\recompensas;
 use es\ucm\fdi\aw\Recompensa\Recompensa;
 use es\ucm\fdi\aw\Producto\ProductoService;
 
-class detallarRecompensa
+class GenerarDetalleRecompensa
 {
   public static function generar(Recompensa $recompensa, string $volverUrl, bool $esGerente): string
   {

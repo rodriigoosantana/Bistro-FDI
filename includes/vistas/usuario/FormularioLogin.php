@@ -2,11 +2,11 @@
 
 namespace es\ucm\fdi\aw\vistas\login;
 
-use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\vistas\common\FormularioBase;
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 use es\ucm\fdi\aw\Usuario\Rol;
 
-class formularioLogin extends formularioBase
+class FormularioLogin extends FormularioBase
 {
   //region Constructor
 

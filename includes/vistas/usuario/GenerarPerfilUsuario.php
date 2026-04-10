@@ -7,7 +7,7 @@ require_once dirname(__DIR__, 3) . '/includes/config.php';
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 use es\ucm\fdi\aw\Usuario\Rol;
 
-class generarPerfilUsuario
+class GenerarPerfilUsuario
 {
   public static function generarPerfil($usuario)
   {

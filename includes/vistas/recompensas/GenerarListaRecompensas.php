@@ -5,7 +5,7 @@ namespace es\ucm\fdi\aw\vistas\recompensas;
 use es\ucm\fdi\aw\Recompensa\RecompensaService;
 use es\ucm\fdi\aw\Producto\ProductoService;
 
-class listarRecompensas
+class GenerarListaRecompensas
 {
   public static function listarRecompensas(bool $esGerente): string
   {
