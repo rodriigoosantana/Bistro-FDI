@@ -5,17 +5,18 @@ use es\ucm\fdi\aw\Usuario\Usuario;
 use es\ucm\fdi\aw\Pedido\Estado;
 use es\ucm\fdi\aw\Pedido\Tipo;
 use es\ucm\fdi\aw\Oferta\OfertaService;
+use es\ucm\fdi\aw\Aplicacion;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
-// Verificar login
-if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+
+if (!Aplicacion::estaLogueado()) {
     header('Location: ' . RUTA_VISTAS . '/login.php');
     exit();
 }
 
-$esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
-$esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
-$esCocinero = ($_SESSION['rolId'] === Usuario::ROL_COCINERO);
+$esGerente  = (Aplicacion::getRolId() === Usuario::ROL_GERENTE);
+$esCamarero = (Aplicacion::getRolId() === Usuario::ROL_CAMARERO);
+$esCocinero = (Aplicacion::getRolId() === Usuario::ROL_COCINERO);
 
 if (!isset($_GET['id'])) {
     header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
@@ -65,7 +66,7 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'cambiar_estado' && isset($_
 
     // Si se pasa a Cocinando, asignar el cocinero actual
     if ($nuevoEstado === Estado::Cocinando) {
-        PedidoService::asignarCocinero($pedidoDesglosado->getId(), intval($_SESSION['userId']));
+        PedidoService::asignarCocinero($pedidoDesglosado->getId(), intval(Aplicacion::getUserId()));
     }
 
     PedidoService::cambiarEstado($pedidoDesglosado->getId(), $nuevoEstado);

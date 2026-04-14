@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `OfertaProducto` (
 CREATE TABLE IF NOT EXISTS `PedidoOferta` (
   `pedido_id` INT NOT NULL,
   `oferta_id` INT NOT NULL,
-  PRIMARY KEY (`pedido_id`)
+  PRIMARY KEY (`pedido_id`, `oferta_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /* También se modififca en Pedidos la cantidad del descuento para 
 que quede registrado en el pedido el coste sin descuento y el dinero descontado */

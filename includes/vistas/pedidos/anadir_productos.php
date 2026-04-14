@@ -10,17 +10,18 @@ use es\ucm\fdi\aw\Usuario\Usuario;
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 use es\ucm\fdi\aw\Oferta\OfertaService;
 use es\ucm\fdi\aw\Recompensa\RecompensaService;
+use es\ucm\fdi\aw\Aplicacion;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
 // Seguridad y Autorización
-if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+if (!Aplicacion::estaLogueado()) {
     header('Location: ' . RUTA_VISTAS . '/login.php');
     exit();
 }
 
-$esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
-$esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
+$esGerente  = (Aplicacion::getRolId() === Usuario::ROL_GERENTE);
+$esCamarero = (Aplicacion::getRolId() === Usuario::ROL_CAMARERO);
 
 $idPedido  = $_GET['id'] ?? $_POST['pedidoId'] ?? null;
 $tipoPedido = $_GET['tipo'] ?? $_POST['tipoPedido'] ?? null;
@@ -42,7 +43,7 @@ if ($idPedido) {
         }
     }
 
-    $esDueno = (intval($_SESSION['userId']) === $pedido->getClienteId());
+    $esDueno = (intval(Aplicacion::getUserId()) === $pedido->getClienteId());
     if (!$esGerente && !$esCamarero && !$esDueno) {
         header('Location: ' . RUTA_APP . '/index.php');
         exit();
@@ -108,9 +109,9 @@ $calcularCanje = function (array $carrito, array $canjes, array $recompensasProd
     return [$costeBistrocoins, $descuentoCanje];
 };
 
-$clienteIdPedidoActual = $idPedido ? intval($pedido->getClienteId()) : intval($_SESSION['userId']);
+$clienteIdPedidoActual = $idPedido ? intval($pedido->getClienteId()) : intval(Aplicacion::getUserId());
 $usuarioSaldoActual = UsuarioService::buscarPorId($clienteIdPedidoActual);
-$saldoBistrocoinsCliente = ($clienteIdPedidoActual === intval($_SESSION['userId']) && isset($_SESSION['saldo']))
+$saldoBistrocoinsCliente = ($clienteIdPedidoActual === intval(Aplicacion::getUserId()) && isset($_SESSION['saldo']))
     ? intval($_SESSION['saldo'])
     : ($usuarioSaldoActual ? intval($usuarioSaldoActual->getSaldoBistrocoins()) : 0);
 
@@ -221,7 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $canjesTentativos = $_SESSION['recompensas_canjeadas'];
             $canjesTentativos[$idProducto] = true;
-            [$costeTentativo, ] = $calcularCanje($carritoNormalizado, $canjesTentativos, $recompensasPorProducto);
+            [$costeTentativo,] = $calcularCanje($carritoNormalizado, $canjesTentativos, $recompensasPorProducto);
 
             if ($costeTentativo <= $saldoBistrocoinsCliente) {
                 $_SESSION['recompensas_canjeadas'][$idProducto] = true;
@@ -270,19 +271,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
 
                     $descuento = 0.0;
-                    $ofertaID = intval($_SESSION['oferta_seleccionada'] ?? 0);
-                    if ($ofertaID > 0) {
+                    $ofertasIds = $_SESSION['ofertas_seleccionadas'] ?? [];
+                    if (!empty($ofertasIds)) {
                         $carrito = [];
                         foreach ($pedidoDesglosado->getProductos() as $productoEnPedido) {
-                            $carrito[] = [
-                                'producto_id' => $productoEnPedido->getProductoId(),
-                                'cantidad' => $productoEnPedido->getCantidad()
-                            ];
+                            $carrito[] = ['producto_id' => $productoEnPedido->getProductoId(), 'cantidad' => $productoEnPedido->getCantidad()];
                         }
-                        if (OfertaService::esAplicable($ofertaID, $carrito)) {
-                            $descuento = OfertaService::calcularDescuento($ofertaID, $carrito);
-                        }
+                        $descuento = OfertaService::calcularDescuentoMultiple($ofertasIds, $carrito);
                     }
+
 
                     $descuentoTotal = min($precioTotalAcumulado, $descuento + $descuentoCanje);
                     $importeFinalPagado = max(0.0, $precioTotalAcumulado - $descuentoTotal);
@@ -297,15 +294,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $saldoActualizado = UsuarioService::actualizarSaldoBistrocoins($clienteIdPedido, $nuevoSaldoCliente);
 
                         #registrar oferta usada y limpiar la sesión
-                        if ($saldoActualizado && $ofertaID > 0 && $descuento > 0) {
-                            OfertaService::registrarOfertaEnPedido($idPedido, $ofertaID);
-                            unset($_SESSION['oferta_seleccionada']);
+                        if ($saldoActualizado && !empty($ofertasIds) && $descuento > 0) {
+                            OfertaService::registrarOfertasEnPedido($idPedido, $ofertasIds);
+                            $_SESSION['ofertas_seleccionadas'] = [];
                         }
 
                         if (!$saldoActualizado) {
                             $mensajeError = "El pedido se confirmó, pero no se pudo actualizar el saldo de BistroCoins.";
                         } else {
-                            if ($clienteIdPedido === intval($_SESSION['userId'])) {
+                            if ($clienteIdPedido === intval(Aplicacion::getUserId())) {
                                 $_SESSION['saldo'] = $nuevoSaldoCliente;
                             }
                             unset($_SESSION['recompensas_canjeadas']);
@@ -326,7 +323,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ultimo_pedido_hoy = PedidoService::obtenerUltimoPedidoDelDia($fecha_creacion);
             $numero_pedido = $ultimo_pedido_hoy ? $ultimo_pedido_hoy->getNumeroPedido() + 1 : 1;
 
-            $clienteIdPedido = intval($_SESSION['userId']);
+            $clienteIdPedido = intval(Aplicacion::getUserId());
             $usuarioClientePedido = UsuarioService::buscarPorId($clienteIdPedido);
             $saldoCliente = $usuarioClientePedido ? intval($usuarioClientePedido->getSaldoBistrocoins()) : 0;
 
@@ -342,20 +339,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 $descuentoSesion = 0.0;
-                $ofertaIDSesion = intval($_SESSION['oferta_seleccionada'] ?? 0);
-
-                if ($ofertaIDSesion > 0) {
+                $ofertasIdsSesion = $_SESSION['ofertas_seleccionadas'] ?? [];
+                if (!empty($ofertasIdsSesion)) {
                     $carritoSesion = [];
                     foreach ($carritoSession as $item) {
-                        $carritoSesion[] = [
-                            'producto_id' => $item['productoId'],
-                            'cantidad' => $item['cantidad']
-                        ];
+                        $carritoSesion[] = ['producto_id' => $item['productoId'], 'cantidad' => $item['cantidad']];
                     }
-                    if (OfertaService::esAplicable($ofertaIDSesion, $carritoSesion)) {
-                        $descuentoSesion = OfertaService::calcularDescuento($ofertaIDSesion, $carritoSesion);
-                    }
+                    $descuentoSesion = OfertaService::calcularDescuentoMultiple($ofertasIdsSesion, $carritoSesion);
                 }
+
 
                 $descuentoTotalSesion = min($precioTotalAcumulado, $descuentoSesion + $descuentoCanjeSesion);
                 $importeFinalPagadoSesion = max(0.0, $precioTotalAcumulado - $descuentoTotalSesion);
@@ -374,9 +366,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
 
                     # registrar qué oferta se usó y limpiar sesión
-                    if ($ofertaIDSesion > 0 && $descuentoSesion > 0) {
-                        OfertaService::registrarOfertaEnPedido($pedidoCreado->getId(), $ofertaIDSesion);
-                        unset($_SESSION['oferta_seleccionada']);
+                    if (!empty($ofertasIdsSesion) && $descuentoSesion > 0) {
+                        OfertaService::registrarOfertasEnPedido($pedidoCreado->getId(), $ofertasIdsSesion);
+                        $_SESSION['ofertas_seleccionadas'] = [];
                     }
 
                     if (!UsuarioService::actualizarSaldoBistrocoins($clienteIdPedido, $nuevoSaldoCliente)) {
@@ -399,14 +391,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     # Acción de seleccionar oferta y limpiar oferta
     elseif ($accionSolicitada === 'oferta_seleccionar') {
-        # guarda en sesión la oferta que el cliente quiere activar
         $ofertaId = intval($_POST['ofertaId'] ?? 0);
-        if ($ofertaId > 0) {
-            $_SESSION['oferta_seleccionada'] = $ofertaId;
+        if ($ofertaId <= 0) {
+            $mensajeError = 'Oferta no válida.';
+        } else {
+            # inicializar array si no existe
+            if (!isset($_SESSION['ofertas_seleccionadas']) || !is_array($_SESSION['ofertas_seleccionadas'])) {
+                $_SESSION['ofertas_seleccionadas'] = [];
+            }
+
+            # no añadir si ya está seleccionada
+            if (in_array($ofertaId, $_SESSION['ofertas_seleccionadas'])) {
+                $mensajeError = 'Esta oferta ya está activada.';
+            } else {
+                # comprobar solapamiento con las ya seleccionadas
+                if (OfertaService::seSolapaConOtras($ofertaId, $_SESSION['ofertas_seleccionadas'])) {
+                    $mensajeError = 'Esta oferta comparte productos con otra oferta ya activa.';
+                } else {
+                    $_SESSION['ofertas_seleccionadas'][] = $ofertaId;
+                }
+            }
         }
-    } elseif ($accionSolicitada === 'oferta_limpiar') {
-        # elimina la oferta seleccionada de la sesión
-        unset($_SESSION['oferta_seleccionada']);
     }
     # -----------------------------------------------
 
@@ -427,6 +432,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             unset($_SESSION['recompensas_canjeadas']);
             header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
             exit();
+        }
+    } elseif ($accionSolicitada === 'oferta_limpiar') {
+        $ofertaIdQuitar = intval($_POST['ofertaId'] ?? 0);
+        if ($ofertaIdQuitar > 0) {
+            # quitar una oferta concreta del array
+            $_SESSION['ofertas_seleccionadas'] = array_values(
+                array_filter($_SESSION['ofertas_seleccionadas'] ?? [], fn($id) => $id !== $ofertaIdQuitar)
+            );
+        } else {
+            # quitar todas
+            $_SESSION['ofertas_seleccionadas'] = [];
         }
     }
 }
@@ -488,7 +504,7 @@ foreach ($listaCategorias as $categoria) {
 $htmlNavCategorias = '<div class="nav-categorias">' . $enlacesCategorias . '</div>';
 
 $carritoNormalizadoVista = $normalizarCarrito($productosCarrito);
-[$costeCanjeActual, ] = $calcularCanje($carritoNormalizadoVista, $_SESSION['recompensas_canjeadas'], $recompensasPorProducto);
+[$costeCanjeActual,] = $calcularCanje($carritoNormalizadoVista, $_SESSION['recompensas_canjeadas'], $recompensasPorProducto);
 if ($costeCanjeActual > $saldoBistrocoinsCliente) {
     if ($idPedido) {
         foreach ($_SESSION['recompensas_canjeadas'] as $productoIdCanje => $activo) {
@@ -502,8 +518,11 @@ if ($costeCanjeActual > $saldoBistrocoinsCliente) {
 # Funcionalidad de ofertas: cargar ofertas activas y calcular si la seleccionada aplica al carrito actual
 # cargar ofertas activas y calcular si la seleccionada aplica al carrito actual
 $ofertasActivas = OfertaService::listarActivas();
-$ofertaIdSeleccionada = intval($_SESSION['oferta_seleccionada'] ?? 0);
-$ofertaSeleccionada = $ofertaIdSeleccionada > 0 ? OfertaService::buscarPorId($ofertaIdSeleccionada) : null;
+
+# array de ofertas seleccionadas con su estado de aplicabilidad
+$ofertasSeleccionadasIds = $_SESSION['ofertas_seleccionadas'] ?? [];
+$ofertasSeleccionadasDetalle = []; # [['oferta' => Oferta, 'aplicable' => bool, 'descuento' => float], ...]
+$descuentoCalculado = 0.0;
 
 # construir carrito en formato uniforme para pasarlo a OfertaService
 $carritoParaOferta = [];
@@ -515,15 +534,15 @@ foreach ($productosCarrito as $item) {
     }
 }
 
-# comprobar si la oferta seleccionada es aplicable y cuánto descuenta
-$ofertaEsAplicable = false;
-$descuentoCalculado = 0.0;
-if ($ofertaSeleccionada && !empty($carritoParaOferta)) {
-    $ofertaEsAplicable = OfertaService::esAplicable($ofertaIdSeleccionada, $carritoParaOferta);
-    if ($ofertaEsAplicable) {
-        $descuentoCalculado = OfertaService::calcularDescuento($ofertaIdSeleccionada, $carritoParaOferta);
-    }
+foreach ($ofertasSeleccionadasIds as $oid) {
+    $of = OfertaService::buscarPorId(intval($oid));
+    if (!$of) continue;
+    $aplicable = OfertaService::esAplicable(intval($oid), $carritoParaOferta);
+    $dto = round($aplicable ? OfertaService::calcularDescuento(intval($oid), $carritoParaOferta) : 0.0, 2);
+    $descuentoCalculado += $dto;
+    $ofertasSeleccionadasDetalle[] = ['oferta' => $of, 'aplicable' => $aplicable, 'descuento' => $dto];
 }
+$hayOfertasSeleccionadas = !empty($ofertasSeleccionadasDetalle);
 
 #---------------------------------------------------------------
 
@@ -608,7 +627,7 @@ if (count($productosCarrito) > 0) {
 
         $canjesSinProductoActual = $_SESSION['recompensas_canjeadas'];
         unset($canjesSinProductoActual[$idProducto]);
-        [$costeSinProductoActual, ] = $calcularCanje($carritoNormalizadoVista, $canjesSinProductoActual, $recompensasPorProducto);
+        [$costeSinProductoActual,] = $calcularCanje($carritoNormalizadoVista, $canjesSinProductoActual, $recompensasPorProducto);
         $saldoRestanteParaEsteProducto = max(0, $saldoBistrocoinsCliente - $costeSinProductoActual);
         $canjeDisponible = $tieneRecompensa && $costeCanjeItemBistrocoins <= $saldoRestanteParaEsteProducto;
 
@@ -674,55 +693,84 @@ HTML;
     $totalPrecioCarritoFormateado = number_format($totalPrecioCarrito, 2, ',', '.');
     # sección de ofertas: lista de activas + estado de la seleccionada
     $htmlOfertasSeccion = '';
+    $htmlOfertasSeccion = '';
     if (!empty($ofertasActivas)) {
         $htmlOfertasSeccion .= '<div class="ofertas-carrito"><h4>Ofertas disponibles</h4>';
 
-        # si hay una oferta seleccionada, mostrar su estado
-        if ($ofertaSeleccionada) {
-            $nomOfer = htmlspecialchars($ofertaSeleccionada->getNombre());
-            $pctOfer = number_format($ofertaSeleccionada->getDescuento() * 100, 1, ',', '.') . '%';
-            if ($ofertaEsAplicable) {
-                $descuentoF = number_format($descuentoCalculado, 2, ',', '.') . ' €';
-                $htmlOfertasSeccion .= "<div class=\"oferta-activa oferta-ok\">✔ <strong>{$nomOfer}</strong> — descuento: {$descuentoF}</div>";
-            } else {
-                $htmlOfertasSeccion .= "<div class=\"oferta-activa oferta-ko\">✗ <strong>{$nomOfer}</strong> — el carrito no cumple los requisitos</div>";
-            }
-            $htmlOfertasSeccion .= <<<LIMPIAR
-            <form method="POST">
-                {$hiddenPedidoOTipo}
-                <input type="hidden" name="accion" value="oferta_limpiar">
-                <button type="submit" class="btn btn-borrar" style="font-size:0.8rem;padding:4px 10px;margin-top:6px;">Quitar oferta</button>
-            </form>
-        LIMPIAR;
-        } else {
-            # mostrar lista de ofertas disponibles para seleccionar
-            foreach ($ofertasActivas as $of) {
-                $nomOf = htmlspecialchars($of->getNombre());
-                $descOf = htmlspecialchars($of->getDescripcion());
-                $pctOf  = number_format($of->getDescuento() * 100, 1, ',', '.') . '%';
-                $htmlOfertasSeccion .= <<<ITEM
-                <div class="oferta-disponible">
-                    <div>
-                        <strong>{$nomOf}</strong> — {$pctOf} dto.<br>
-                        <small>{$descOf}</small>
-                    </div>
-                    <form method="POST">
-                        {$hiddenPedidoOTipo}
-                        <input type="hidden" name="accion" value="oferta_seleccionar">
-                        <input type="hidden" name="ofertaId" value="{$of->getId()}">
-                        <button type="submit" class="btn btn-ver" style="font-size:0.8rem;padding:4px 10px;">Activar</button>
-                    </form>
-                </div>
-            ITEM;
-            }
+        # mostrar ofertas ya seleccionadas con su estado
+        foreach ($ofertasSeleccionadasDetalle as $item) {
+            $of       = $item['oferta'];
+            $nomOfer  = htmlspecialchars($of->getNombre());
+            $dtoF     = number_format($item['descuento'], 2, ',', '.') . ' €';
+            $ofId     = $of->getId();
+            $clase    = $item['aplicable'] ? 'oferta-ok' : 'oferta-ko';
+            $icono    = $item['aplicable'] ? '✔' : '✗';
+            $msg      = $item['aplicable']
+                ? "— descuento: {$dtoF}"
+                : '— el carrito no cumple los requisitos';
+
+            $htmlOfertasSeccion .= <<<ACTIVA
+            <div class="oferta-activa {$clase}">
+                {$icono} <strong>{$nomOfer}</strong> {$msg}
+                <form method="POST" style="display:inline;margin-left:8px;">
+                    {$hiddenPedidoOTipo}
+                    <input type="hidden" name="accion" value="oferta_limpiar">
+                    <input type="hidden" name="ofertaId" value="{$ofId}">
+                    <button type="submit" class="btn btn-borrar"
+                            style="font-size:0.75rem;padding:2px 8px;">✕</button>
+                </form>
+            </div>
+        ACTIVA;
         }
+
+        # mostrar ofertas disponibles aún no seleccionadas
+        $idsSeleccionados = $ofertasSeleccionadasIds;
+        foreach ($ofertasActivas as $of) {
+            if (in_array($of->getId(), $idsSeleccionados)) continue; # ya está activa
+
+            $nomOf  = htmlspecialchars($of->getNombre());
+            $descOf = htmlspecialchars($of->getDescripcion());
+            $pctOf  = number_format($of->getDescuento() * 100, 1, ',', '.') . '%';
+            $ofId   = $of->getId();
+
+            # construir listado de productos requeridos
+            $lineasOf = OfertaService::listarLineasDeOferta($ofId);
+            $htmlProductosReq = '';
+            foreach ($lineasOf as $linea) {
+                $prod = \es\ucm\fdi\aw\Producto\ProductoService::buscarPorId($linea->getProductoId());
+                if ($prod) {
+                    $pnombre = htmlspecialchars($prod->getNombre());
+                    $htmlProductosReq .= "<li>{$pnombre} × {$linea->getCantidad()}</li>";
+                }
+            }
+
+            $htmlOfertasSeccion .= <<<ITEM
+            <div class="oferta-disponible">
+                <div>
+                    <strong>{$nomOf}</strong> — {$pctOf} dto.<br>
+                    <small>{$descOf}</small>
+                    <ul style="margin:4px 0 0 12px;padding:0;font-size:0.8rem;color:#475569;">
+                        {$htmlProductosReq}
+                    </ul>
+                </div>
+                <form method="POST">
+                    {$hiddenPedidoOTipo}
+                    <input type="hidden" name="accion" value="oferta_seleccionar">
+                    <input type="hidden" name="ofertaId" value="{$ofId}">
+                    <button type="submit" class="btn btn-ver"
+                            style="font-size:0.8rem;padding:4px 10px;">Activar</button>
+                </form>
+            </div>
+        ITEM;
+        }
+
         $htmlOfertasSeccion .= '</div>';
     }
 
     # mostrar total con y sin descuento si aplica
     $htmlTotalBloque = '';
     $descuentoTotalVista = $descuentoCanjeVista;
-    if ($ofertaEsAplicable && $descuentoCalculado > 0) {
+    if ($hayOfertasSeleccionadas && $descuentoCalculado > 0 && $descuentoCalculado > 0) {
         $descuentoTotalVista += $descuentoCalculado;
     }
 

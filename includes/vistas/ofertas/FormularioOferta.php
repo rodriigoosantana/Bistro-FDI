@@ -33,7 +33,7 @@ class FormularioOferta extends formularioBase
 
         # descuento: almacenamos como decimal (0.215), mostramos como porcentaje (21.5)
         $descuento   = floatval($datos['descuento'] ?? ($this->oferta?->getDescuento() ?? 0));
-        $descuentoPct = $descuento > 0 ? number_format($descuento * 100, 0, '.', '') : '';
+        $descuentoPct = $descuento > 0 ? number_format($descuento * 100, 2, '.', '') : '';
 
         # errores de cada campo
         $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
@@ -138,7 +138,7 @@ class FormularioOferta extends formularioBase
                         <div>
                             <label for="descuento-pct-ui">Descuento (%)</label>
                             <input type="number" id="descuento-pct-ui"
-                                   min="0" max="100" step="1"
+                                   min="0" max="100" step="0.01"
                                    placeholder="ej: 21.50"
                                    value="{$descuentoPct}">
                         </div>

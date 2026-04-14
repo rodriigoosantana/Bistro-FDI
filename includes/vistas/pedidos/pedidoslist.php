@@ -7,19 +7,20 @@ use es\ucm\fdi\aw\Pedido\PedidoService;
 use es\ucm\fdi\aw\Pedido\Estado;
 use es\ucm\fdi\aw\Pedido\Tipo;
 use es\ucm\fdi\aw\Usuario\Usuario;
+use es\ucm\fdi\aw\Aplicacion;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
-if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+if (!Aplicacion::estaLogueado()) {
   header('Location: ' . RUTA_VISTAS . '/login.php');
   exit();
 }
 
-$esGerente  = ($_SESSION['rolId'] === Usuario::ROL_GERENTE);
-$esCamarero = ($_SESSION['rolId'] === Usuario::ROL_CAMARERO);
-$esCocinero = ($_SESSION['rolId'] === Usuario::ROL_COCINERO);
-$esCliente  = ($_SESSION['rolId'] === Usuario::ROL_CLIENTE);
-$clienteId  = $esCliente  ? $_SESSION['userId'] : null;
-$cocineroId = $esCocinero ? $_SESSION['userId'] : null;
+$esGerente  = (Aplicacion::getRolId() === Usuario::ROL_GERENTE);
+$esCamarero = (Aplicacion::getRolId() === Usuario::ROL_CAMARERO);
+$esCocinero = (Aplicacion::getRolId() === Usuario::ROL_COCINERO);
+$esCliente  = (Aplicacion::getRolId() === Usuario::ROL_CLIENTE);
+$clienteId  = $esCliente  ? Aplicacion::getUserId() : null;
+$cocineroId = $esCocinero ? Aplicacion::getUserId() : null;
 
 $modos = [
     'activos' => [
@@ -76,7 +77,7 @@ header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php?modo=' . ($esCocin
 
 $cfg = $modos[$modo];
 
-if (!$esGerente && !in_array($_SESSION['rolId'], $cfg['roles'])) {
+if (!$esGerente && !in_array(Aplicacion::getRolId(), $cfg['roles'])) {
   header('Location: ' . RUTA_APP . '/index.php');
   exit();
 }
@@ -87,7 +88,7 @@ $filtroEstado = ($esGerente && $modo === 'historial' && isset($_GET['estado']) &
 
 $estadosFiltro = $filtroEstado ? [$filtroEstado] : $cfg['estados'];
 $filtroCociId  = (!empty($cfg['filtroCoci']) && $esCocinero) ? $cocineroId : null;
-$filtroClienteId  = (!empty($cfg['filtroUsuario'])) ? intval($_SESSION['userId']) : $clienteId;
+$filtroClienteId  = (!empty($cfg['filtroUsuario'])) ? intval(Aplicacion::getUserId()) : $clienteId;
 
 $pedidos = PedidoService::listarPorEstados(
     estados:    $estadosFiltro ?: null,
@@ -137,7 +138,7 @@ if ($esGerente && $modo === 'historial') {
     FILTRO;
 }
 
-$rolId = $_SESSION['rolId'];
+$rolId = Aplicacion::getRolId();
 $modosVisibles = array_filter($modos, function ($cfgModo) use ($rolId, $esGerente) {
   return $esGerente || in_array($rolId, $cfgModo['roles']);
 });
