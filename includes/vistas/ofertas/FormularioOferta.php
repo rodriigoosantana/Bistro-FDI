@@ -3,13 +3,13 @@
 namespace es\ucm\fdi\aw\vistas\ofertas;
 
 use es\ucm\fdi\aw\Aplicacion;
-use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\vistas\common\FormularioBase;
 use es\ucm\fdi\aw\Oferta\Oferta;
 use es\ucm\fdi\aw\Oferta\OfertaService;
 use es\ucm\fdi\aw\Producto\ProductoService;
 use DateTime;
 
-class FormularioOferta extends formularioBase
+class FormularioOferta extends FormularioBase
 {
     # null si estamos creando, Oferta si estamos editando
     private ?Oferta $oferta;
@@ -114,7 +114,7 @@ class FormularioOferta extends formularioBase
                 <div class="form-group">
                     <label>Productos del pack *</label>
                     {$errores['lineas']}
-                    <div id="lineas-oferta" class="lineas-oferta">
+                    <div id="lineas-oferta" class="lineas-oferta" data-precios='{$preciosJs}'>
                         {$lineasHtml}
                     </div>
                     <button type="button" class="btn btn-nuevo"
@@ -167,88 +167,6 @@ class FormularioOferta extends formularioBase
                                      recalcularPack();">✕</button>
                 </div>
             </template>
-
-            <script>
-            // mapa producto_id → precio con iva (generado desde PHP)
-            const PRECIOS = {$preciosJs};
-
-            // devuelve la suma de precios del pack según lo seleccionado en el formulario
-            function precioSinDescuento() {
-                let total = 0;
-                document.querySelectorAll('#lineas-oferta .linea-oferta').forEach(row => {
-                    const pid  = parseInt(row.querySelector('select').value) || 0;
-                    const cant = parseInt(row.querySelector('input[type=number]').value) || 0;
-                    if (PRECIOS[pid] && cant > 0) total += PRECIOS[pid] * cant;
-                });
-                return total;
-            }
-
-            // actualiza el texto del precio sin descuento y recalcula los campos
-            function recalcularPack() {
-                const sin = precioSinDescuento();
-                document.getElementById('precio-sin').textContent =
-                    sin > 0 ? sin.toFixed(2) + ' €' : '—';
-
-                // si ya hay un porcentaje de descuento, recalcular el precio final
-                const pctInput = document.getElementById('descuento-pct-ui');
-                if (pctInput.value !== '' && sin > 0) {
-                    const pct = parseFloat(pctInput.value) / 100;
-                    document.getElementById('precio-final-ui').value =
-                        (sin * (1 - pct)).toFixed(2);
-                    document.getElementById('descuento').value =
-                        pct.toFixed(6);
-                }
-            }
-
-            // cuando el usuario cambia el precio final, calculamos el porcentaje
-            document.getElementById('precio-final-ui').addEventListener('input', function () {
-                const sin = precioSinDescuento();
-                if (sin <= 0) return;
-                const final = parseFloat(this.value);
-                if (isNaN(final) || final < 0) return;
-                const pct = (sin - final) / sin;
-                document.getElementById('descuento-pct-ui').value =
-                    (pct * 100).toFixed(2);
-                document.getElementById('descuento').value =
-                    pct.toFixed(6);
-            });
-
-            // cuando el usuario cambia el porcentaje, calculamos el precio final
-            document.getElementById('descuento-pct-ui').addEventListener('input', function () {
-                const sin = precioSinDescuento();
-                const pct = parseFloat(this.value) / 100;
-                if (isNaN(pct) || pct < 0 || pct > 1) return;
-                if (sin > 0) {
-                    document.getElementById('precio-final-ui').value =
-                        (sin * (1 - pct)).toFixed(2);
-                }
-                document.getElementById('descuento').value =
-                    pct.toFixed(6);
-            });
-
-            // añade una nueva línea de producto al pack
-            function añadirLinea() {
-                const tpl   = document.getElementById('tpl-linea');
-                const clone = tpl.content.cloneNode(true);
-                // vincular eventos de cambio para recalcular
-                clone.querySelectorAll('select, input[type=number]').forEach(el => {
-                    el.addEventListener('change', recalcularPack);
-                    el.addEventListener('input',  recalcularPack);
-                });
-                document.getElementById('lineas-oferta').appendChild(clone);
-            }
-
-            // vincular eventos a las líneas ya presentes al cargar la página
-            document.querySelectorAll('#lineas-oferta .linea-oferta').forEach(row => {
-                row.querySelectorAll('select, input[type=number]').forEach(el => {
-                    el.addEventListener('change', recalcularPack);
-                    el.addEventListener('input',  recalcularPack);
-                });
-            });
-
-            // calcular al cargar la página (útil en edición)
-            recalcularPack();
-            </script>
         HTML;
     }
 

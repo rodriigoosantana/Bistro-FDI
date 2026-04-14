@@ -1,11 +1,11 @@
 <?php
 
-namespace es\ucm\fdi\aw\vistas\login;
+namespace es\ucm\fdi\aw\vistas\usuario;
 
 use es\ucm\fdi\aw\Usuario\Rol;
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 
-class listarUsuarios
+class GenerarListaUsuarios
 {
   public static function listarUsuarios()
   {
@@ -17,7 +17,7 @@ class listarUsuarios
 
       $avatar_img = "<img src='" . RUTA_APP . $u->getAvatar() . "' alt='{$u->getNombreUsuario()}'>";
 
-      $perfilUrl = "perfilUsuario.php?nombreUsuario={$u->getNombreUsuario()}";
+      $perfilUrl = "usuariosdetail.php?nombreUsuario={$u->getNombreUsuario()}";
 
       $saldo = $u->getSaldoBistrocoins() . " BistroCoins";
       $filas .= <<<FILA

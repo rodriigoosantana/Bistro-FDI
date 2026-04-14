@@ -1,13 +1,13 @@
 <?php
 
-namespace es\ucm\fdi\aw\vistas\login;
+namespace es\ucm\fdi\aw\vistas\usuario;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 use es\ucm\fdi\aw\Usuario\Rol;
 
-class generarPerfilUsuario
+class GenerarPerfilUsuario
 {
   public static function generarPerfil($usuario)
   {
@@ -59,8 +59,8 @@ class generarPerfilUsuario
           </table>
 
           <div class="acciones-pagina">
-              <a class="btn btn-editar" href="modificarUsuario.php?nombreUsuario={$nombreUsuarioEsc}">Modificar datos</a>
-              <a class="btn btn-borrar" href="eliminarUsuario.php?nombreUsuario={$nombreUsuarioEsc}">Eliminar usuario</a>
+              <a class="btn btn-editar" href="usuariosedit.php?nombreUsuario={$nombreUsuarioEsc}">Modificar datos</a>
+              <a class="btn btn-borrar" href="usuariosdelete.php?nombreUsuario={$nombreUsuarioEsc}">Eliminar usuario</a>
           </div>
       </section>
       EOS;

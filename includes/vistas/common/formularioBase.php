@@ -2,7 +2,7 @@
 
 namespace es\ucm\fdi\aw\vistas\common;
 
-abstract class formularioBase
+abstract class FormularioBase
 {
   //region Campos protegidos
 

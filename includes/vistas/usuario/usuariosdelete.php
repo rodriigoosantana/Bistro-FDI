@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__DIR__, 2) . '/includes/config.php';
+require_once dirname(__DIR__, 3) . '/includes/config.php';
 
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 
@@ -10,16 +10,16 @@ $usuario = UsuarioService::buscarPorNombre($nombreUsuario);
 if (isset($_POST['eliminar'])) {
   UsuarioService::eliminar($usuario);
   if ($nombreUsuario == $_SESSION['nombreUsuario']) {
-    header("Location: logout.php");
+    header("Location: " . RUTA_VISTAS . '/usuario/logout.php');
     exit();
   } else {
-    header("Location: listaUsuarios.php");
+    header("Location: " . RUTA_VISTAS . '/usuario/usuarioslist.php');
     exit();
   }
 }
 
 if (isset($_POST['cancelar'])) {
-  header("Location: perfilUsuario.php?nombreUsuario={$usuario->getNombreUsuario()}");
+ header("Location: " . RUTA_VISTAS . '/usuario/usuariosdetail.php?nombreUsuario=' . urlencode($usuario->getNombreUsuario()));
   exit();
 }
 
@@ -64,4 +64,4 @@ $cancelarButton
 </section>
 EOS;
 
-require("common/plantilla.php");
+require(RAIZ_APP . '/includes/vistas/common/plantilla.php');

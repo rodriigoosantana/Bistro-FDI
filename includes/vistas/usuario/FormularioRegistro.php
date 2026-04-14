@@ -1,16 +1,16 @@
 <?php
 
-namespace es\ucm\fdi\aw\vistas\login;
+namespace es\ucm\fdi\aw\vistas\usuario;
 
 use es\ucm\fdi\aw\Aplicacion;
-use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\vistas\common\FormularioBase;
 use es\ucm\fdi\aw\Usuario\Usuario;
 use es\ucm\fdi\aw\Usuario\Rol;
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 
 use es\ucm\fdi\aw\Usuario\UsuarioYaExisteException; # Excepción personalizada para indicar que el nombre de usuario ya existe
 
-class FormularioRegistro extends formularioBase
+class FormularioRegistro extends FormularioBase
 {
   private $usuario;
   private $gerente = false; //True cuando el usuario que accede es un gerente

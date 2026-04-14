@@ -5,7 +5,7 @@ namespace es\ucm\fdi\aw\vistas\recompensas;
 use es\ucm\fdi\aw\Recompensa\RecompensaService;
 use es\ucm\fdi\aw\Producto\ProductoService;
 
-class listarRecompensas
+class GenerarListaRecompensas
 {
   public static function listarRecompensas(bool $esGerente): string
   {
@@ -54,7 +54,7 @@ class listarRecompensas
           $htmlImg = "<div class=\"tarjeta-sin-imagen\"><em>Sin imagen</em></div>";
         }
 
-        $detalleUrl = "detalleRecompensa.php?id={$r->getId()}";
+        $detalleUrl = "recompensasdetail.php?id={$r->getId()}";
 
         $tarjetas .= <<<TARJETA
         <div class="tarjeta-producto {$claseDisponibilidad}">
@@ -83,8 +83,8 @@ class listarRecompensas
     $filtroActivo = $soloDisponibles ? 'btn-filtrar-activo' : '';
 
     $filtroUrl = $soloDisponibles
-      ? "listaRecompensas.php"
-      : "listaRecompensas.php?disponibles=1";
+      ? "recompensaslist.php"
+      : "recompensaslist.php?disponibles=1";
 
     $textoFiltro = $soloDisponibles
       ? "Mostrar todas"
@@ -100,7 +100,7 @@ class listarRecompensas
 
     $btnCrearNuevo = '';
     if ($esGerente) {
-      $crearUrl = RUTA_VISTAS . '/recompensas/detalleRecompensa.php';
+      $crearUrl = RUTA_VISTAS . '/recompensas/recompensasdetail.php';
       $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Crear nueva</a>";
     }
 

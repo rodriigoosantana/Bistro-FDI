@@ -7,7 +7,7 @@ use es\ucm\fdi\aw\Aplicacion;
 use es\ucm\fdi\aw\vistas\productos\GenerarDetalleCategoria;
 
 if (!Aplicacion::estaLogueado()) {
-    header('Location: ' . RUTA_VISTAS . '/login.php');
+    header('Location: ' . RUTA_VISTAS . '/usuario/login.php');
     exit();
 }
 $esGerente = Aplicacion::esGerente();

@@ -5,7 +5,7 @@ namespace es\ucm\fdi\aw\vistas\recompensas;
 use es\ucm\fdi\aw\Recompensa\Recompensa;
 use es\ucm\fdi\aw\Producto\ProductoService;
 
-class detallarRecompensa
+class GenerarDetalleRecompensa
 {
   public static function generar(Recompensa $recompensa, string $volverUrl, bool $esGerente): string
   {
@@ -34,7 +34,7 @@ class detallarRecompensa
 
     if ($esGerente) {
 
-      $editarUrl = RUTA_VISTAS . '/recompensas/detalleRecompensa.php?id=' . $recompensa->getId() . '&editar=1';
+      $editarUrl = RUTA_VISTAS . '/recompensas/recompensasdetail.php?id=' . $recompensa->getId() . '&editar=1';
 
       $botonesGerente = "
         <a href=\"{$editarUrl}\" class=\"btn btn-editar\">Modificar</a>

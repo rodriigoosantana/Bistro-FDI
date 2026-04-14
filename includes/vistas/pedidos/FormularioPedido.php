@@ -2,7 +2,7 @@
 
 namespace es\ucm\fdi\aw\vistas\pedidos;
 
-use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\vistas\common\FormularioBase;
 use es\ucm\fdi\aw\Pedido\PedidoService;
 use es\ucm\fdi\aw\Pedido\PedidoDB;
 use es\ucm\fdi\aw\Pedido\Pedido;
@@ -10,7 +10,7 @@ use \DateTime;
 use es\ucm\fdi\aw\Pedido\Tipo;
 use es\ucm\fdi\aw\Pedido\Estado;
 
-class FormularioPedido extends formularioBase
+class FormularioPedido extends FormularioBase
 {
   // region Campos privados
   private $pedido; # null = crear, Pedido = editar
@@ -90,7 +90,7 @@ EOF;
           $this->urlRedireccion = RUTA_VISTAS . '/pedidos/pedidoslist.php';
         }
       } else {
-        $this->urlRedireccion = RUTA_VISTAS . '/pedidos/anadir_productos.php?tipo=' . urlencode($tipo->value);
+        $this->urlRedireccion = RUTA_VISTAS . '/pedidos/pedidosadd.php?tipo=' . urlencode($tipo->value);
       }
     }
   }

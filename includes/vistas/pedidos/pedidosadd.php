@@ -16,7 +16,7 @@ require_once dirname(__DIR__, 3) . '/includes/config.php';
 
 // Seguridad y Autorización
 if (!Aplicacion::estaLogueado()) {
-    header('Location: ' . RUTA_VISTAS . '/login.php');
+    header('Location: ' . RUTA_VISTAS . '/usuario/login.php');
     exit();
 }
 
@@ -50,7 +50,7 @@ if ($idPedido) {
     }
 
     if ($pedido->getEstado() !== Estado::Nuevo) {
-        header('Location: ' . RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $idPedido);
+        header('Location: ' . RUTA_VISTAS . '/pedidos/pedidosdetail.php?id=' . $idPedido);
         exit();
     }
 } elseif ($tipoPedido) {
@@ -306,7 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 $_SESSION['saldo'] = $nuevoSaldoCliente;
                             }
                             unset($_SESSION['recompensas_canjeadas']);
-                            header('Location: ' . RUTA_VISTAS . '/pedidos/pagar_pedido.php?id=' . $idPedido);
+                            header('Location: ' . RUTA_VISTAS . '/pedidos/pedidospay.php?id=' . $idPedido);
                             exit();
                         }
                     } else {
@@ -377,7 +377,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['saldo'] = $nuevoSaldoCliente;
                         unset($_SESSION['recompensas_canjeadas']);
                         unset($_SESSION['carrito_temp']);
-                        header('Location: ' . RUTA_VISTAS . '/pedidos/pagar_pedido.php?id=' . $pedidoCreado->getId());
+                        header('Location: ' . RUTA_VISTAS . '/pedidos/pedidospay.php?id=' . $pedidoCreado->getId());
                         exit();
                     }
                 } else {
@@ -485,7 +485,7 @@ if ($idPedido) {
 }
 
 $queryTodas = http_build_query($parametrosBaseFiltro);
-$urlTodas = RUTA_VISTAS . '/pedidos/anadir_productos.php' . ($queryTodas !== '' ? '?' . $queryTodas : '');
+$urlTodas = RUTA_VISTAS . '/pedidos/pedidosadd.php' . ($queryTodas !== '' ? '?' . $queryTodas : '');
 $claseTodas = $categoriaFiltro === null ? 'btn btn-ver' : 'btn btn-volver';
 
 $enlacesCategorias = '<a href="' . htmlspecialchars($urlTodas) . '" class="' . $claseTodas . '">Todas</a>';
@@ -494,7 +494,7 @@ foreach ($listaCategorias as $categoria) {
 
     $parametrosCategoria = $parametrosBaseFiltro;
     $parametrosCategoria['categoria'] = $categoria->getId();
-    $urlCategoria = RUTA_VISTAS . '/pedidos/anadir_productos.php?' . http_build_query($parametrosCategoria);
+    $urlCategoria = RUTA_VISTAS . '/pedidos/pedidosadd.php?' . http_build_query($parametrosCategoria);
     $claseBoton = $categoriaFiltro === $categoria->getId() ? 'btn btn-ver' : 'btn btn-volver';
     $nombreCategoria = htmlspecialchars($categoria->getNombre());
 
@@ -815,7 +815,7 @@ $htmlNotificacionError = $mensajeError ? "<p class='msg-error'>{$mensajeError}</
 
 $tituloPedido = $idPedido ? "Pedido #{$pedido->getNumeroPedido()}" : "Nuevo pedido";
 $btnCancelar = <<<BTN
-<form method="POST" action="" onsubmit="return confirmarCancelacionPedido()">
+<form method="POST" action="" data-confirm="¿Estas seguro de que quieres cancelar este pedido?">
     <input type="hidden" name="accion" value="cancelar" />
     <input type="hidden" name="pedidoId" value="{$idPedido}" />
     <button type="submit" class="btn btn-borrar">Cancelar</button>
@@ -845,7 +845,7 @@ $contenidoPrincipal = <<<EOS
         </div>
     </div>
 </section>
-<script src="../../js/pedidos.js"></script>
+<script src="<?php echo RUTA_JS . '/pedidos.js' ?>"></script>
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');

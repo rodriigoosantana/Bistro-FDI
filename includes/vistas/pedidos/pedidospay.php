@@ -11,7 +11,7 @@ use es\ucm\fdi\aw\Aplicacion;
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
 if (!Aplicacion::estaLogueado()) {
-  header('Location: ' . RUTA_VISTAS . '/login.php');
+  header('Location: ' . RUTA_VISTAS . '/usuario/login.php');
   exit();
 }
 
@@ -184,14 +184,14 @@ $contenidoPrincipal = <<<EOS
 
         <div class="botones-pago">
             <button type="submit" form="formPago" class="btn btn-nuevo">Pagar</button>
-            <form method="POST" action="anadir_productos.php">
+            <form method="POST" action="pedidosadd.php">
                 <input type="hidden" name="pedidoId" value="{$idPedido}" />
                 <input type="hidden" name="accion" value="reabrir" />
                 <button type="submit" class="btn btn-volver">Volver al carrito</button>
             </form>
         </div>
     </section>
-    <script src="../../js/pedidos.js"></script>
+<script src="<?php echo RUTA_JS . '/pedidos.js' ?>"></script>
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');

@@ -10,7 +10,7 @@ use es\ucm\fdi\aw\Aplicacion;
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
 if (!Aplicacion::estaLogueado()) {
-    header('Location: ' . RUTA_VISTAS . '/login.php');
+    header('Location: ' . RUTA_VISTAS . '/usuario/login.php');
     exit();
 }
 
@@ -70,7 +70,7 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'cambiar_estado' && isset($_
     }
 
     PedidoService::cambiarEstado($pedidoDesglosado->getId(), $nuevoEstado);
-    header('Location: ' . RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $pedidoDesglosado->getId());
+    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidosdetail.php?id=' . $pedidoDesglosado->getId());
     exit();
 }
 
@@ -85,7 +85,7 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'toggle_producto' && isset($
         }
     }
 
-    header('Location: ' . RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $pedidoDesglosado->getId());
+    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidosdetail.php?id=' . $pedidoDesglosado->getId());
     exit();
 }
 
@@ -231,7 +231,7 @@ $btnBorrar = '';
 if ($esGerente) {
     $btnBorrar = <<<BTN
     <form method="POST" action="" style="display:inline"
-          onsubmit="return confirm('¿Seguro que quieres borrar este pedido?')">
+          data-confirm="¿Seguro que quieres borrar este pedido?">
         <input type="hidden" name="accion" value="borrar">
         <button type="submit" class="btn btn-borrar">Borrar</button>
     </form>
