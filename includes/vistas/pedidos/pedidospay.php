@@ -191,7 +191,7 @@ $contenidoPrincipal = <<<EOS
             </form>
         </div>
     </section>
-    <script src="../../js/pedidos.js"></script>
+<script src="<?php echo RUTA_JS . '/pedidos.js' ?>"></script>
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');

@@ -62,7 +62,7 @@ if ($modoEdicion) {
         $toggleUrl   = RUTA_VISTAS . '/ofertas/ofertasdetail.php?id=' . $oferta->getId();
         $btnToggleEdicion = <<<BTN
             <form method="POST" action="{$toggleUrl}" style="display:inline"
-                  onsubmit="return confirm('{$confirmMsg}')">
+                  data-confirm="{$confirmMsg}">
                 <input type="hidden" name="accion" value="toggleActiva">
                 <button type="submit" class="{$toggleClass}">{$toggleLabel}</button>
             </form>
@@ -144,7 +144,7 @@ if ($modoEdicion) {
         $botonesGerente = <<<BTN
             <a href="{$editarUrl}" class="btn btn-editar">Editar</a>
             <form method="POST" action="" style="display:inline"
-                  onsubmit="return confirm('{$confirmMsg}')">
+                  data-confirm="{$confirmMsg}">
                 <input type="hidden" name="accion" value="toggleActiva">
                 <button type="submit" class="btn {$toggleClass}">{$toggleLabel}</button>
             </form>

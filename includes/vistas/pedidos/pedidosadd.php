@@ -815,7 +815,7 @@ $htmlNotificacionError = $mensajeError ? "<p class='msg-error'>{$mensajeError}</
 
 $tituloPedido = $idPedido ? "Pedido #{$pedido->getNumeroPedido()}" : "Nuevo pedido";
 $btnCancelar = <<<BTN
-<form method="POST" action="" onsubmit="return confirmarCancelacionPedido()">
+<form method="POST" action="" data-confirm="¿Estas seguro de que quieres cancelar este pedido?">
     <input type="hidden" name="accion" value="cancelar" />
     <input type="hidden" name="pedidoId" value="{$idPedido}" />
     <button type="submit" class="btn btn-borrar">Cancelar</button>
@@ -845,7 +845,7 @@ $contenidoPrincipal = <<<EOS
         </div>
     </div>
 </section>
-<script src="../../js/pedidos.js"></script>
+<script src="<?php echo RUTA_JS . '/pedidos.js' ?>"></script>
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');

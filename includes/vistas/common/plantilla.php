@@ -45,6 +45,7 @@
   <!-- JS al final del body para que el DOM esté listo -->
   <script src="<?php echo RUTA_JS . '/slider.js' ?>"></script>
   <script src="<?php echo RUTA_JS . '/confirmar.js' ?>"></script>
+  <script src="<?php echo RUTA_JS . '/formularioOfertas.js' ?>"></script>
 </body>
 
 </html>

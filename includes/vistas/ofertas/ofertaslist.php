@@ -50,7 +50,7 @@ if ($ofertas && count($ofertas) > 0) {
         $botonesGerente = <<<BTN
             <a href="{$editarUrl}" class="btn btn-editar">Editar</a>
             <form method="POST" action="{$verUrl}" style="display:inline"
-                  onsubmit="return confirm('{$confirmMsg}')">
+                  data-confirm="{$confirmMsg}">
                 <input type="hidden" name="accion" value="toggleActiva">
                 <button type="submit" class="{$toggleClass}">{$toggleLabel}</button>
             </form>

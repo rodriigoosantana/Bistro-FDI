@@ -29,7 +29,7 @@ class GenerarDetalleCategoria
       if ($categoria->isActiva()) {
         $botonesGerente .= <<<BTN
                 <form method="POST" action="" style="display:inline"
-                      onsubmit="return confirm('¿Desactivar esta categoría? Sus productos también se desactivarán.')">
+                     data-confirm="¿Desactivar esta categoría? Sus productos también se desactivarán."
                     <input type="hidden" name="accion" value="desactivar">
                     <button type="submit" class="btn btn-borrar">Desactivar</button>
                 </form>
