@@ -3,13 +3,13 @@
 namespace es\ucm\fdi\aw\vistas\productos;
 
 use es\ucm\fdi\aw\Aplicacion;
-use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\vistas\common\FormularioBase;
 use es\ucm\fdi\aw\Producto\ProductoService;
 use es\ucm\fdi\aw\Producto\CategoriaService;
 use es\ucm\fdi\aw\Producto\Producto;
 
 
-class FormularioProducto extends formularioBase
+class FormularioProducto extends FormularioBase
 {
   //region Campos privados
   private ?Producto $producto; #null = crear, Producto = editar

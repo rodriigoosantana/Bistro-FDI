@@ -9,7 +9,7 @@ use es\ucm\fdi\aw\vistas\ofertas\FormularioOferta;
 
 # solo usuarios logueados
 if (!Aplicacion::estaLogueado()) {
-    header('Location: ' . RUTA_VISTAS . '/login.php');
+    header('Location: ' . RUTA_VISTAS . '/usuario/login.php');
     exit();
 }
 

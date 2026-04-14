@@ -3,13 +3,13 @@
 namespace es\ucm\fdi\aw\vistas\ofertas;
 
 use es\ucm\fdi\aw\Aplicacion;
-use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\vistas\common\FormularioBase;
 use es\ucm\fdi\aw\Oferta\Oferta;
 use es\ucm\fdi\aw\Oferta\OfertaService;
 use es\ucm\fdi\aw\Producto\ProductoService;
 use DateTime;
 
-class FormularioOferta extends formularioBase
+class FormularioOferta extends FormularioBase
 {
     # null si estamos creando, Oferta si estamos editando
     private ?Oferta $oferta;

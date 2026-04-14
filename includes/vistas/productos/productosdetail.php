@@ -8,7 +8,7 @@ use es\ucm\fdi\aw\vistas\productos\FormularioProducto;
 use es\ucm\fdi\aw\vistas\productos\GenerarDetalleProducto;
 
 if (!Aplicacion::estaLogueado()) {
-  header('Location: ' . RUTA_VISTAS . '/login.php');
+  header('Location: ' . RUTA_VISTAS . '/usuario/login.php');
   exit();
 }
 

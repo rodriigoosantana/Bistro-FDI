@@ -4,14 +4,14 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
-use es\ucm\fdi\aw\vistas\recompensas\listarRecompensas;
+use es\ucm\fdi\aw\vistas\recompensas\GenerarListaRecompensas;
 use es\ucm\fdi\aw\Aplicacion;
 
 $tituloPagina = 'Lista Recompensas';
 $tituloHeader = 'Lista Recompensas';
 
 $esGerente = Aplicacion::esGerente();
-$filas = listarRecompensas::listarRecompensas($esGerente);
+$filas = GenerarListaRecompensas::listarRecompensas($esGerente);
 
 $contenidoPrincipal = <<<EOS
 <section id="contenido">

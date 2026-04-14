@@ -11,7 +11,7 @@ use es\ucm\fdi\aw\Aplicacion;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 if (!Aplicacion::estaLogueado()) {
-  header('Location: ' . RUTA_VISTAS . '/login.php');
+  header('Location: ' . RUTA_VISTAS . '/usuario/login.php');
   exit();
 }
 
@@ -167,11 +167,11 @@ if ($pedidos && count($pedidos) > 0) {
         $tipoClase    = $p->getTipo()->value === Tipo::ParaTomar->value ? 'tipo-local' : 'tipo-llevar';
 
         if ($estadoVal === Estado::Nuevo->value) {
-            $verUrl = RUTA_VISTAS . '/pedidos/anadir_productos.php?id=' . $id;
+            $verUrl = RUTA_VISTAS . '/pedidos/pedidosadd.php?id=' . $id;
         } elseif ($estadoVal === Estado::Recibido->value && !$esCamarero && !$esGerente) {
-            $verUrl = RUTA_VISTAS . '/pedidos/pagar_pedido.php?id=' . $id;
+            $verUrl = RUTA_VISTAS . '/pedidos/pedidospay.php?id=' . $id;
         } else {
-            $verUrl = RUTA_VISTAS . '/pedidos/verPedidoDesglosado.php?id=' . $id;
+            $verUrl = RUTA_VISTAS . '/pedidos/pedidosdetail.php?id=' . $id;
         }
 
         $htmlTotal = '';
@@ -201,7 +201,7 @@ if ($pedidos && count($pedidos) > 0) {
 
 $btnCrearNuevo = '';
 if ($esGerente || $esCamarero || $esCocinero) {
-  $crearUrl      = RUTA_VISTAS . '/pedidos/nuevo_pedido.php';
+  $crearUrl      = RUTA_VISTAS . '/pedidos/pedidosnew.php';
   $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Nuevo pedido</a>";
 }
 

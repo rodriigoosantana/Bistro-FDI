@@ -54,7 +54,7 @@ class GenerarListaRecompensas
           $htmlImg = "<div class=\"tarjeta-sin-imagen\"><em>Sin imagen</em></div>";
         }
 
-        $detalleUrl = "detalleRecompensa.php?id={$r->getId()}";
+        $detalleUrl = "recompensasdetail.php?id={$r->getId()}";
 
         $tarjetas .= <<<TARJETA
         <div class="tarjeta-producto {$claseDisponibilidad}">
@@ -83,8 +83,8 @@ class GenerarListaRecompensas
     $filtroActivo = $soloDisponibles ? 'btn-filtrar-activo' : '';
 
     $filtroUrl = $soloDisponibles
-      ? "listaRecompensas.php"
-      : "listaRecompensas.php?disponibles=1";
+      ? "recompensaslist.php"
+      : "recompensaslist.php?disponibles=1";
 
     $textoFiltro = $soloDisponibles
       ? "Mostrar todas"
@@ -100,7 +100,7 @@ class GenerarListaRecompensas
 
     $btnCrearNuevo = '';
     if ($esGerente) {
-      $crearUrl = RUTA_VISTAS . '/recompensas/detalleRecompensa.php';
+      $crearUrl = RUTA_VISTAS . '/recompensas/recompensasdetail.php';
       $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Crear nueva</a>";
     }
 

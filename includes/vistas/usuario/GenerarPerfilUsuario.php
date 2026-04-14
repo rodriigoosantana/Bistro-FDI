@@ -1,6 +1,6 @@
 <?php
 
-namespace es\ucm\fdi\aw\vistas\login;
+namespace es\ucm\fdi\aw\vistas\usuario;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
@@ -59,8 +59,8 @@ class GenerarPerfilUsuario
           </table>
 
           <div class="acciones-pagina">
-              <a class="btn btn-editar" href="modificarUsuario.php?nombreUsuario={$nombreUsuarioEsc}">Modificar datos</a>
-              <a class="btn btn-borrar" href="eliminarUsuario.php?nombreUsuario={$nombreUsuarioEsc}">Eliminar usuario</a>
+              <a class="btn btn-editar" href="usuariosedit.php?nombreUsuario={$nombreUsuarioEsc}">Modificar datos</a>
+              <a class="btn btn-borrar" href="usuariosdelete.php?nombreUsuario={$nombreUsuarioEsc}">Eliminar usuario</a>
           </div>
       </section>
       EOS;

@@ -1,6 +1,6 @@
  <?php
 
-  require_once dirname(__DIR__, 2) . '/includes/config.php';
+  require_once dirname(__DIR__, 3) . '/includes/config.php';
 
   $tituloPagina = 'Logout';
   $tituloHeader = 'Logout';
@@ -20,5 +20,5 @@
     </section>
 EOS;
 
-  require("common/plantilla.php");
+  require(RAIZ_APP . '/includes/vistas/common/plantilla.php');
   ?>

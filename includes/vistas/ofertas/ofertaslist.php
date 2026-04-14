@@ -7,7 +7,7 @@ use es\ucm\fdi\aw\Oferta\OfertaService;
 
 # solo usuarios logueados pueden ver la lista de ofertas
 if (!Aplicacion::estaLogueado()) {
-    header('Location: ' . RUTA_VISTAS . '/login.php');
+    header('Location: ' .  RUTA_VISTAS . '/usuario/login.php');
     exit();
 }
 

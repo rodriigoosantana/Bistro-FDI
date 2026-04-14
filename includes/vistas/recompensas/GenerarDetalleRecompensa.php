@@ -34,7 +34,7 @@ class GenerarDetalleRecompensa
 
     if ($esGerente) {
 
-      $editarUrl = RUTA_VISTAS . '/recompensas/detalleRecompensa.php?id=' . $recompensa->getId() . '&editar=1';
+      $editarUrl = RUTA_VISTAS . '/recompensas/recompensasdetail.php?id=' . $recompensa->getId() . '&editar=1';
 
       $botonesGerente = "
         <a href=\"{$editarUrl}\" class=\"btn btn-editar\">Modificar</a>

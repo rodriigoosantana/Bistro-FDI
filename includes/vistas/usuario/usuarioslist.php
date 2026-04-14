@@ -1,8 +1,8 @@
 <?php
 
-require_once dirname(__DIR__, 2) . '/includes/config.php';
+require_once dirname(__DIR__, 3) . '/includes/config.php';
 
-use es\ucm\fdi\aw\vistas\login\listarUsuarios;
+use es\ucm\fdi\aw\vistas\usuario\GenerarListaUsuarios;
 use es\ucm\fdi\aw\Aplicacion;
 
 $tituloPagina = 'Lista Usuarios';
@@ -11,7 +11,7 @@ $filas = "";
 $acceso = Aplicacion::getInstance()::puedeListarUsuarios();
 
 if ($acceso) {
-  $filas = listarUsuarios::listarUsuarios();
+  $filas = GenerarListaUsuarios::listarUsuarios();
 }
 
 $contenidoPrincipal = <<<EOS
@@ -26,4 +26,4 @@ $filas
 </section>
 EOS;
 
-require("common/plantilla.php");
+require(RAIZ_APP . '/includes/vistas/common/plantilla.php');

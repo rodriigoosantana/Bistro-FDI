@@ -6,7 +6,7 @@ use es\ucm\fdi\aw\Producto\CategoriaService;
 use es\ucm\fdi\aw\vistas\productos\GenerarListaCategorias;
 
 if (!Aplicacion::estaLogueado()) {
-    header('Location: ' . RUTA_VISTAS . '/login.php');
+    header('Location: ' . RUTA_VISTAS . '/usuario/login.php');
     exit();
 }
 

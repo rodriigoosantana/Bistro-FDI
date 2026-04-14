@@ -2,9 +2,9 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-require_once dirname(__DIR__, 2) . '/includes/config.php';
+require_once dirname(__DIR__, 3) . '/includes/config.php';
 
-use es\ucm\fdi\aw\vistas\login\generarPerfilUsuario;
+use es\ucm\fdi\aw\vistas\usuario\GenerarPerfilUsuario;
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 use es\ucm\fdi\aw\Usuario\Rol;
 
@@ -16,8 +16,8 @@ $tituloHeader = "Perfil de {$usuario->getNombreUsuario()}";
 
 $contenidoPrincipal = generarPerfilUsuario::generarPerfil($usuario);
 
-$modUrl = "modificarUsuario.php?nombreUsuario=" . urlencode($usuario->getNombreUsuario());
-$logoutUrl = RUTA_VISTAS . '/logout.php';
+$modUrl = RUTA_VISTAS . '/usuario/usuariosedit.php?nombreUsuario=' . urlencode($usuario->getNombreUsuario());
+$logoutUrl = RUTA_VISTAS . '/usuario/logout.php';
 
 $contenidoAside = <<<ASIDE
 <section>
@@ -28,4 +28,4 @@ $contenidoAside = <<<ASIDE
 <a href="{$logoutUrl}" class="aside-link">Cerrar sesión</a>
 ASIDE;
 
-require("common/plantilla.php");
+require(RAIZ_APP . '/includes/vistas/common/plantilla.php');

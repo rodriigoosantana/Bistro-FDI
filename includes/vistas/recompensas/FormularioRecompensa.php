@@ -3,12 +3,12 @@
 namespace es\ucm\fdi\aw\vistas\recompensas;
 
 use es\ucm\fdi\aw\Aplicacion;
-use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\vistas\common\FormularioBase;
 use es\ucm\fdi\aw\Recompensa\Recompensa;
 use es\ucm\fdi\aw\Recompensa\RecompensaService;
 use es\ucm\fdi\aw\Producto\ProductoService;
 
-class FormularioRecompensa extends formularioBase
+class FormularioRecompensa extends FormularioBase
 {
   private ?Recompensa $recompensa;
 
@@ -19,7 +19,7 @@ class FormularioRecompensa extends formularioBase
     parent::__construct(
       'formRecompensa',
       [
-        'urlRedireccion' => RUTA_VISTAS . '/recompensas/listaRecompensas.php'
+        'urlRedireccion' => RUTA_VISTAS . '/recompensas/recompensaslist.php'
       ]
     );
   }

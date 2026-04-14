@@ -3,11 +3,11 @@ require_once dirname(__DIR__, 3) . '/includes/config.php';
 
 use es\ucm\fdi\aw\Aplicacion;
 use es\ucm\fdi\aw\Recompensa\RecompensaService;
-use es\ucm\fdi\aw\vistas\recompensas\detallarRecompensa;
+use es\ucm\fdi\aw\vistas\recompensas\GenerarDetalleRecompensa;
 use es\ucm\fdi\aw\vistas\recompensas\FormularioRecompensa;
 
 if (!Aplicacion::estaLogueado()) {
-  header('Location: ' . RUTA_VISTAS . '/login.php');
+  header('Location: ' . RUTA_VISTAS . '/usuario/login.php');
   exit();
 }
 
@@ -24,18 +24,18 @@ if (isset($_GET['id'])) {
   $recompensa = RecompensaService::buscarPorId(intval($_GET['id']));
 
   if (!$recompensa) {
-    header('Location: ' . RUTA_VISTAS . '/recompensas/listaRecompensas.php');
+    header('Location: ' . RUTA_VISTAS . '/recompensas/recompensaslist.php');
     exit();
   }
 }
 
-$volverUrl = RUTA_VISTAS . '/recompensas/listaRecompensas.php';
+$volverUrl = RUTA_VISTAS . '/recompensas/recompensaslist.php';
 
 if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar' && $recompensa) {
 
   RecompensaService::eliminar($recompensa);
 
-  header('Location: ' . RUTA_VISTAS . '/recompensas/listaRecompensas.php');
+  header('Location: ' . RUTA_VISTAS . '/recompensas/recompensaslist.php');
   exit();
 }
 
@@ -67,7 +67,7 @@ HTML;
 
   $tituloPagina = 'Detalle recompensa';
 
-  $contenidoPrincipal = detallarRecompensa::generar(
+  $contenidoPrincipal = GenerarDetalleRecompensa::generar(
     $recompensa,
     $volverUrl,
     $esGerente
