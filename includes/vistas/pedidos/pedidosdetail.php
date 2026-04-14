@@ -231,7 +231,7 @@ $btnBorrar = '';
 if ($esGerente) {
     $btnBorrar = <<<BTN
     <form method="POST" action="" style="display:inline"
-          data-confirm="¿Seguro que quieres borrar este pedido?"
+          data-confirm="¿Seguro que quieres borrar este pedido?">
         <input type="hidden" name="accion" value="borrar">
         <button type="submit" class="btn btn-borrar">Borrar</button>
     </form>
