@@ -18,7 +18,7 @@ $contenidoPrincipal = <<<EOS
    </section>
 EOS;
 
-$registroUrl = RUTA_VISTAS . '/registro.php';
+$registroUrl = RUTA_VISTAS . '/usuario/registro.php';
 $contenidoAside = <<<ASIDE
 <section>
     <h3>Bienvenido</h3>

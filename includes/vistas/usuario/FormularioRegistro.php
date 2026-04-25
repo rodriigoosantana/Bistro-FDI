@@ -331,8 +331,8 @@ EOF;
           $_SESSION['rolId'] = Rol::cargarRol($usuarioInsertado->getId())->getId();
           $_SESSION['userId'] = $usuarioInsertado->getId();
           $_SESSION['nombreUsuario'] = $usuarioInsertado->getNombreUsuario();
-          $_SESSION['avatar'] = $usuario->getAvatar();
-          $_SESSION['saldo'] = $usuario->getSaldoBistrocoins();
+          $_SESSION['avatar'] = $usuarioInsertado->getAvatar();
+          $_SESSION['saldo'] = $usuarioInsertado->getSaldoBistrocoins();
 
           $app->putAtributoPeticion('mensajes', [
             'Se ha registrado exitosamente',
