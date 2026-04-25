@@ -53,6 +53,10 @@ class FormularioRegistro extends FormularioBase
     $rol = $datos['rol']
       ?? ($this->usuario ? Rol::cargarRol($this->usuario->getId())->getId() : '');
 
+    $urlComprobarNombreUsuario = RUTA_VISTAS . '/usuario/comprobarNombreUsuario.php';
+    $nombreUsuarioOriginal = $this->usuario ? $this->usuario->getNombreUsuario() : '';
+    $nombreUsuarioOriginalAttr = htmlspecialchars($nombreUsuarioOriginal, ENT_QUOTES);
+
     $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
 
     $erroresCampos = self::generaErroresCampos(
@@ -85,7 +89,7 @@ class FormularioRegistro extends FormularioBase
     if ($this->usuario == null) { //Solo aparece el campo de confirmación de constraseña en un registro, no en una modificación
       $password2Html = <<<HTML
             <div>
-                <label for="password2">Reintroduce el password:</label><br>
+                <label for="password2">Reintroduce el password <span class="required-mark">*</span>:</label><br>
                 <input id="password2" type="password" name="password2" required minlength="4"/>
                 {$erroresCampos['password2']}
             </div>
@@ -124,28 +128,29 @@ class FormularioRegistro extends FormularioBase
             <br>
 
             <div>
-                <label for="nombreUsuario">Nombre de usuario:</label><br>
-                <input id="nombreUsuario" type="text" name="nombreUsuario" value="$nombreUsuario" required minlength="4"/>
+                <label for="nombreUsuario">Nombre de usuario <span class="required-mark">*</span>:</label><br>
+                <input id="nombreUsuario" type="text" name="nombreUsuario" value="$nombreUsuario" required minlength="4" data-check-url="$urlComprobarNombreUsuario" data-original-username="$nombreUsuarioOriginalAttr"/>
+                <span id="estadoNombreUsuario" class="username-status" aria-live="polite"></span>
                 {$erroresCampos['nombreUsuario']}
             </div>
             <br>
 
             <div>
-                <label for="nombre">Nombre:</label><br>
+                <label for="nombre">Nombre <span class="required-mark">*</span>:</label><br>
                 <input id="nombre" type="text" name="nombre" value="$nombre" required minlength="4"/>
                 {$erroresCampos['nombre']}
             </div>
             <br>
 
             <div>
-                <label for="apellidos">Apellidos:</label><br>
+                <label for="apellidos">Apellidos <span class="required-mark">*</span>:</label><br>
                 <input id="apellidos" type="text" name="apellidos" value="$apellidos" required minlength="4"/>
                 {$erroresCampos['apellidos']}
             </div>
             <br>
 
             <div>
-                <label for="email">Email:</label><br>
+                <label for="email">Email <span class="required-mark">*</span>:</label><br>
                 <input id="email" type="email" name="email" value="$email" required minlength="4"/>
                 {$erroresCampos['email']}
             </div>
@@ -164,7 +169,7 @@ class FormularioRegistro extends FormularioBase
             $opcionesRoles
 
             <div>
-                <label for="password">Password:</label><br>
+                <label for="password">Password <span class="required-mark">*</span>:</label><br>
                 <input id="password" type="password" name="password" required minlength="4"/>
                 {$erroresCampos['password']}
             </div>
@@ -179,6 +184,102 @@ class FormularioRegistro extends FormularioBase
                 </button>
             </div>
         </fieldset>
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            const formRegistro = document.getElementById('formRegistro');
+            if (!formRegistro) {
+              return;
+            }
+
+            const campoNombreUsuario = formRegistro.querySelector('#nombreUsuario');
+            const estadoNombreUsuario = formRegistro.querySelector('#estadoNombreUsuario');
+
+            if (!campoNombreUsuario || !estadoNombreUsuario) {
+              return;
+            }
+
+            const minLongitud = 4;
+            const checkUrl = campoNombreUsuario.dataset.checkUrl;
+            const originalNombre = (campoNombreUsuario.dataset.originalUsername || '').trim().toLowerCase();
+            let debounceId = null;
+            let peticionActiva = null;
+
+            const actualizarEstadoNombreUsuario = function (tipo, mensaje) {
+              estadoNombreUsuario.className = 'username-status';
+
+              if (tipo) {
+                estadoNombreUsuario.classList.add('is-' + tipo);
+              }
+
+              estadoNombreUsuario.textContent = mensaje || '';
+            };
+
+            const comprobarNombreUsuario = function () {
+              const nombreUsuario = campoNombreUsuario.value.trim();
+              const nombreUsuarioNormalizado = nombreUsuario.toLowerCase();
+
+              if (debounceId) {
+                clearTimeout(debounceId);
+              }
+
+              if (peticionActiva) {
+                peticionActiva.abort();
+              }
+
+              if (nombreUsuario.length < minLongitud) {
+                actualizarEstadoNombreUsuario('', '');
+                campoNombreUsuario.setCustomValidity('');
+                return;
+              }
+
+              if (originalNombre !== '' && nombreUsuarioNormalizado === originalNombre) {
+                actualizarEstadoNombreUsuario('ok', 'Es tu nombre de usuario actual.');
+                campoNombreUsuario.setCustomValidity('');
+                return;
+              }
+
+              actualizarEstadoNombreUsuario('pending', 'Comprobando disponibilidad...');
+              campoNombreUsuario.setCustomValidity('Comprobando disponibilidad...');
+
+              debounceId = setTimeout(function () {
+                peticionActiva = new AbortController();
+
+                fetch(checkUrl + '?nombreUsuario=' + encodeURIComponent(nombreUsuario) + '&original=' + encodeURIComponent(originalNombre), {
+                  signal: peticionActiva.signal,
+                  headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                  }
+                })
+                  .then(function (respuesta) {
+                    if (!respuesta.ok) {
+                      throw new Error('No se pudo comprobar el nombre de usuario');
+                    }
+                    return respuesta.json();
+                  })
+                  .then(function (data) {
+                    if (data.available) {
+                      actualizarEstadoNombreUsuario('ok', 'Nombre de usuario disponible.');
+                      campoNombreUsuario.setCustomValidity('');
+                    } else {
+                      actualizarEstadoNombreUsuario('error', 'Ese nombre de usuario ya existe.');
+                      campoNombreUsuario.setCustomValidity('Ese nombre de usuario ya existe.');
+                    }
+                  })
+                  .catch(function (error) {
+                    if (error.name === 'AbortError') {
+                      return;
+                    }
+
+                    actualizarEstadoNombreUsuario('error', 'No se pudo comprobar ahora mismo.');
+                    campoNombreUsuario.setCustomValidity('');
+                  });
+              }, 450);
+            };
+
+            campoNombreUsuario.addEventListener('input', comprobarNombreUsuario);
+            campoNombreUsuario.addEventListener('blur', comprobarNombreUsuario);
+          });
+        </script>
 EOF;
 
     return $html;
@@ -195,15 +296,12 @@ EOF;
       $this->errores['nombreUsuario'] =
         'El nombre de usuario debe tener al menos 4 caracteres.';
     }
-    /*
     $usuarioExistente = UsuarioService::buscarPorNombre($nombreUsuario);
-
     if (($this->usuario == null && $usuarioExistente != null) ||
-      ($this->usuario != null && $usuarioExistente != null && $usuarioExistente->getNombreUsuario() !== $this->usuario->getNombreUsuario())
+      ($this->usuario != null && $usuarioExistente != null && mb_strtolower($usuarioExistente->getNombreUsuario()) !== mb_strtolower($this->usuario->getNombreUsuario()))
     ) {
-      $this->errores['nombreUsuario'] = "El nombre de usuario ya existe";
+      $this->errores['nombreUsuario'] = 'El nombre de usuario ya existe';
     }
-      */
 
     $nombre = trim($datos['nombre'] ?? '');
     $nombre = filter_var($nombre, FILTER_SANITIZE_FULL_SPECIAL_CHARS);

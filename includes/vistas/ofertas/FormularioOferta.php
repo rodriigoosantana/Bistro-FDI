@@ -82,14 +82,14 @@ class FormularioOferta extends FormularioBase
             <div class="form-oferta">
 
                 <div class="form-group">
-                    <label for="nombre">Nombre *</label>
+                    <label for="nombre">Nombre <span class="required-mark">*</span></label>
                     <input type="text" id="nombre" name="nombre"
                            value="{$nombre}" maxlength="150" required>
                     {$errores['nombre']}
                 </div>
 
                 <div class="form-group">
-                    <label for="descripcion">Descripción *</label>
+                    <label for="descripcion">Descripción <span class="required-mark">*</span></label>
                     <textarea id="descripcion" name="descripcion" rows="3"
                               required>{$descripcion}</textarea>
                     {$errores['descripcion']}
@@ -97,13 +97,13 @@ class FormularioOferta extends FormularioBase
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="inicio">Fecha de inicio *</label>
+                        <label for="inicio">Fecha de inicio <span class="required-mark">*</span></label>
                         <input type="date" id="inicio" name="inicio"
                                value="{$inicio}" required>
                         {$errores['inicio']}
                     </div>
                     <div class="form-group">
-                        <label for="fin">Fecha de fin *</label>
+                        <label for="fin">Fecha de fin <span class="required-mark">*</span></label>
                         <input type="date" id="fin" name="fin"
                                value="{$fin}" required>
                         {$errores['fin']}
@@ -112,7 +112,7 @@ class FormularioOferta extends FormularioBase
 
                 <!-- productos del pack con botón para añadir líneas -->
                 <div class="form-group">
-                    <label>Productos del pack *</label>
+                    <label>Productos del pack <span class="required-mark">*</span></label>
                     {$errores['lineas']}
                     <div id="lineas-oferta" class="lineas-oferta" data-precios='{$preciosJs}'>
                         {$lineasHtml}

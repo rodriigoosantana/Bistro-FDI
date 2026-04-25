@@ -56,7 +56,7 @@ class FormularioRecompensa extends FormularioBase
         <legend>{$tituloForm}</legend>
 
         <div>
-            <label for="productoId">Producto:</label><br>
+            <label for="productoId">Producto <span class="required-mark">*</span>:</label><br>
             <select id="productoId" name="productoId" required>
                 {$opcionesProductos}
             </select>
@@ -66,7 +66,7 @@ class FormularioRecompensa extends FormularioBase
         <br>
 
         <div>
-            <label for="bistrocoins">BistroCoins necesarias:</label><br>
+            <label for="bistrocoins">BistroCoins necesarias <span class="required-mark">*</span>:</label><br>
             <input id="bistrocoins" type="number" name="bistrocoins" value="{$bistrocoins}" min="1" required />
             {$erroresCampos['bistrocoins']}
         </div>

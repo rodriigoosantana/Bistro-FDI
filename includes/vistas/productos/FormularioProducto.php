@@ -103,7 +103,7 @@ class FormularioProducto extends FormularioBase
           <br>
 
           <div>
-              <label for="nombre">Nombre del producto:</label><br> 
+              <label for="nombre">Nombre del producto <span class="required-mark">*</span>:</label><br> 
               <input id="nombre" type="text" name="nombre" value="{$nombre}" required />
               {$erroresCampos['nombre']}
           </div>
@@ -111,7 +111,7 @@ class FormularioProducto extends FormularioBase
           <br>
 
           <div>
-              <label for="descripcion">Descripción:</label><br>
+              <label for="descripcion">Descripción <span class="required-mark">*</span>:</label><br>
               <textarea id="descripcion" name="descripcion" rows="4" cols="50" required>{$descripcion}</textarea>
               {$erroresCampos['descripcion']}
           </div>
@@ -119,7 +119,7 @@ class FormularioProducto extends FormularioBase
           <br>
 
           <div>
-              <label for="categoriaId">Categoría:</label><br>
+              <label for="categoriaId">Categoría <span class="required-mark">*</span>:</label><br>
               <select id="categoriaId" name="categoriaId" required>
                   {$opcionesCategorias}
               </select>
@@ -129,7 +129,7 @@ class FormularioProducto extends FormularioBase
           <br>
 
           <div>
-              <label for="precioBase">Precio base (€):</label><br>
+              <label for="precioBase">Precio base (€) <span class="required-mark">*</span>:</label><br>
               <input id="precioBase" type="number" name="precioBase" value="{$precioBase}" step="0.01" min="0" required />
               {$erroresCampos['precioBase']}
           </div>
@@ -137,7 +137,7 @@ class FormularioProducto extends FormularioBase
           <br>
 
           <div>
-              <label for="iva">IVA (%):</label><br>
+              <label for="iva">IVA (%) <span class="required-mark">*</span>:</label><br>
               <select id="iva" name="iva" required>
                 {$opcionesIva}
               </select>

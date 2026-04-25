@@ -71,7 +71,7 @@ IMG;
             <br>
 
             <div>
-                <label for="nombre">Nombre de la categoría:</label><br>
+                <label for="nombre">Nombre de la categoría <span class="required-mark">*</span>:</label><br>
                 <input id="nombre" type="text" name="nombre" value="{$nombre}" required />
                 {$erroresCampos['nombre']}
             </div>
@@ -79,7 +79,7 @@ IMG;
             <br>
 
             <div>
-                <label for="descripcion">Descripción:</label><br>
+                <label for="descripcion">Descripción <span class="required-mark">*</span>:</label><br>
                 <textarea id="descripcion" name="descripcion" rows="4" cols="50" required>{$descripcion}</textarea>
                 {$erroresCampos['descripcion']}
             </div>
