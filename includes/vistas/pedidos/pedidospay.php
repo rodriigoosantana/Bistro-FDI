@@ -150,10 +150,14 @@ $tituloHeader = 'Finalizar Pago';
 $htmlNotificacionError = $mensajeError ? "<p class='msg-error'>{$mensajeError}</p>" : "";
 
 $opcionCamarero = <<<HTML
-<div class="opcion-pago">
-    <label for="pago_camarero">Pagar al camarero</label>
+<label class="pago-opcion" for="pago_camarero">
+    <div class="pago-opcion-body">
+        <span class="pago-opcion-titulo">Pagar al camarero</span>
+        <span class="pago-opcion-desc">Lo abonas en sala cuando te atienda el personal.</span>
+    </div>
+    <span class="pago-opcion-badge">En sala</span>
     <input type="radio" id="pago_camarero" name="metodo_pago" value="camarero" onclick="alternarMetodoPago('camarero')">
-</div>
+</label>
 HTML;
 
 $urlJsPedidos = RUTA_JS . '/pedidos.js';
@@ -170,12 +174,18 @@ $contenidoPrincipal = <<<EOS
         <div class="pago-bloque">
             <h3>Selecciona el metodo de pago</h3>
             <form id="formPago" method="POST" action="" class="form-pago">
-                <div class="opcion-pago">
-                    <label for="pago_tarjeta">Pagar con tarjeta</label>
-                    <input type="radio" id="pago_tarjeta" name="metodo_pago" value="tarjeta" checked onclick="alternarMetodoPago('tarjeta')">
-                </div>
+                <div class="pago-opciones">
+                    <label class="pago-opcion" for="pago_tarjeta">
+                        <div class="pago-opcion-body">
+                            <span class="pago-opcion-titulo">Pagar con tarjeta</span>
+                            <span class="pago-opcion-desc">Completa la tarjeta y se procesa al momento.</span>
+                        </div>
+                        <span class="pago-opcion-badge">Online</span>
+                        <input type="radio" id="pago_tarjeta" name="metodo_pago" value="tarjeta" checked onclick="alternarMetodoPago('tarjeta')">
+                    </label>
 
-                {$opcionCamarero}
+                    {$opcionCamarero}
+                </div>
 
                 <div id="campo_tarjeta" class="campo-pago">
                     <label for="numero_tarjeta">Numero de tarjeta:</label>

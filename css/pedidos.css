@@ -303,26 +303,67 @@
   gap: 12px;
 }
 
-.opcion-pago {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  font-size: 1.1rem;
-  width: fit-content;
+.pago-opciones {
+  display: grid;
+  gap: 12px;
 }
 
-#formPago .opcion-pago input[type="radio"] {
+.pago-opcion {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pago-opcion:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+}
+
+.pago-opcion:has(input:checked) {
+  border-color: #4f46e5;
+  background: #eef2ff;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.12);
+}
+
+.pago-opcion-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pago-opcion-titulo {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.pago-opcion-desc {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.pago-opcion-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+#formPago .pago-opcion input[type="radio"] {
   width: auto;
   max-width: none;
   flex: 0 0 auto;
   margin: 0;
-}
-
-#formPago .opcion-pago label {
-  margin: 0;
-  display: inline;
-  text-align: left;
 }
 
 .campo-pago {
@@ -353,6 +394,14 @@
 }
 
 @media (max-width: 720px) {
+  .pago-opcion {
+    grid-template-columns: 1fr auto;
+  }
+
+  .pago-opcion-badge {
+    display: none;
+  }
+
   .campo-pago {
     margin-left: 0;
   }

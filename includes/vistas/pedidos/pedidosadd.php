@@ -261,7 +261,7 @@ foreach ($listaCategorias as $categoria) {
             $cantidadActual = intval($cantidadesEnCarrito[$idProducto] ?? 0);
             $mostrarBotonAdd = $cantidadActual <= 0 ? '' : ' is-hidden';
             $mostrarInputCantidad = $cantidadActual > 0 ? '' : ' is-hidden';
-            $valorInputCantidad = $cantidadActual > 0 ? $cantidadActual : 1;
+            $valorInputCantidad = $cantidadActual;
 
             $htmlProductosCategoria .= <<<HTML
             <div class="producto-card">
