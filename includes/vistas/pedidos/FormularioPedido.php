@@ -45,30 +45,39 @@ class FormularioPedido extends FormularioBase
     $html = <<<EOF
     {$htmlErroresGlobales}
 
-    <fieldset>
-        <legend>{$tituloForm}</legend>
-        <br>
+    <div class="form-pedido">
+        <div class="form-header">
+            <h3>{$tituloForm}</h3>
+            <p>Elige cómo quieres consumir el pedido.</p>
+        </div>
 
-        <div>
-            <label>Tipo de pedido <span class="required-mark">*</span>:</label><br>
-            <label>
-                Para tomar aquí
-                <input type="radio" name="tipo" value="local" {$checkedLocal} required />
-            </label>
-            <br>
-            <label>
-                Para llevar
-                <input type="radio" name="tipo" value="llevar" {$checkedLlevar} required />
-            </label>
+        <div class="form-group">
+            <label class="form-label">Tipo de pedido <span class="required-mark">*</span></label>
+            <div class="pedido-opciones">
+                <label class="pedido-opcion">
+                    <input type="radio" name="tipo" value="local" {$checkedLocal} required />
+                    <div class="pedido-opcion-body">
+                        <span class="pedido-opcion-titulo">Para tomar aquí</span>
+                        <span class="pedido-opcion-desc">Se sirve en mesa del local.</span>
+                    </div>
+                    <span class="pedido-opcion-badge">Local</span>
+                </label>
+                <label class="pedido-opcion">
+                    <input type="radio" name="tipo" value="llevar" {$checkedLlevar} required />
+                    <div class="pedido-opcion-body">
+                        <span class="pedido-opcion-titulo">Para llevar</span>
+                        <span class="pedido-opcion-desc">Listo para recoger en barra.</span>
+                    </div>
+                    <span class="pedido-opcion-badge">Takeaway</span>
+                </label>
+            </div>
             {$erroresCampos['tipo']}
         </div>
 
-        <br>
-
         <div>
-            <button type="submit" name="guardar">Continuar a productos</button>
+            <button type="submit" name="guardar" class="btn btn-nuevo">Continuar a productos</button>
         </div>
-    </fieldset>
+    </div>
 EOF;
     return $html;
   }

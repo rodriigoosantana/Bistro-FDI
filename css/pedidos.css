@@ -163,6 +163,98 @@
   font-weight: 600;
 }
 
+/* nuevo pedido */
+
+.form-pedido {
+  max-width: 560px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-pedido .form-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.15rem;
+}
+
+.form-pedido .form-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.form-pedido .form-label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.pedido-opciones {
+  display: grid;
+  gap: 12px;
+}
+
+.pedido-opcion {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pedido-opcion input {
+  width: auto;
+  margin: 0;
+}
+
+.pedido-opcion:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+}
+
+.pedido-opcion:has(input:checked) {
+  border-color: #4f46e5;
+  background: #eef2ff;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.12);
+}
+
+.pedido-opcion-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pedido-opcion-titulo {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.pedido-opcion-desc {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.pedido-opcion-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #475569;
+}
+
 /* pago */
 
 .resumen-pedido {
