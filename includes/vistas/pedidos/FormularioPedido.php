@@ -99,7 +99,7 @@ EOF;
           $this->urlRedireccion = RUTA_VISTAS . '/pedidos/pedidoslist.php';
         }
       } else {
-        $this->urlRedireccion = RUTA_VISTAS . '/pedidos/pedidosadd.php?tipo=' . urlencode($tipo->value);
+          $this->urlRedireccion = RUTA_VISTAS . '/pedidos/pedidosadd.php?tipo=' . urlencode($tipo->value);
       }
     }
   }

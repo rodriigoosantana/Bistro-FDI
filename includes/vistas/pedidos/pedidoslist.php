@@ -167,7 +167,7 @@ if ($pedidos && count($pedidos) > 0) {
         $tipoClase    = $p->getTipo()->value === Tipo::ParaTomar->value ? 'tipo-local' : 'tipo-llevar';
 
         if ($estadoVal === Estado::Nuevo->value) {
-            $verUrl = RUTA_VISTAS . '/pedidos/pedidosadd.php?id=' . $id;
+            $verUrl = RUTA_VISTAS . '/pedidos/miCarrito.php?id=' . $id;
         } elseif ($estadoVal === Estado::Recibido->value && !$esCamarero && !$esGerente) {
             $verUrl = RUTA_VISTAS . '/pedidos/pedidospay.php?id=' . $id;
         } else {

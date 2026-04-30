@@ -149,15 +149,17 @@ $tituloHeader = 'Finalizar Pago';
 
 $htmlNotificacionError = $mensajeError ? "<p class='msg-error'>{$mensajeError}</p>" : "";
 
-$opcionCamarero = (!$esCamarero && !$esCocinero) ? <<<HTML
+$opcionCamarero = <<<HTML
 <div class="opcion-pago">
-    <input type="radio" id="pago_camarero" name="metodo_pago" value="camarero" onclick="alternarMetodoPago('camarero')">
     <label for="pago_camarero">Pagar al camarero</label>
+    <input type="radio" id="pago_camarero" name="metodo_pago" value="camarero" onclick="alternarMetodoPago('camarero')">
 </div>
-HTML : '';
+HTML;
+
+$urlJsPedidos = RUTA_JS . '/pedidos.js';
 
 $contenidoPrincipal = <<<EOS
-    <section id="contenido">
+    <section id="contenido" class="pago-wrapper">
         <h2>Resumen de tu pedido</h2>
         {$htmlNotificacionError}
         
@@ -165,33 +167,33 @@ $contenidoPrincipal = <<<EOS
             {$tablaProductos}
         </div>
 
-        <h3>Selecciona el metodo de pago</h3>
-        <form id="formPago" method="POST" action="" class="form-pago">
-            <div class="opcion-pago">
-                <input type="radio" id="pago_tarjeta" name="metodo_pago" value="tarjeta" checked onclick="alternarMetodoPago('tarjeta')">
-                <label for="pago_tarjeta">Pagar con tarjeta</label>
-            </div>
-            
-            <div id="campo_tarjeta" class="campo-pago">
-                <label for="numero_tarjeta">Numero de tarjeta:</label>
-                <input type="text" id="numero_tarjeta" name="numero_tarjeta" placeholder="">
-            </div>
+        <div class="pago-bloque">
+            <h3>Selecciona el metodo de pago</h3>
+            <form id="formPago" method="POST" action="" class="form-pago">
+                <div class="opcion-pago">
+                    <label for="pago_tarjeta">Pagar con tarjeta</label>
+                    <input type="radio" id="pago_tarjeta" name="metodo_pago" value="tarjeta" checked onclick="alternarMetodoPago('tarjeta')">
+                </div>
 
-            <div class="opcion-pago">
-            {$opcionCamarero}
-           </div>
-        </form>
+                {$opcionCamarero}
 
-        <div class="botones-pago">
-            <button type="submit" form="formPago" class="btn btn-nuevo">Pagar</button>
-            <form method="POST" action="pedidosadd.php">
-                <input type="hidden" name="pedidoId" value="{$idPedido}" />
-                <input type="hidden" name="accion" value="reabrir" />
-                <button type="submit" class="btn btn-volver">Volver al carrito</button>
+                <div id="campo_tarjeta" class="campo-pago">
+                    <label for="numero_tarjeta">Numero de tarjeta:</label>
+                    <input type="text" id="numero_tarjeta" name="numero_tarjeta" placeholder="1234 1234 1234 1234">
+                </div>
             </form>
+
+            <div class="botones-pago">
+                <button type="submit" form="formPago" class="btn btn-nuevo">Pagar</button>
+                <form method="POST" action="miCarrito.php">
+                    <input type="hidden" name="pedidoId" value="{$idPedido}" />
+                    <input type="hidden" name="accion" value="reabrir" />
+                    <button type="submit" class="btn btn-volver">Volver al carrito</button>
+                </form>
+            </div>
         </div>
     </section>
-<script src="<?php echo RUTA_JS . '/pedidos.js' ?>"></script>
+<script src="{$urlJsPedidos}"></script>
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');

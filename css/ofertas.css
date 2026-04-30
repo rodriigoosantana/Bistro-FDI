@@ -235,14 +235,17 @@
 }
 
 .oferta-disponible {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 8px;
   padding: 8px 0;
   border-bottom: 1px solid #f1f5f9;
   font-size: 0.85rem;
-  flex-wrap: wrap;
+}
+
+.oferta-disponible > div {
+  min-width: 0;
 }
 
 .oferta-activa {
@@ -254,3 +257,10 @@
 
 .oferta-ok { background: #dcfce7; color: #166534; }
 .oferta-ko { background: #fee2e2; color: #991b1b; }
+
+@media (max-width: 720px) {
+  .oferta-disponible {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+}

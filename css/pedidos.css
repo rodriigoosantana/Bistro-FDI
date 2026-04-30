@@ -122,6 +122,14 @@
   gap: 5px;
 }
 
+.form-add-cart .input-cantidad-cart {
+  width: 72px;
+}
+
+.is-hidden {
+  display: none !important;
+}
+
 .carrito-contenedor {
   display: flex;
   flex-direction: column;
@@ -261,22 +269,67 @@
   margin-bottom: 30px;
 }
 
+.pago-wrapper {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.pago-wrapper .resumen-pedido {
+  width: min(920px, 100%);
+  margin: 0 auto 30px;
+}
+
+.pago-wrapper .resumen-pedido table {
+  width: 100%;
+}
+
+.pago-bloque {
+  width: min(720px, 100%);
+  margin: 0 auto;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.pago-bloque h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
 .form-pago {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
 .opcion-pago {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 10px;
   font-size: 1.1rem;
+  width: fit-content;
+}
+
+#formPago .opcion-pago input[type="radio"] {
+  width: auto;
+  max-width: none;
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+#formPago .opcion-pago label {
+  margin: 0;
+  display: inline;
+  text-align: left;
 }
 
 .campo-pago {
-  margin-left: 20px;
-  margin-bottom: 20px;
+  margin-left: 0;
+  margin-bottom: 6px;
+  align-self: flex-start;
+  width: min(360px, 100%);
 }
 
 .campo-pago label {
@@ -288,11 +341,24 @@
   padding: 8px;
   border: 1px solid #cbd5e1;
   border-radius: 4px;
-  width: 250px;
+  width: 100%;
+  max-width: 320px;
 }
 
 .botones-pago {
   display: flex;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 16px;
+  align-items: center;
+}
+
+@media (max-width: 720px) {
+  .campo-pago {
+    margin-left: 0;
+  }
+
+  .botones-pago {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

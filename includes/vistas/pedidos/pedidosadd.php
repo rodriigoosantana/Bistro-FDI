@@ -1,20 +1,14 @@
 <?php
 
 use es\ucm\fdi\aw\Pedido\PedidoService;
-use es\ucm\fdi\aw\Pedido\Pedido;
 use es\ucm\fdi\aw\Pedido\Estado;
-use es\ucm\fdi\aw\Pedido\Tipo;
 use es\ucm\fdi\aw\Producto\ProductoService;
 use es\ucm\fdi\aw\Producto\CategoriaService;
 use es\ucm\fdi\aw\Usuario\Usuario;
-use es\ucm\fdi\aw\Usuario\UsuarioService;
-use es\ucm\fdi\aw\Oferta\OfertaService;
-use es\ucm\fdi\aw\Recompensa\RecompensaService;
 use es\ucm\fdi\aw\Aplicacion;
 
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
-// Seguridad y Autorización
 if (!Aplicacion::estaLogueado()) {
     header('Location: ' . RUTA_VISTAS . '/usuario/login.php');
     exit();
@@ -22,25 +16,17 @@ if (!Aplicacion::estaLogueado()) {
 
 $esGerente  = (Aplicacion::getRolId() === Usuario::ROL_GERENTE);
 $esCamarero = (Aplicacion::getRolId() === Usuario::ROL_CAMARERO);
+$esAjax = strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest';
 
-$idPedido  = $_GET['id'] ?? $_POST['pedidoId'] ?? null;
+$idPedido   = $_GET['id'] ?? $_POST['pedidoId'] ?? null;
 $tipoPedido = $_GET['tipo'] ?? $_POST['tipoPedido'] ?? null;
 $pedido = null;
 
 if ($idPedido) {
-    // Pedido ya existente (reabrir o editar)
     $pedido = PedidoService::buscarPorId($idPedido);
     if (!$pedido) {
         header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
         exit();
-    }
-
-    // Manejo de Acción Reabrir
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'reabrir') {
-        if ($pedido->getEstado() === Estado::Recibido) {
-            PedidoService::cambiarEstado($idPedido, Estado::Nuevo);
-            $pedido->setEstado(Estado::Nuevo);
-        }
     }
 
     $esDueno = (intval(Aplicacion::getUserId()) === $pedido->getClienteId());
@@ -50,28 +36,12 @@ if ($idPedido) {
     }
 
     if ($pedido->getEstado() !== Estado::Nuevo) {
-        header('Location: ' . RUTA_VISTAS . '/pedidos/pedidosdetail.php?id=' . $idPedido);
+        header('Location: ' . RUTA_VISTAS . '/pedidos/pedidosdetail.php?id=' . intval($idPedido));
         exit();
     }
-} elseif ($tipoPedido) {
-    // Pedido nuevo aún no creado en BD — modo carrito temporal vacío
-    // El pedido se creará al confirmar
-} else {
-    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
+} elseif (!$tipoPedido) {
+    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidosnew.php');
     exit();
-}
-
-$mensajeExito = "";
-$mensajeError = "";
-
-$recompensas = RecompensaService::listarTodos();
-$recompensasPorProducto = [];
-foreach ($recompensas as $recompensa) {
-    $recompensasPorProducto[intval($recompensa->getProductoId())] = intval($recompensa->getBistroCoinsNecesarias());
-}
-
-if (!isset($_SESSION['recompensas_canjeadas']) || !is_array($_SESSION['recompensas_canjeadas'])) {
-    $_SESSION['recompensas_canjeadas'] = [];
 }
 
 $normalizarCarrito = function (array $items): array {
@@ -92,21 +62,6 @@ $normalizarCarrito = function (array $items): array {
         }
     }
     return $carrito;
-};
-
-$calcularCanje = function (array $carrito, array $canjes, array $recompensasProducto): array {
-    $costeBistrocoins = 0;
-    $descuentoCanje = 0.0;
-
-    foreach ($carrito as $item) {
-        $productoId = intval($item['productoId']);
-        if (!empty($canjes[$productoId]) && isset($recompensasProducto[$productoId])) {
-            $costeBistrocoins += intval($recompensasProducto[$productoId]) * intval($item['cantidad']);
-            $descuentoCanje += floatval($item['precio']) * intval($item['cantidad']);
-        }
-    }
-
-    return [$costeBistrocoins, $descuentoCanje];
 };
 
 $generarHtmlImagenProducto = function (int $productoId, string $nombreProducto): string {
@@ -132,75 +87,50 @@ $generarHtmlImagenProducto = function (int $productoId, string $nombreProducto):
     }
 
     return '<div class="slider-wrap tarjeta-slider" data-imagenes="' . $dataImagenes . '" data-auto="true">'
-        . '<img class="slider-img" src="' . $primeraRuta . '" alt="' . $nombreProducto . '">' 
+        . '<img class="slider-img" src="' . $primeraRuta . '" alt="' . $nombreProducto . '">'
         . '<div class="slider-dots">' . $dotsHtml . '</div>'
         . '</div>';
 };
 
-$clienteIdPedidoActual = $idPedido ? intval($pedido->getClienteId()) : intval(Aplicacion::getUserId());
-$usuarioSaldoActual = UsuarioService::buscarPorId($clienteIdPedidoActual);
-$saldoBistrocoinsCliente = ($clienteIdPedidoActual === intval(Aplicacion::getUserId()) && isset($_SESSION['saldo']))
-    ? intval($_SESSION['saldo'])
-    : ($usuarioSaldoActual ? intval($usuarioSaldoActual->getSaldoBistrocoins()) : 0);
+$mensajeExito = '';
+$mensajeError = '';
 
-// Manejo de Acciones
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $accionSolicitada = $_POST['accion'] ?? '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (($_POST['accion'] ?? '') === 'set_cantidad')) {
+    $idProducto = intval($_POST['productoId'] ?? 0);
+    $cantidadProducto = max(0, intval($_POST['cantidad'] ?? 0));
+    $productoExistente = ProductoService::buscarPorId($idProducto);
 
-    if ($accionSolicitada === 'add') {
-        $idProducto = intval($_POST['productoId'] ?? 0);
-        $cantidadProducto = intval($_POST['cantidad'] ?? 1);
-        $productoExistente = ProductoService::buscarPorId($idProducto);
-
-        if ($productoExistente && $cantidadProducto > 0) {
-            if ($idPedido) {
-                // Pedido existente en BD
-                $pedidoDesglosado = PedidoService::buscarDesglosadoPorId($idPedido);
-                $yaEstaEnCarrito = false;
-                foreach ($pedidoDesglosado->getProductos() as $productoEnPedido) {
-                    if ($productoEnPedido->getProductoId() === $idProducto) {
-                        $yaEstaEnCarrito = true;
-                        PedidoService::actualizarProductoPedido($idPedido, $idProducto, $productoEnPedido->getCantidad() + $cantidadProducto);
-                        break;
-                    }
-                }
-                if (!$yaEstaEnCarrito) {
-                    PedidoService::insertarProductoPedido($idPedido, $idProducto, $cantidadProducto, $productoExistente->getPrecioFinal());
-                }
-                PedidoService::actualizarProductoBitCoineado($idPedido, $idProducto, 0);
-            } else {
-                // Carrito en sesión
-                if (!isset($_SESSION['carrito_temp'])) $_SESSION['carrito_temp'] = [];
-                if (isset($_SESSION['carrito_temp'][$idProducto])) {
-                    $_SESSION['carrito_temp'][$idProducto]['cantidad'] += $cantidadProducto;
-                } else {
-                    $_SESSION['carrito_temp'][$idProducto] = [
-                        'productoId' => $idProducto,
-                        'nombre'     => $productoExistente->getNombre(),
-                        'precio'     => $productoExistente->getPrecioFinal(),
-                        'cantidad'   => $cantidadProducto,
-                    ];
-                }
-            }
-            $mensajeExito = "Producto añadido al pedido.";
-        }
-    } elseif ($accionSolicitada === 'update') {
-        $idProducto = intval($_POST['productoId'] ?? 0);
-        $cantidadProducto = intval($_POST['cantidad'] ?? 0);
+    if ($productoExistente) {
         if ($idPedido) {
-            if ($cantidadProducto > 0) {
-                PedidoService::actualizarProductoPedido($idPedido, $idProducto, $cantidadProducto);
-            } else {
-                PedidoService::eliminarProductoPedido($idPedido, $idProducto);
+            $pedidoDesglosado = PedidoService::buscarDesglosadoPorId(intval($idPedido));
+            $yaEstaEnCarrito = false;
+            foreach ($pedidoDesglosado->getProductos() as $productoEnPedido) {
+                if ($productoEnPedido->getProductoId() === $idProducto) {
+                    $yaEstaEnCarrito = true;
+                    if ($cantidadProducto > 0) {
+                        PedidoService::actualizarProductoPedido(intval($idPedido), $idProducto, $cantidadProducto);
+                    } else {
+                        PedidoService::eliminarProductoPedido(intval($idPedido), $idProducto);
+                        PedidoService::actualizarProductoBitCoineado(intval($idPedido), $idProducto, 0);
+                    }
+                    break;
+                }
             }
-            if ($cantidadProducto <= 0) {
-                PedidoService::actualizarProductoBitCoineado($idPedido, $idProducto, 0);
+            if (!$yaEstaEnCarrito && $cantidadProducto > 0) {
+                PedidoService::insertarProductoPedido(intval($idPedido), $idProducto, $cantidadProducto, $productoExistente->getPrecioFinal());
+                PedidoService::actualizarProductoBitCoineado(intval($idPedido), $idProducto, 0);
             }
         } else {
+            if (!isset($_SESSION['carrito_temp'])) {
+                $_SESSION['carrito_temp'] = [];
+            }
             if ($cantidadProducto > 0) {
-                if (isset($_SESSION['carrito_temp'][$idProducto])) {
-                    $_SESSION['carrito_temp'][$idProducto]['cantidad'] = $cantidadProducto;
-                }
+                $_SESSION['carrito_temp'][$idProducto] = [
+                    'productoId' => $idProducto,
+                    'nombre'     => $productoExistente->getNombre(),
+                    'precio'     => $productoExistente->getPrecioFinal(),
+                    'cantidad'   => $cantidadProducto,
+                ];
             } else {
                 unset($_SESSION['carrito_temp'][$idProducto]);
             }
@@ -209,277 +139,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($cantidadProducto <= 0) {
             unset($_SESSION['recompensas_canjeadas'][$idProducto]);
         }
-        $mensajeExito = "Cantidad actualizada.";
-    } elseif ($accionSolicitada === 'delete') {
-        $idProducto = intval($_POST['productoId'] ?? 0);
-        if ($idPedido) {
-            PedidoService::eliminarProductoPedido($idPedido, $idProducto);
-            PedidoService::actualizarProductoBitCoineado($idPedido, $idProducto, 0);
-        } else {
-            unset($_SESSION['carrito_temp'][$idProducto]);
-        }
-        unset($_SESSION['recompensas_canjeadas'][$idProducto]);
-        $mensajeExito = "Producto eliminado del pedido.";
-    } elseif ($accionSolicitada === 'toggle_recompensa') {
-        $idProducto = intval($_POST['productoId'] ?? 0);
-        $canjear = intval($_POST['canjear'] ?? 0) === 1;
-
-        $itemsCarritoActual = $idPedido
-            ? PedidoService::buscarDesglosadoPorId($idPedido)->getProductos()
-            : array_values($_SESSION['carrito_temp'] ?? []);
-
-        $carritoNormalizado = $normalizarCarrito($itemsCarritoActual);
-        $productoEnCarrito = false;
-        foreach ($carritoNormalizado as $item) {
-            if (intval($item['productoId']) === $idProducto) {
-                $productoEnCarrito = true;
-                break;
-            }
-        }
-
-        if (!$productoEnCarrito) {
-            $mensajeError = "El producto no está en el carrito.";
-        } elseif (!isset($recompensasPorProducto[$idProducto])) {
-            $mensajeError = "Este producto no tiene recompensa.";
-        } elseif (!$canjear) {
-            unset($_SESSION['recompensas_canjeadas'][$idProducto]);
-            if ($idPedido) {
-                PedidoService::actualizarProductoBitCoineado($idPedido, $idProducto, 0);
-            }
-            $mensajeExito = "Canje eliminado.";
-        } else {
-            $canjesTentativos = $_SESSION['recompensas_canjeadas'];
-            $canjesTentativos[$idProducto] = true;
-            [$costeTentativo,] = $calcularCanje($carritoNormalizado, $canjesTentativos, $recompensasPorProducto);
-
-            if ($costeTentativo <= $saldoBistrocoinsCliente) {
-                $_SESSION['recompensas_canjeadas'][$idProducto] = true;
-                if ($idPedido) {
-                    PedidoService::actualizarProductoBitCoineado($idPedido, $idProducto, 1);
-                }
-                $mensajeExito = "Canje aplicado.";
-            } else {
-                if ($idPedido) {
-                    PedidoService::actualizarProductoBitCoineado($idPedido, $idProducto, 0);
-                }
-                $mensajeError = "No tienes BistroCoins suficientes para ese canje.";
-            }
-        }
-    } elseif ($accionSolicitada === 'confirmar') {
-        $carritoSession = $_SESSION['carrito_temp'] ?? [];
-
-        if ($idPedido) {
-            // Pedido ya existente — calcular total y confirmar
-            $pedidoDesglosado = PedidoService::buscarDesglosadoPorId($idPedido);
-            if (count($pedidoDesglosado->getProductos()) > 0) {
-                $clienteIdPedido = intval($pedido->getClienteId());
-                $usuarioClientePedido = UsuarioService::buscarPorId($clienteIdPedido);
-                $saldoCliente = $usuarioClientePedido ? intval($usuarioClientePedido->getSaldoBistrocoins()) : 0;
-
-                $carritoNormalizado = $normalizarCarrito($pedidoDesglosado->getProductos());
-                $canjesSeleccionados = $_SESSION['recompensas_canjeadas'] ?? [];
-                [$costeCanjeBistrocoins, $descuentoCanje] = $calcularCanje($carritoNormalizado, $canjesSeleccionados, $recompensasPorProducto);
-                if ($costeCanjeBistrocoins > $saldoCliente) {
-                    foreach ($canjesSeleccionados as $productoIdCanje => $activo) {
-                        if (!empty($activo)) {
-                            PedidoService::actualizarProductoBitCoineado($idPedido, intval($productoIdCanje), 0);
-                        }
-                    }
-                    $mensajeError = "No puedes confirmar: has seleccionado más BistroCoins de las que tienes disponibles.";
-                } else {
-                    foreach ($pedidoDesglosado->getProductos() as $productoEnPedido) {
-                        $productoIdCanje = intval($productoEnPedido->getProductoId());
-                        $bc = !empty($canjesSeleccionados[$productoIdCanje]) ? 1 : 0;
-                        PedidoService::actualizarProductoBitCoineado($idPedido, $productoIdCanje, $bc);
-                    }
-
-                    $precioTotalAcumulado = 0;
-                    foreach ($pedidoDesglosado->getProductos() as $productoEnPedido) {
-                        $precioTotalAcumulado += $productoEnPedido->getPrecio() * $productoEnPedido->getCantidad();
-                    }
-
-                    $descuento = 0.0;
-                    $ofertasIds = $_SESSION['ofertas_seleccionadas'] ?? [];
-                    if (!empty($ofertasIds)) {
-                        $carrito = [];
-                        foreach ($pedidoDesglosado->getProductos() as $productoEnPedido) {
-                            $carrito[] = ['producto_id' => $productoEnPedido->getProductoId(), 'cantidad' => $productoEnPedido->getCantidad()];
-                        }
-                        $descuento = OfertaService::calcularDescuentoMultiple($ofertasIds, $carrito);
-                    }
-
-
-                    $descuentoTotal = min($precioTotalAcumulado, $descuento + $descuentoCanje);
-                    $importeFinalPagado = max(0.0, $precioTotalAcumulado - $descuentoTotal);
-                    $bistrocoinsGanadas = intval(floor($importeFinalPagado));
-                    $nuevoSaldoCliente = max(0, $saldoCliente - $costeCanjeBistrocoins + $bistrocoinsGanadas);
-
-                    $pedido->setTotal($precioTotalAcumulado);
-                    $pedido->setDescuento($descuentoTotal);
-                    $pedido->setEstado(Estado::Recibido);
-
-                    if (PedidoService::actualizar($pedido)) {
-                        $saldoActualizado = UsuarioService::actualizarSaldoBistrocoins($clienteIdPedido, $nuevoSaldoCliente);
-
-                        #registrar oferta usada y limpiar la sesión
-                        if ($saldoActualizado && !empty($ofertasIds) && $descuento > 0) {
-                            OfertaService::registrarOfertasEnPedido($idPedido, $ofertasIds);
-                            $_SESSION['ofertas_seleccionadas'] = [];
-                        }
-
-                        if (!$saldoActualizado) {
-                            $mensajeError = "El pedido se confirmó, pero no se pudo actualizar el saldo de BistroCoins.";
-                        } else {
-                            if ($clienteIdPedido === intval(Aplicacion::getUserId())) {
-                                $_SESSION['saldo'] = $nuevoSaldoCliente;
-                            }
-                            unset($_SESSION['recompensas_canjeadas']);
-                            header('Location: ' . RUTA_VISTAS . '/pedidos/pedidospay.php?id=' . $idPedido);
-                            exit();
-                        }
-                    } else {
-                        $mensajeError = "Error al confirmar el pedido.";
-                    }
-                }
-            } else {
-                $mensajeError = "El pedido no tiene productos.";
-            }
-        } elseif (!empty($carritoSession) && $tipoPedido) {
-            // Pedido nuevo — crear en BD ahora con los productos del carrito en sesión
-            $tipo = Tipo::from($tipoPedido);
-            $fecha_creacion = new DateTime('now');
-            $ultimo_pedido_hoy = PedidoService::obtenerUltimoPedidoDelDia($fecha_creacion);
-            $numero_pedido = $ultimo_pedido_hoy ? $ultimo_pedido_hoy->getNumeroPedido() + 1 : 1;
-
-            $clienteIdPedido = intval(Aplicacion::getUserId());
-            $usuarioClientePedido = UsuarioService::buscarPorId($clienteIdPedido);
-            $saldoCliente = $usuarioClientePedido ? intval($usuarioClientePedido->getSaldoBistrocoins()) : 0;
-
-            $carritoNormalizado = $normalizarCarrito($carritoSession);
-            $canjesSeleccionados = $_SESSION['recompensas_canjeadas'] ?? [];
-            [$costeCanjeBistrocoins, $descuentoCanjeSesion] = $calcularCanje($carritoNormalizado, $canjesSeleccionados, $recompensasPorProducto);
-            if ($costeCanjeBistrocoins > $saldoCliente) {
-                $mensajeError = "No puedes confirmar: has seleccionado más BistroCoins de las que tienes disponibles.";
-            } else {
-                $precioTotalAcumulado = 0;
-                foreach ($carritoSession as $item) {
-                    $precioTotalAcumulado += $item['precio'] * $item['cantidad'];
-                }
-
-                $descuentoSesion = 0.0;
-                $ofertasIdsSesion = $_SESSION['ofertas_seleccionadas'] ?? [];
-                if (!empty($ofertasIdsSesion)) {
-                    $carritoSesion = [];
-                    foreach ($carritoSession as $item) {
-                        $carritoSesion[] = ['producto_id' => $item['productoId'], 'cantidad' => $item['cantidad']];
-                    }
-                    $descuentoSesion = OfertaService::calcularDescuentoMultiple($ofertasIdsSesion, $carritoSesion);
-                }
-
-
-                $descuentoTotalSesion = min($precioTotalAcumulado, $descuentoSesion + $descuentoCanjeSesion);
-                $importeFinalPagadoSesion = max(0.0, $precioTotalAcumulado - $descuentoTotalSesion);
-                $bistrocoinsGanadasSesion = intval(floor($importeFinalPagadoSesion));
-                $nuevoSaldoCliente = max(0, $saldoCliente - $costeCanjeBistrocoins + $bistrocoinsGanadasSesion);
-
-                $dto = new Pedido($numero_pedido, $fecha_creacion, Estado::Recibido, $tipo, $clienteIdPedido, null, $precioTotalAcumulado, null, $descuentoTotalSesion);
-                $pedidoCreado = PedidoService::crear($dto);
-
-
-                if ($pedidoCreado && $pedidoCreado->getId()) {
-                    foreach ($carritoSession as $item) {
-                        PedidoService::insertarProductoPedido($pedidoCreado->getId(), $item['productoId'], $item['cantidad'], $item['precio']);
-                        $bc = !empty($canjesSeleccionados[intval($item['productoId'])]) ? 1 : 0;
-                        PedidoService::actualizarProductoBitCoineado($pedidoCreado->getId(), intval($item['productoId']), $bc);
-                    }
-
-                    # registrar qué oferta se usó y limpiar sesión
-                    if (!empty($ofertasIdsSesion) && $descuentoSesion > 0) {
-                        OfertaService::registrarOfertasEnPedido($pedidoCreado->getId(), $ofertasIdsSesion);
-                        $_SESSION['ofertas_seleccionadas'] = [];
-                    }
-
-                    if (!UsuarioService::actualizarSaldoBistrocoins($clienteIdPedido, $nuevoSaldoCliente)) {
-                        $mensajeError = "El pedido se creó, pero no se pudo actualizar el saldo de BistroCoins.";
-                    } else {
-                        $_SESSION['saldo'] = $nuevoSaldoCliente;
-                        unset($_SESSION['recompensas_canjeadas']);
-                        unset($_SESSION['carrito_temp']);
-                        header('Location: ' . RUTA_VISTAS . '/pedidos/pedidospay.php?id=' . $pedidoCreado->getId());
-                        exit();
-                    }
-                } else {
-                    $mensajeError = "Error al crear el pedido.";
-                }
-            }
-        } else {
-            $mensajeError = "El carrito está vacío.";
-        }
+        $mensajeExito = 'Cantidad actualizada.';
+    } else {
+        $mensajeError = 'Producto no válido.';
     }
 
-    # Acción de seleccionar oferta y limpiar oferta
-    elseif ($accionSolicitada === 'oferta_seleccionar') {
-        $ofertaId = intval($_POST['ofertaId'] ?? 0);
-        if ($ofertaId <= 0) {
-            $mensajeError = 'Oferta no válida.';
-        } else {
-            # inicializar array si no existe
-            if (!isset($_SESSION['ofertas_seleccionadas']) || !is_array($_SESSION['ofertas_seleccionadas'])) {
-                $_SESSION['ofertas_seleccionadas'] = [];
-            }
-
-            # no añadir si ya está seleccionada
-            if (in_array($ofertaId, $_SESSION['ofertas_seleccionadas'])) {
-                $mensajeError = 'Esta oferta ya está activada.';
-            } else {
-                # comprobar solapamiento con las ya seleccionadas
-                if (OfertaService::seSolapaConOtras($ofertaId, $_SESSION['ofertas_seleccionadas'])) {
-                    $mensajeError = 'Esta oferta comparte productos con otra oferta ya activa.';
-                } else {
-                    $_SESSION['ofertas_seleccionadas'][] = $ofertaId;
-                }
-            }
-        }
-    }
-    # -----------------------------------------------
-
-    elseif ($accionSolicitada === 'cancelar') {
+    if ($esAjax) {
+        $totalUnidadesActual = 0;
         if ($idPedido) {
-            if (PedidoService::eliminar($idPedido)) {
-                unset($_SESSION['recompensas_canjeadas']);
-                header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-                exit();
-            } else {
-                $mensajeError = "Failed to cancel or delete the order from the database.";
+            $productosActuales = PedidoService::buscarDesglosadoPorId(intval($idPedido))->getProductos();
+            foreach ($productosActuales as $productoActual) {
+                $totalUnidadesActual += intval($productoActual->getCantidad());
             }
         } else {
-            if (isset($_SESSION['carrito_temp'])) {
-                $_SESSION['carrito_temp'] = [];
-                unset($_SESSION['carrito_temp']);
+            foreach ($_SESSION['carrito_temp'] ?? [] as $itemCarrito) {
+                $totalUnidadesActual += intval($itemCarrito['cantidad'] ?? 0);
             }
-            unset($_SESSION['recompensas_canjeadas']);
-            header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
-            exit();
         }
-    } elseif ($accionSolicitada === 'oferta_limpiar') {
-        $ofertaIdQuitar = intval($_POST['ofertaId'] ?? 0);
-        if ($ofertaIdQuitar > 0) {
-            # quitar una oferta concreta del array
-            $_SESSION['ofertas_seleccionadas'] = array_values(
-                array_filter($_SESSION['ofertas_seleccionadas'] ?? [], fn($id) => $id !== $ofertaIdQuitar)
-            );
-        } else {
-            # quitar todas
-            $_SESSION['ofertas_seleccionadas'] = [];
-        }
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'ok' => $mensajeError === '',
+            'totalUnidades' => $totalUnidadesActual,
+            'productoId' => $idProducto,
+            'cantidad' => $cantidadProducto,
+            'mensaje' => $mensajeError !== '' ? $mensajeError : $mensajeExito,
+        ]);
+        exit();
     }
 }
 
-// Carga de Datos para la Vista
 $listaCategorias = CategoriaService::listarTodas();
 $listaProductos  = ProductoService::listarTodos();
 $productosCarrito = $idPedido
-    ? PedidoService::buscarDesglosadoPorId($idPedido)->getProductos()
+    ? PedidoService::buscarDesglosadoPorId(intval($idPedido))->getProductos()
     : array_values($_SESSION['carrito_temp'] ?? []);
 
 $categoriaFiltro = isset($_GET['categoria']) && $_GET['categoria'] !== ''
@@ -488,7 +181,9 @@ $categoriaFiltro = isset($_GET['categoria']) && $_GET['categoria'] !== ''
 
 $categoriasConProductos = [];
 foreach ($listaCategorias as $categoria) {
-    if (!$categoria->isActiva()) continue;
+    if (!$categoria->isActiva()) {
+        continue;
+    }
     foreach ($listaProductos as $producto) {
         if (
             $producto->getCategoriaId() === $categoria->getId()
@@ -507,7 +202,7 @@ if ($categoriaFiltro !== null && !isset($categoriasConProductos[$categoriaFiltro
 
 $parametrosBaseFiltro = [];
 if ($idPedido) {
-    $parametrosBaseFiltro['id'] = $idPedido;
+    $parametrosBaseFiltro['id'] = intval($idPedido);
 } else {
     $parametrosBaseFiltro['tipo'] = $tipoPedido;
 }
@@ -518,7 +213,9 @@ $claseTodas = $categoriaFiltro === null ? 'btn btn-ver' : 'btn btn-volver';
 
 $enlacesCategorias = '<a href="' . htmlspecialchars($urlTodas) . '" class="' . $claseTodas . '">Todas</a>';
 foreach ($listaCategorias as $categoria) {
-    if (!$categoria->isActiva() || !isset($categoriasConProductos[$categoria->getId()])) continue;
+    if (!$categoria->isActiva() || !isset($categoriasConProductos[$categoria->getId()])) {
+        continue;
+    }
 
     $parametrosCategoria = $parametrosBaseFiltro;
     $parametrosCategoria['categoria'] = $categoria->getId();
@@ -531,67 +228,40 @@ foreach ($listaCategorias as $categoria) {
 
 $htmlNavCategorias = '<div class="nav-categorias">' . $enlacesCategorias . '</div>';
 
-$carritoNormalizadoVista = $normalizarCarrito($productosCarrito);
-[$costeCanjeActual,] = $calcularCanje($carritoNormalizadoVista, $_SESSION['recompensas_canjeadas'], $recompensasPorProducto);
-if ($costeCanjeActual > $saldoBistrocoinsCliente) {
-    if ($idPedido) {
-        foreach ($_SESSION['recompensas_canjeadas'] as $productoIdCanje => $activo) {
-            if (!empty($activo)) {
-                PedidoService::actualizarProductoBitCoineado($idPedido, intval($productoIdCanje), 0);
-            }
-        }
-    }
-    $_SESSION['recompensas_canjeadas'] = [];
-}
-# Funcionalidad de ofertas: cargar ofertas activas y calcular si la seleccionada aplica al carrito actual
-# cargar ofertas activas y calcular si la seleccionada aplica al carrito actual
-$ofertasActivas = OfertaService::listarActivas();
-
-# array de ofertas seleccionadas con su estado de aplicabilidad
-$ofertasSeleccionadasIds = $_SESSION['ofertas_seleccionadas'] ?? [];
-$ofertasSeleccionadasDetalle = []; # [['oferta' => Oferta, 'aplicable' => bool, 'descuento' => float], ...]
-$descuentoCalculado = 0.0;
-
-# construir carrito en formato uniforme para pasarlo a OfertaService
-$carritoParaOferta = [];
-foreach ($productosCarrito as $item) {
-    if (is_array($item)) {
-        $carritoParaOferta[] = ['producto_id' => $item['productoId'], 'cantidad' => $item['cantidad']];
-    } else {
-        $carritoParaOferta[] = ['producto_id' => $item->getProductoId(), 'cantidad' => $item->getCantidad()];
-    }
-}
-
-foreach ($ofertasSeleccionadasIds as $oid) {
-    $of = OfertaService::buscarPorId(intval($oid));
-    if (!$of) continue;
-    $aplicable = OfertaService::esAplicable(intval($oid), $carritoParaOferta);
-    $dto = round($aplicable ? OfertaService::calcularDescuento(intval($oid), $carritoParaOferta) : 0.0, 2);
-    $descuentoCalculado += $dto;
-    $ofertasSeleccionadasDetalle[] = ['oferta' => $of, 'aplicable' => $aplicable, 'descuento' => $dto];
-}
-$hayOfertasSeleccionadas = !empty($ofertasSeleccionadasDetalle);
-
-#---------------------------------------------------------------
-
-// Campo oculto reutilizable en formularios
 $hiddenPedidoOTipo = $idPedido
-    ? "<input type=\"hidden\" name=\"pedidoId\" value=\"{$idPedido}\" />"
-    : "<input type=\"hidden\" name=\"tipoPedido\" value=\"" . htmlspecialchars($tipoPedido ?? '') . "\" />";
+    ? '<input type="hidden" name="pedidoId" value="' . intval($idPedido) . '" />'
+    : '<input type="hidden" name="tipoPedido" value="' . htmlspecialchars($tipoPedido ?? '') . '" />';
 
-// Generación de HTML: Navegador de Productos
-$htmlNavegadorProductos = "";
+$carritoNormalizado = $normalizarCarrito($productosCarrito);
+$cantidadesEnCarrito = [];
+$totalUnidadesCarrito = 0;
+foreach ($carritoNormalizado as $itemCarrito) {
+    $productoIdCarrito = intval($itemCarrito['productoId']);
+    $cantidadCarrito = intval($itemCarrito['cantidad']);
+    $cantidadesEnCarrito[$productoIdCarrito] = $cantidadCarrito;
+    $totalUnidadesCarrito += $cantidadCarrito;
+}
+
+$htmlNavegadorProductos = '';
 foreach ($listaCategorias as $categoria) {
-    if (!$categoria->isActiva()) continue;
-    if ($categoriaFiltro !== null && $categoria->getId() !== $categoriaFiltro) continue;
+    if (!$categoria->isActiva()) {
+        continue;
+    }
+    if ($categoriaFiltro !== null && $categoria->getId() !== $categoriaFiltro) {
+        continue;
+    }
 
-    $htmlProductosCategoria = "";
+    $htmlProductosCategoria = '';
     foreach ($listaProductos as $producto) {
         if ($producto->getCategoriaId() === $categoria->getId() && $producto->isDisponible() && $producto->isActivo()) {
             $idProducto = $producto->getId();
             $nombreProducto = htmlspecialchars($producto->getNombre());
-            $precioFormateado = number_format($producto->getPrecioFinal(), 2, ',', '.') . " €";
+            $precioFormateado = number_format($producto->getPrecioFinal(), 2, ',', '.') . ' €';
             $htmlImagenProducto = $generarHtmlImagenProducto($idProducto, $nombreProducto);
+            $cantidadActual = intval($cantidadesEnCarrito[$idProducto] ?? 0);
+            $mostrarBotonAdd = $cantidadActual <= 0 ? '' : ' is-hidden';
+            $mostrarInputCantidad = $cantidadActual > 0 ? '' : ' is-hidden';
+            $valorInputCantidad = $cantidadActual > 0 ? $cantidadActual : 1;
 
             $htmlProductosCategoria .= <<<HTML
             <div class="producto-card">
@@ -603,19 +273,20 @@ foreach ($listaCategorias as $categoria) {
                 <form method="POST" class="form-add-cart">
                     {$hiddenPedidoOTipo}
                     <input type="hidden" name="productoId" value="{$idProducto}" />
-                    <input type="hidden" name="accion" value="add" />
-                    <input type="number" name="cantidad" value="1" min="1" class="input-mini" />
-                    <button type="submit" class="btn btn-nuevo">Añadir</button>
+                    <input type="hidden" name="accion" value="set_cantidad" />
+                    <button type="submit" class="btn btn-nuevo btn-add-cart{$mostrarBotonAdd}">Anadir al carrito</button>
+                    <input type="number" name="cantidad" value="{$valorInputCantidad}" min="0" class="input-mini input-cantidad-cart{$mostrarInputCantidad}" />
                 </form>
             </div>
 HTML;
         }
     }
 
-    if ($htmlProductosCategoria !== "") {
+    if ($htmlProductosCategoria !== '') {
+        $nombreCategoria = htmlspecialchars($categoria->getNombre());
         $htmlNavegadorProductos .= <<<HTML
         <div class="categoria-section">
-            <h3>{$categoria->getNombre()}</h3>
+            <h3>{$nombreCategoria}</h3>
             <div class="productos-grid">
                 {$htmlProductosCategoria}
             </div>
@@ -624,258 +295,32 @@ HTML;
     }
 }
 
-// Generación de HTML: Carrito
-$htmlCarritoCompras = "";
-$totalPrecioCarrito = 0;
-
-if (count($productosCarrito) > 0) {
-    $descuentoCanjeVista = 0.0;
-    $costeCanjeVistaBistrocoins = 0;
-
-    foreach ($productosCarrito as $productoEnPedido) {
-        // Compatibilidad: objeto (BD) o array (sesión)
-        if (is_array($productoEnPedido)) {
-            $idProducto     = $productoEnPedido['productoId'];
-            $nombreProducto = htmlspecialchars($productoEnPedido['nombre']);
-            $precioUnitario = number_format($productoEnPedido['precio'], 2, ',', '.');
-            $cantidadActual = $productoEnPedido['cantidad'];
-            $subtotalItem   = $productoEnPedido['precio'] * $cantidadActual;
-            $productoCanjeado = !empty($_SESSION['recompensas_canjeadas'][$idProducto]);
-        } else {
-            $idProducto     = $productoEnPedido->getProductoId();
-            $nombreProducto = htmlspecialchars($productoEnPedido->getNombre());
-            $precioUnitario = number_format($productoEnPedido->getPrecio(), 2, ',', '.');
-            $cantidadActual = $productoEnPedido->getCantidad();
-            $subtotalItem   = $productoEnPedido->getPrecio() * $cantidadActual;
-            $productoCanjeado = $productoEnPedido->isBistroCoineado();
-        }
-
-        $bistrocoinsRecompensaItem = $recompensasPorProducto[$idProducto] ?? null;
-        $tieneRecompensa = $bistrocoinsRecompensaItem !== null;
-        $costeCanjeItemBistrocoins = $tieneRecompensa ? intval($bistrocoinsRecompensaItem) * intval($cantidadActual) : 0;
-        $recompensaSeleccionada = !empty($_SESSION['recompensas_canjeadas'][$idProducto]) || $productoCanjeado;
-
-        $canjesSinProductoActual = $_SESSION['recompensas_canjeadas'];
-        unset($canjesSinProductoActual[$idProducto]);
-        [$costeSinProductoActual,] = $calcularCanje($carritoNormalizadoVista, $canjesSinProductoActual, $recompensasPorProducto);
-        $saldoRestanteParaEsteProducto = max(0, $saldoBistrocoinsCliente - $costeSinProductoActual);
-        $canjeDisponible = $tieneRecompensa && $costeCanjeItemBistrocoins <= $saldoRestanteParaEsteProducto;
-
-        if ($recompensaSeleccionada && $tieneRecompensa) {
-            $descuentoCanjeVista += $subtotalItem;
-            $costeCanjeVistaBistrocoins += $costeCanjeItemBistrocoins;
-        }
-
-        $htmlCanjeRecompensa = '';
-        if ($tieneRecompensa) {
-            if ($recompensaSeleccionada) {
-                $textoBotonCanje = 'Quitar canje';
-                $valorCanjear = 0;
-                $disabledCanje = '';
-                $claseBotonCanje = 'btn-borrar';
-            } elseif ($canjeDisponible) {
-                $textoBotonCanje = "Canjear {$costeCanjeItemBistrocoins} BistroCoins";
-                $valorCanjear = 1;
-                $disabledCanje = '';
-                $claseBotonCanje = 'btn-ver';
-            } else {
-                $textoBotonCanje = "Sin saldo ({$costeCanjeItemBistrocoins} BistroCoins)";
-                $valorCanjear = 1;
-                $disabledCanje = 'disabled';
-                $claseBotonCanje = 'btn-ver';
-            }
-
-            $htmlCanjeRecompensa = <<<HTML
-            <form method="POST" class="form-toggle-recompensa" style="margin-left:8px;">
-                {$hiddenPedidoOTipo}
-                <input type="hidden" name="productoId" value="{$idProducto}" />
-                <input type="hidden" name="accion" value="toggle_recompensa" />
-                <input type="hidden" name="canjear" value="{$valorCanjear}" />
-                <button type="submit" class="btn {$claseBotonCanje}" style="font-size:0.75rem;padding:4px 8px;" {$disabledCanje}>{$textoBotonCanje}</button>
-            </form>
-HTML;
-        }
-
-        $totalPrecioCarrito += $subtotalItem;
-        $subtotalItemFormateado = number_format($subtotalItem, 2, ',', '.');
-
-        $htmlCarritoCompras .= <<<HTML
-        <div class="carrito-item">
-            <span class="item-nombre">{$nombreProducto}</span>
-            <span class="item-precio">{$precioUnitario} €</span>
-            <form method="POST" class="form-update-cart">
-                {$hiddenPedidoOTipo}
-                <input type="hidden" name="productoId" value="{$idProducto}" />
-                <input type="hidden" name="accion" value="update" />
-                <input type="number" name="cantidad" value="{$cantidadActual}" min="0" class="input-mini" onchange="this.form.submit()" />
-            </form>
-            <span class="item-subtotal">{$subtotalItemFormateado} €</span>
-            {$htmlCanjeRecompensa}
-            <form method="POST" class="form-delete-cart">
-                {$hiddenPedidoOTipo}
-                <input type="hidden" name="productoId" value="{$idProducto}" />
-                <input type="hidden" name="accion" value="delete" />
-                <button type="submit" class="btn-icon-delete" title="Eliminar">×</button>
-            </form>
-        </div>
-HTML;
-    }
-    $totalPrecioCarritoFormateado = number_format($totalPrecioCarrito, 2, ',', '.');
-    # sección de ofertas: lista de activas + estado de la seleccionada
-    $htmlOfertasSeccion = '';
-    $htmlOfertasSeccion = '';
-    if (!empty($ofertasActivas)) {
-        $htmlOfertasSeccion .= '<div class="ofertas-carrito"><h4>Ofertas disponibles</h4>';
-
-        # mostrar ofertas ya seleccionadas con su estado
-        foreach ($ofertasSeleccionadasDetalle as $item) {
-            $of       = $item['oferta'];
-            $nomOfer  = htmlspecialchars($of->getNombre());
-            $dtoF     = number_format($item['descuento'], 2, ',', '.') . ' €';
-            $ofId     = $of->getId();
-            $clase    = $item['aplicable'] ? 'oferta-ok' : 'oferta-ko';
-            $icono    = $item['aplicable'] ? '✔' : '✗';
-            $msg      = $item['aplicable']
-                ? "— descuento: {$dtoF}"
-                : '— el carrito no cumple los requisitos';
-
-            $htmlOfertasSeccion .= <<<ACTIVA
-            <div class="oferta-activa {$clase}">
-                {$icono} <strong>{$nomOfer}</strong> {$msg}
-                <form method="POST" style="display:inline;margin-left:8px;">
-                    {$hiddenPedidoOTipo}
-                    <input type="hidden" name="accion" value="oferta_limpiar">
-                    <input type="hidden" name="ofertaId" value="{$ofId}">
-                    <button type="submit" class="btn btn-borrar"
-                            style="font-size:0.75rem;padding:2px 8px;">✕</button>
-                </form>
-            </div>
-        ACTIVA;
-        }
-
-        # mostrar ofertas disponibles aún no seleccionadas
-        $idsSeleccionados = $ofertasSeleccionadasIds;
-        foreach ($ofertasActivas as $of) {
-            if (in_array($of->getId(), $idsSeleccionados)) continue; # ya está activa
-
-            $nomOf  = htmlspecialchars($of->getNombre());
-            $descOf = htmlspecialchars($of->getDescripcion());
-            $pctOf  = number_format($of->getDescuento() * 100, 1, ',', '.') . '%';
-            $ofId   = $of->getId();
-
-            # construir listado de productos requeridos
-            $lineasOf = OfertaService::listarLineasDeOferta($ofId);
-            $htmlProductosReq = '';
-            foreach ($lineasOf as $linea) {
-                $prod = \es\ucm\fdi\aw\Producto\ProductoService::buscarPorId($linea->getProductoId());
-                if ($prod) {
-                    $pnombre = htmlspecialchars($prod->getNombre());
-                    $htmlProductosReq .= "<li>{$pnombre} × {$linea->getCantidad()}</li>";
-                }
-            }
-
-            $htmlOfertasSeccion .= <<<ITEM
-            <div class="oferta-disponible">
-                <div>
-                    <strong>{$nomOf}</strong> — {$pctOf} dto.<br>
-                    <small>{$descOf}</small>
-                    <ul style="margin:4px 0 0 12px;padding:0;font-size:0.8rem;color:#475569;">
-                        {$htmlProductosReq}
-                    </ul>
-                </div>
-                <form method="POST">
-                    {$hiddenPedidoOTipo}
-                    <input type="hidden" name="accion" value="oferta_seleccionar">
-                    <input type="hidden" name="ofertaId" value="{$ofId}">
-                    <button type="submit" class="btn btn-ver"
-                            style="font-size:0.8rem;padding:4px 10px;">Activar</button>
-                </form>
-            </div>
-        ITEM;
-        }
-
-        $htmlOfertasSeccion .= '</div>';
-    }
-
-    # mostrar total con y sin descuento si aplica
-    $htmlTotalBloque = '';
-    $descuentoTotalVista = $descuentoCanjeVista;
-    if ($hayOfertasSeleccionadas && $descuentoCalculado > 0 && $descuentoCalculado > 0) {
-        $descuentoTotalVista += $descuentoCalculado;
-    }
-
-    if ($descuentoTotalVista > 0) {
-        $descuentoTotalVista = min($totalPrecioCarrito, $descuentoTotalVista);
-        $totalConDtoF = number_format($totalPrecioCarrito - $descuentoTotalVista, 2, ',', '.') . ' €';
-        $descuentoF   = number_format($descuentoCalculado, 2, ',', '.') . ' €';
-        $descuentoCanjeF = number_format($descuentoCanjeVista, 2, ',', '.') . ' €';
-        $htmlTotalBloque = <<<TOT
-        <div class="carrito-total">
-            <div style="font-size:0.88rem;color:#64748b;">Total sin descuento: {$totalPrecioCarritoFormateado} €</div>
-            <div style="font-size:0.88rem;color:#ef4444;">— Descuento oferta: {$descuentoF}</div>
-            <div style="font-size:0.88rem;color:#0369a1;">— Canje recompensas: {$descuentoCanjeF} ({$costeCanjeVistaBistrocoins} BistroCoins)</div>
-            <strong>Total: {$totalConDtoF}</strong>
-        </div>
-    TOT;
-    } else {
-        $htmlTotalBloque = <<<TOT
-        <div class="carrito-total">
-            <strong>Total: {$totalPrecioCarritoFormateado} €</strong>
-        </div>
-    TOT;
-    }
-
-    $htmlCarritoCompras .= $htmlOfertasSeccion . $htmlTotalBloque . <<<HTML
-    <form method="POST" class="form-confirmar-pedido">
-        {$hiddenPedidoOTipo}
-        <input type="hidden" name="accion" value="confirmar" />
-        <button type="submit" class="btn btn-nuevo btn-block">Confirmar Pedido</button>
-    </form>
-HTML;
-} else {
-    $htmlCarritoCompras = "<p>El carrito está vacío.</p>";
-}
-
-// Preparación de la Vista Final
 $tituloPagina = 'Añadir Productos';
 $tituloHeader = 'Añadir Productos';
 
-$htmlNotificacionExito = $mensajeExito ? "<p class='msg-success'>{$mensajeExito}</p>" : "";
-$htmlNotificacionError = $mensajeError ? "<p class='msg-error'>{$mensajeError}</p>" : "";
+$tituloPedido = $idPedido ? 'Pedido #' . intval($pedido->getNumeroPedido()) : 'Nuevo pedido';
+$htmlNotificacionExito = $mensajeExito ? "<p class='msg-success'>{$mensajeExito}</p>" : '';
+$htmlNotificacionError = $mensajeError ? "<p class='msg-error'>{$mensajeError}</p>" : '';
 
-$tituloPedido = $idPedido ? "Pedido #{$pedido->getNumeroPedido()}" : "Nuevo pedido";
-$btnCancelar = <<<BTN
-<form method="POST" action="" data-confirm="¿Estas seguro de que quieres cancelar este pedido?">
-    <input type="hidden" name="accion" value="cancelar" />
-    <input type="hidden" name="pedidoId" value="{$idPedido}" />
-    <button type="submit" class="btn btn-borrar">Cancelar</button>
-</form>
-BTN;
+$urlMiCarrito = RUTA_VISTAS . '/pedidos/miCarrito.php?'
+    . ($idPedido ? 'id=' . intval($idPedido) : 'tipo=' . urlencode($tipoPedido ?? 'local'));
+$urlJsPedidos = RUTA_JS . '/pedidos.js';
 
 $contenidoPrincipal = <<<EOS
 <section id="pedido-shopping">
     <div class="header-shopping">
         <h2>{$tituloPedido}</h2>
-        {$btnCancelar}
+        <a href="{$urlMiCarrito}" class="btn btn-ver" id="btn-mi-carrito" data-total-unidades="{$totalUnidadesCarrito}">Ir a mi carrito ({$totalUnidadesCarrito})</a>
     </div>
     {$htmlNotificacionExito}
     {$htmlNotificacionError}
 
-    <div class="shopping-layout">
-        <div class="product-browser">
-            {$htmlNavCategorias}
-            {$htmlNavegadorProductos}
-        </div>
-        
-        <div class="cart-summary">
-            <h3>Tu Pedido</h3>
-            <div class="carrito-contenedor">
-                {$htmlCarritoCompras}
-            </div>
-        </div>
+    <div class="product-browser">
+        {$htmlNavCategorias}
+        {$htmlNavegadorProductos}
     </div>
 </section>
-<script src="<?php echo RUTA_JS . '/pedidos.js' ?>"></script>
+<script src="{$urlJsPedidos}"></script>
 EOS;
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');
