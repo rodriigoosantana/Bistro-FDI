@@ -52,13 +52,13 @@ class FormularioPedido extends FormularioBase
         <div>
             <label>Tipo de pedido <span class="required-mark">*</span>:</label><br>
             <label>
-                <input type="radio" name="tipo" value="local" {$checkedLocal} required />
                 Para tomar aquí
+                <input type="radio" name="tipo" value="local" {$checkedLocal} required />
             </label>
             <br>
             <label>
-                <input type="radio" name="tipo" value="llevar" {$checkedLlevar} required />
                 Para llevar
+                <input type="radio" name="tipo" value="llevar" {$checkedLlevar} required />
             </label>
             {$erroresCampos['tipo']}
         </div>
