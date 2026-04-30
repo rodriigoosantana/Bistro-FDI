@@ -77,6 +77,36 @@
   gap: 10px;
 }
 
+.producto-card .tarjeta-imagen {
+  width: 100%;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.producto-card .tarjeta-img-unica,
+.producto-card .slider-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.producto-card .tarjeta-sin-imagen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  background: #f8fafc;
+}
+
 .producto-info {
   display: flex;
   flex-direction: column;
