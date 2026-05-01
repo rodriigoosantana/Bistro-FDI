@@ -258,6 +258,7 @@ foreach ($listaCategorias as $categoria) {
             $nombreProducto = htmlspecialchars($producto->getNombre());
             $precioFormateado = number_format($producto->getPrecioFinal(), 2, ',', '.') . ' €';
             $htmlImagenProducto = $generarHtmlImagenProducto($idProducto, $nombreProducto);
+            $urlVerProducto = htmlspecialchars(RUTA_VISTAS . '/productos/productosdetail.php?id=' . $idProducto);
             $cantidadActual = intval($cantidadesEnCarrito[$idProducto] ?? 0);
             $mostrarBotonAdd = $cantidadActual <= 0 ? '' : ' is-hidden';
             $mostrarInputCantidad = $cantidadActual > 0 ? '' : ' is-hidden';
@@ -270,6 +271,7 @@ foreach ($listaCategorias as $categoria) {
                     <strong>{$nombreProducto}</strong>
                     <span class="precio">{$precioFormateado}</span>
                 </div>
+                <a href="{$urlVerProducto}" class="btn btn-ver">Ver</a>
                 <form method="POST" class="form-add-cart">
                     {$hiddenPedidoOTipo}
                     <input type="hidden" name="productoId" value="{$idProducto}" />
