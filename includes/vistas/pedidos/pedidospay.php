@@ -101,9 +101,9 @@ if ($productos && count($productos) > 0) {
     $pNombre    = htmlspecialchars($prod->getNombre());
     $pCantidad  = (int)$prod->getCantidad();
     $esCanjeado = $prod->isBistroCoineado();
-    $pPrecioValor = $esCanjeado ? 0.0 : $prod->getPrecio();
+    $pPrecioValor = $prod->getPrecio();
     $pPrecio    = number_format($pPrecioValor, 2, ',', '.');
-    $pSubtotalValor = $esCanjeado ? 0.0 : ($prod->getPrecio() * $pCantidad);
+    $pSubtotalValor = ($prod->getPrecio() * $pCantidad);
     $pSubtotal  = number_format($pSubtotalValor, 2, ',', '.');
     $badgeCanje = $esCanjeado ? ' <small class="marca-recompensa">(Recompensa)</small>' : '';
 
