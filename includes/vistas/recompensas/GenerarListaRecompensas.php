@@ -2,125 +2,105 @@
 
 namespace es\ucm\fdi\aw\vistas\recompensas;
 
-use es\ucm\fdi\aw\Recompensa\RecompensaService;
+use es\ucm\fdi\aw\Recompensa\Recompensa;
 use es\ucm\fdi\aw\Producto\ProductoService;
 
 class GenerarListaRecompensas
 {
-  public static function listarRecompensas(bool $esGerente): string
-  {
-    $tarjetas = "";
-    $recompensas = RecompensaService::listarTodos();
+    public static function generar(array $recompensas, bool $esGerente, int $saldo, bool $soloDisponibles): string
+    {
+        $tarjetas  = self::generarTarjetas($recompensas, $saldo, $soloDisponibles);
+        $btnFiltro = self::generarFiltro($soloDisponibles);
+        $volverUrl = RUTA_APP . '/index.php';
 
-    $saldo = $_SESSION['saldo'] ?? 0;
-
-    $soloDisponibles = isset($_GET['disponibles']) && $_GET['disponibles'] == 1;
-
-    if ($recompensas && count($recompensas) > 0) {
-
-      usort($recompensas, function ($a, $b) {
-        return $a->getBistrocoinsNecesarias() <=> $b->getBistrocoinsNecesarias();
-      });
-
-      foreach ($recompensas as $r) {
-
-        $producto = ProductoService::buscarPorId($r->getProductoId());
-
-        if (!$producto) continue;
-
-        $nombreProducto = htmlspecialchars($producto->getNombre());
-        $bistrocoins = $r->getBistrocoinsNecesarias();
-
-        $disponible = ($saldo >= $bistrocoins);
-
-        if ($soloDisponibles && !$disponible) {
-          continue;
+        $btnCrearNuevo = '';
+        if ($esGerente) {
+            $crearUrl      = RUTA_VISTAS . '/recompensas/recompensasdetail.php';
+            $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Crear nueva</a>";
         }
 
-        $claseDisponibilidad = $disponible
-          ? 'recompensa-disponible'
-          : 'recompensa-no-disponible';
+        return <<<HTML
+        <section id="contenido">
+            <div class="acciones-pagina">
+                {$btnFiltro}
+            </div>
 
-        $estadoTexto = $disponible
-          ? "<span class='recompensa-ok'>Disponible</span>"
-          : "<span class='recompensa-ko'>No disponible</span>";
+            <div class="lista-productos">
+                {$tarjetas}
+            </div>
 
-        $imagenes = ProductoService::listarImagenes($producto->getId());
+            <div class="acciones-pagina">
+                <a href="{$volverUrl}" class="btn btn-volver">Atrás</a>
+                {$btnCrearNuevo}
+            </div>
+        </section>
+        HTML;
+    }
 
-        if (!empty($imagenes)) {
-          $ruta = htmlspecialchars(RUTA_APP . $imagenes[0]['ruta_imagen']);
-          $htmlImg = "<img class=\"tarjeta-img-unica\" src=\"{$ruta}\" alt=\"{$nombreProducto}\">";
-        } else {
-          $htmlImg = "<div class=\"tarjeta-sin-imagen\"><em>Sin imagen</em></div>";
+    private static function generarFiltro(bool $soloDisponibles): string
+    {
+        $filtroActivo = $soloDisponibles ? 'btn-filtrar-activo' : '';
+        $filtroUrl    = $soloDisponibles ? 'recompensaslist.php' : 'recompensaslist.php?disponibles=1';
+        $textoFiltro  = $soloDisponibles ? 'Mostrar todas' : 'Mostrar solo disponibles';
+
+        return <<<HTML
+        <a href="{$filtroUrl}" class="btn-filtrar {$filtroActivo}">
+            {$textoFiltro}
+        </a>
+        HTML;
+    }
+
+    private static function generarTarjetas(array $recompensas, int $saldo, bool $soloDisponibles): string
+    {
+        if (empty($recompensas)) {
+            return '<p>No hay recompensas disponibles.</p>';
         }
+
+        usort($recompensas, fn($a, $b) => $a->getBistrocoinsNecesarias() <=> $b->getBistrocoinsNecesarias());
+
+        $tarjetas = '';
+        foreach ($recompensas as $r) {
+            $producto = ProductoService::buscarPorId($r->getProductoId());
+            if (!$producto) continue;
+
+            $disponible = ($saldo >= $r->getBistrocoinsNecesarias());
+            if ($soloDisponibles && !$disponible) continue;
+
+            $tarjetas .= self::generarTarjeta($r, $producto->getNombre(), $r->getBistrocoinsNecesarias(), $disponible, $producto->getId());
+        }
+
+        return $tarjetas ?: '<p>No hay recompensas disponibles.</p>';
+    }
+
+    private static function generarTarjeta(Recompensa $r, string $nombreProducto, int $bistrocoins, bool $disponible, int $productoId): string
+    {
+        $nombreProducto      = htmlspecialchars($nombreProducto);
+        $claseDisponibilidad = $disponible ? 'recompensa-disponible' : 'recompensa-no-disponible';
+        $estadoTexto         = $disponible
+            ? "<span class='recompensa-ok'>Disponible</span>"
+            : "<span class='recompensa-ko'>No disponible</span>";
+
+        $imagenes = ProductoService::listarImagenes($productoId);
+        $htmlImg  = !empty($imagenes)
+            ? "<img class=\"tarjeta-img-unica\" src=\"" . htmlspecialchars(RUTA_APP . $imagenes[0]['ruta_imagen']) . "\" alt=\"{$nombreProducto}\">"
+            : "<div class=\"tarjeta-sin-imagen\"><em>Sin imagen</em></div>";
 
         $detalleUrl = "recompensasdetail.php?id={$r->getId()}";
 
-        $tarjetas .= <<<TARJETA
+        return <<<TARJETA
         <div class="tarjeta-producto {$claseDisponibilidad}">
-            
             <div class="tarjeta-imagen">
                 {$htmlImg}
             </div>
-
             <div class="tarjeta-info">
                 <strong>{$nombreProducto}</strong>
                 <span class="tarjeta-precio">{$bistrocoins} BistroCoins</span>
                 <small>{$estadoTexto}</small>
             </div>
-
             <div class="tarjeta-acciones">
                 <a href="{$detalleUrl}" class="btn btn-ver">Ver</a>
             </div>
-
         </div>
         TARJETA;
-      }
-    } else {
-      $tarjetas = '<p>No hay recompensas disponibles.</p>';
     }
-
-    $filtroActivo = $soloDisponibles ? 'btn-filtrar-activo' : '';
-
-    $filtroUrl = $soloDisponibles
-      ? "recompensaslist.php"
-      : "recompensaslist.php?disponibles=1";
-
-    $textoFiltro = $soloDisponibles
-      ? "Mostrar todas"
-      : "Mostrar solo disponibles";
-
-    $btnFiltro = <<<HTML
-      <a href="{$filtroUrl}" class="btn-filtrar {$filtroActivo}">
-        {$textoFiltro}
-      </a>
-    HTML;
-
-    $volverUrl = RUTA_APP . '/index.php';
-
-    $btnCrearNuevo = '';
-    if ($esGerente) {
-      $crearUrl = RUTA_VISTAS . '/recompensas/recompensasdetail.php';
-      $btnCrearNuevo = "<a href=\"{$crearUrl}\" class=\"btn btn-nuevo\">Crear nueva</a>";
-    }
-
-    return <<<HTML
-    <section id="contenido">
-
-        <div class="acciones-pagina">
-            {$btnFiltro}
-        </div>
-
-        <div class="lista-productos">
-            {$tarjetas}
-        </div>
-
-        <div class="acciones-pagina">
-            <a href="{$volverUrl}" class="btn btn-volver">Atrás</a>
-            {$btnCrearNuevo}
-        </div>
-
-    </section>
-    HTML;
-  }
 }

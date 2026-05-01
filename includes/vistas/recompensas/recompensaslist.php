@@ -1,28 +1,24 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
-use es\ucm\fdi\aw\vistas\recompensas\GenerarListaRecompensas;
 use es\ucm\fdi\aw\Aplicacion;
+use es\ucm\fdi\aw\Recompensa\RecompensaService;
+use es\ucm\fdi\aw\vistas\recompensas\GenerarListaRecompensas;
+
+if (!Aplicacion::estaLogueado()) {
+    header('Location: ' . RUTA_VISTAS . '/usuario/login.php');
+    exit();
+}
+
+$esGerente      = Aplicacion::esGerente();
+$soloDisponibles = isset($_GET['disponibles']) && $_GET['disponibles'] == 1;
+$saldo           = intval($_SESSION['saldo'] ?? 0);
+$recompensas     = RecompensaService::listarTodos() ?: [];
 
 $tituloPagina = 'Lista Recompensas';
 $tituloHeader = 'Lista Recompensas';
 
-$esGerente = Aplicacion::esGerente();
-$filas = GenerarListaRecompensas::listarRecompensas($esGerente);
-
-$contenidoPrincipal = <<<EOS
-<section id="contenido">
-
-<h2>Recompensas</h2>
-
-<div class="lista-categorias">
-$filas
-</div>
-
-</section>
-EOS;
+$contenidoPrincipal = GenerarListaRecompensas::generar($recompensas, $esGerente, $saldo, $soloDisponibles);
 
 require(RAIZ_APP . '/includes/vistas/common/plantilla.php');
