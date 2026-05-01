@@ -117,8 +117,7 @@ class FormularioOferta extends FormularioBase
                     <div id="lineas-oferta" class="lineas-oferta" data-precios='{$preciosJs}'>
                         {$lineasHtml}
                     </div>
-                    <button type="button" class="btn btn-nuevo"
-                            onclick="añadirLinea()">+ Añadir producto</button>
+                   <button type="button" class="btn btn-nuevo" id="btn-anadir-linea">+ Añadir producto</button>
                 </div>
 
                 <!-- caja de cálculo automático precio/descuento -->
@@ -162,9 +161,7 @@ class FormularioOferta extends FormularioBase
                     </select>
                     <input type="number" name="lineas_cantidad[]"
                            min="1" value="1" required>
-                    <button type="button" class="btn-rm-linea"
-                            onclick="this.closest('.linea-oferta').remove();
-                                     recalcularPack();">✕</button>
+                    <button type="button" class="btn-rm-linea">✕</button>
                 </div>
             </template>
         HTML;
@@ -276,9 +273,7 @@ class FormularioOferta extends FormularioBase
                 </select>
                 <input type="number" name="lineas_cantidad[]"
                        min="1" value="{$cantidad}" required>
-                <button type="button" class="btn-rm-linea"
-                        onclick="this.closest('.linea-oferta').remove();
-                                 recalcularPack();">✕</button>
+                <button type="button" class="btn-rm-linea">✕</button>
             </div>
         LIN;
     }

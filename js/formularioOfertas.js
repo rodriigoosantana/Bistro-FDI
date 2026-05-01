@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('descuento').value = pct.toFixed(6);
     });
 
-    window.añadirLinea = function () {
+    function anadirLinea() {
         const tpl   = document.getElementById('tpl-linea');
         const clone = tpl.content.cloneNode(true);
         clone.querySelectorAll('select, input[type=number]').forEach(el => {
@@ -55,8 +55,25 @@ document.addEventListener('DOMContentLoaded', function () {
             el.addEventListener('input',  recalcularPack);
         });
         contenedor.appendChild(clone);
-    };
+    }
 
+    // listener del botón "+ Añadir producto"
+    const btnAnadir = document.getElementById('btn-anadir-linea');
+    if (btnAnadir) btnAnadir.addEventListener('click', anadirLinea);
+
+    // delegación de eventos para los botones "✕" de cada línea:
+    // cubre tanto las líneas iniciales como las añadidas dinámicamente
+    contenedor.addEventListener('click', function (e) {
+        if (e.target.classList.contains('btn-rm-linea')) {
+            const fila = e.target.closest('.linea-oferta');
+            if (fila) {
+                fila.remove();
+                recalcularPack();
+            }
+        }
+    });
+
+    // listeners para las líneas que vienen ya renderizadas desde PHP
     contenedor.querySelectorAll('.linea-oferta').forEach(row => {
         row.querySelectorAll('select, input[type=number]').forEach(el => {
             el.addEventListener('change', recalcularPack);
