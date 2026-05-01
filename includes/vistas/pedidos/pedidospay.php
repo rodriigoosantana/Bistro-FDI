@@ -74,14 +74,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metodo_pago'])) {
 
 // Datos del pedido
 $numeroPedido = htmlspecialchars($pedidoDesglosado->getNumeroPedido());
-$totalPagar   = number_format($pedidoDesglosado->getTotalConDescuento(), 2, ',', '.');
+$totalBruto = $pedidoDesglosado->getTotal(); # bruto, sin descuento
+$totalBrutoF = number_format($totalBruto, 2, ',', '.');
+$totalPagarF = number_format($pedidoDesglosado->getTotalConDescuento(), 2, ',', '.');
 
 $descuento  = $pedidoDesglosado->getDescuento();
 $descuentoF = number_format($descuento, 2, ',', '.');
 $totalFinal = number_format($pedidoDesglosado->getTotalConDescuento(), 2, ',', '.');
 
 $ofertasPedido = OfertaService::listarOfertasDePedido($pedidoDesglosado->getId());
-$nombreOferta  = !empty($ofertasPedido) ? htmlspecialchars($ofertasPedido[0]->getNombre()) : null;
+
+# reconstruir el carrito del pedido para el desglose
+$carritoPedido = [];
+foreach ($pedidoDesglosado->getProductos() as $pp) {
+    $carritoPedido[] = ['producto_id' => $pp->getProductoId(), 'cantidad' => $pp->getCantidad()];
+}
+$idsOfertas = array_map(fn($o) => $o->getId(), $ofertasPedido);
+$desglose = OfertaService::calcularDescuentoMultipleDesglosado($idsOfertas, $carritoPedido);
 
 // Tabla de productos del pedido
 $productos         = $pedidoDesglosado->getProductos();
@@ -125,7 +134,7 @@ $tablaProductos = <<<TABLA
     <tfoot>
         <tr>
             <td colspan="3"><strong>Total</strong></td>
-            <td class="text-right"><strong>{$totalPagar} €</strong></td>
+            <td class="text-right"><strong>{$totalBrutoF} €</strong></td>
         </tr>
     </tfoot>
 </table>
@@ -133,16 +142,28 @@ TABLA;
 
 # bloque de descuento si aplica
 $htmlDescuentoPago = '';
-if ($descuento > 0) {
-    $htmlOferta = $nombreOferta ? " ({$nombreOferta})" : '';
-    $htmlDescuentoPago = <<<DTO
-    <div class="oferta-resumen-precio" style="margin-top:10px;">
-        <span class="descuento">— Descuento: {$descuentoF} €{$htmlOferta}</span>
-        <span class="precio-con"><strong>Total a pagar: {$totalFinal} €</strong></span>
-    </div>
-DTO;
+if (!empty($ofertasPedido)) {
+    $htmlDescuentoPago .= '<div class="resumen-descuentos" style="margin-top:10px;">';
+    $htmlDescuentoPago .= '<strong>Ofertas aplicadas:</strong>';
+    foreach ($ofertasPedido as $of) {
+        $info = $desglose['porOferta'][$of->getId()] ?? ['veces' => 0, 'descuento' => 0];
+        if ($info['veces'] === 0) continue;
+        $nom = htmlspecialchars($of->getNombre());
+        $vecesTxt = $info['veces'] > 1 ? ' (×' . $info['veces'] . ')' : '';
+        $dtoF = number_format($info['descuento'], 2, ',', '.');
+        $htmlDescuentoPago .= "<div class=\"descuento\">— {$nom}{$vecesTxt}: −{$dtoF} €</div>";
+    }
+    $htmlDescuentoPago .= '</div>';
+}
+
+# si hubiera canje (descuento total > suma de ofertas), añadir línea
+$descuentoCanje = $pedidoDesglosado->getDescuento() - $desglose['total'];
+if ($descuentoCanje > 0.01) {
+    $canjeF = number_format($descuentoCanje, 2, ',', '.');
+    $htmlDescuentoPago .= "<div class=\"descuento\">— Canje BistroCoins: −{$canjeF} €</div>";
 }
 $tablaProductos .= $htmlDescuentoPago;
+$tablaProductos .= "<div class=\"total-pagar\" style=\"margin-top:8px;font-weight:bold;font-size:1.1rem;\">Total a pagar: {$totalPagarF} €</div>";
 
 $tituloPagina = "Pagar Pedido #{$numeroPedido}";
 $tituloHeader = 'Finalizar Pago';

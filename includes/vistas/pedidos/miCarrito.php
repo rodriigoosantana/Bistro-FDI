@@ -107,6 +107,20 @@ $saldoBistrocoinsCliente = ($clienteIdPedidoActual === intval(Aplicacion::getUse
     ? intval($_SESSION['saldo'])
     : ($usuarioSaldoActual ? intval($usuarioSaldoActual->getSaldoBistrocoins()) : 0);
 
+$productosCarrito = $idPedido
+    ? PedidoService::buscarDesglosadoPorId(intval($idPedido))->getProductos()
+    : array_values($_SESSION['carrito_temp'] ?? []);
+
+# formato uniforme para OfertaService: [['producto_id' => x, 'cantidad' => y], ...]
+$carritoParaOferta = [];
+foreach ($productosCarrito as $item) {
+    if (is_array($item)) {
+        $carritoParaOferta[] = ['producto_id' => $item['productoId'], 'cantidad' => $item['cantidad']];
+    } else {
+        $carritoParaOferta[] = ['producto_id' => $item->getProductoId(), 'cantidad' => $item->getCantidad()];
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $accionSolicitada = $_POST['accion'] ?? '';
 
@@ -342,15 +356,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!isset($_SESSION['ofertas_seleccionadas']) || !is_array($_SESSION['ofertas_seleccionadas'])) {
                 $_SESSION['ofertas_seleccionadas'] = [];
             }
-
             if (in_array($ofertaId, $_SESSION['ofertas_seleccionadas'])) {
                 $mensajeError = 'Esta oferta ya está activada.';
+            } elseif (!OfertaService::puedeAplicarseJunto($ofertaId, $_SESSION['ofertas_seleccionadas'], $carritoParaOferta)) {
+                $mensajeError = 'No quedan unidades suficientes en el carrito para aplicar esta oferta junto con las ya activas.';
             } else {
-                if (OfertaService::seSolapaConOtras($ofertaId, $_SESSION['ofertas_seleccionadas'])) {
-                    $mensajeError = 'Esta oferta comparte productos con otra oferta ya activa.';
-                } else {
-                    $_SESSION['ofertas_seleccionadas'][] = $ofertaId;
-                }
+                $_SESSION['ofertas_seleccionadas'][] = $ofertaId;
             }
         }
     } elseif ($accionSolicitada === 'cancelar') {
@@ -382,10 +393,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$productosCarrito = $idPedido
-    ? PedidoService::buscarDesglosadoPorId(intval($idPedido))->getProductos()
-    : array_values($_SESSION['carrito_temp'] ?? []);
-
 $carritoNormalizadoVista = $normalizarCarrito($productosCarrito);
 [$costeCanjeActual,] = $calcularCanje($carritoNormalizadoVista, $_SESSION['recompensas_canjeadas'], $recompensasPorProducto);
 if ($costeCanjeActual > $saldoBistrocoinsCliente) {
@@ -403,26 +410,24 @@ $ofertasActivas = OfertaService::listarActivas();
 
 $ofertasSeleccionadasIds = $_SESSION['ofertas_seleccionadas'] ?? [];
 $ofertasSeleccionadasDetalle = [];
-$descuentoCalculado = 0.0;
 
-$carritoParaOferta = [];
-foreach ($productosCarrito as $item) {
-    if (is_array($item)) {
-        $carritoParaOferta[] = ['producto_id' => $item['productoId'], 'cantidad' => $item['cantidad']];
-    } else {
-        $carritoParaOferta[] = ['producto_id' => $item->getProductoId(), 'cantidad' => $item->getCantidad()];
-    }
-}
+$desglose = OfertaService::calcularDescuentoMultipleDesglosado(
+    array_map('intval', $ofertasSeleccionadasIds),
+    $carritoParaOferta
+);
+$descuentoCalculado = $desglose['total'];
 
 foreach ($ofertasSeleccionadasIds as $oid) {
-    $of = OfertaService::buscarPorId(intval($oid));
-    if (!$of) {
-        continue;
-    }
-    $aplicable = OfertaService::esAplicable(intval($oid), $carritoParaOferta);
-    $dto = round($aplicable ? OfertaService::calcularDescuento(intval($oid), $carritoParaOferta) : 0.0, 2);
-    $descuentoCalculado += $dto;
-    $ofertasSeleccionadasDetalle[] = ['oferta' => $of, 'aplicable' => $aplicable, 'descuento' => $dto];
+    $oid = intval($oid);
+    $of = OfertaService::buscarPorId($oid);
+    if (!$of) continue;
+    $info = $desglose['porOferta'][$oid] ?? ['veces' => 0, 'descuento' => 0.0];
+    $ofertasSeleccionadasDetalle[] = [
+        'oferta'    => $of,
+        'aplicable' => $info['veces'] > 0,
+        'veces'     => $info['veces'],
+        'descuento' => $info['descuento'],
+    ];
 }
 $hayOfertasSeleccionadas = !empty($ofertasSeleccionadasDetalle);
 
@@ -538,6 +543,7 @@ HTML;
             $urlDetalleOferta = RUTA_VISTAS . '/ofertas/ofertasdetail.php?id=' . $ofId;
             $clase    = $item['aplicable'] ? 'oferta-ok' : 'oferta-ko';
             $icono    = $item['aplicable'] ? '✔' : '✗';
+            $vecesTxt = $item['veces'] > 1 ? ' ×' . $item['veces'] : '';
             $msg      = $item['aplicable']
                 ? '— descuento: ' . $dtoF
                 : '— el carrito no cumple los requisitos';
@@ -606,19 +612,34 @@ ITEM;
     if ($hayOfertasSeleccionadas && $descuentoCalculado > 0) {
         $descuentoTotalVista += $descuentoCalculado;
     }
-
     if ($descuentoTotalVista > 0) {
         $descuentoTotalVista = min($totalPrecioCarrito, $descuentoTotalVista);
         $totalConDtoF = number_format($totalPrecioCarrito - $descuentoTotalVista, 2, ',', '.') . ' €';
-        $descuentoF = number_format($descuentoCalculado, 2, ',', '.') . ' €';
-        $descuentoCanjeF = number_format($descuentoCanjeVista, 2, ',', '.') . ' €';
+
+        # una línea por cada oferta realmente aplicada (con cuántas veces y cuánto descuenta)
+        $lineasOfertas = '';
+        foreach ($ofertasSeleccionadasDetalle as $item) {
+            if (!$item['aplicable']) continue;
+            $nomOf    = htmlspecialchars($item['oferta']->getNombre());
+            $vecesTxt = $item['veces'] > 1 ? ' (×' . $item['veces'] . ')' : '';
+            $dtoOfF   = number_format($item['descuento'], 2, ',', '.');
+            $lineasOfertas .= "<div style=\"font-size:0.88rem;color:#ef4444;\">— {$nomOf}{$vecesTxt}: −{$dtoOfF} €</div>";
+        }
+
+        # canje BistroCoins (si lo hay)
+        $lineaCanje = '';
+        if ($descuentoCanjeVista > 0) {
+            $descuentoCanjeF = number_format($descuentoCanjeVista, 2, ',', '.');
+            $lineaCanje = "<div style=\"font-size:0.88rem;color:#0369a1;\">— Canje BistroCoins: −{$descuentoCanjeF} € ({$costeCanjeVistaBistrocoins} BistroCoins)</div>";
+        }
+
         $htmlTotalBloque = <<<TOT
-        <div class="carrito-total">
-            <div style="font-size:0.88rem;color:#64748b;">Total sin descuento: {$totalPrecioCarritoFormateado} €</div>
-            <div style="font-size:0.88rem;color:#ef4444;">— Descuento oferta: {$descuentoF}</div>
-            <div style="font-size:0.88rem;color:#0369a1;">— Canje recompensas: {$descuentoCanjeF} ({$costeCanjeVistaBistrocoins} BistroCoins)</div>
-            <strong>Total: {$totalConDtoF}</strong>
-        </div>
+    <div class="carrito-total">
+        <div style="font-size:0.88rem;color:#64748b;">Total sin descuento: {$totalPrecioCarritoFormateado} €</div>
+        {$lineasOfertas}
+        {$lineaCanje}
+        <strong>Total: {$totalConDtoF}</strong>
+    </div>
 TOT;
     } else {
         $htmlTotalBloque = <<<TOT
