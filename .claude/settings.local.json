@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(Get-Content \"C:\\\\xampp\\\\php\\\\logs\\\\php_error_log\" -Tail 40)",
+      "Bash(Get-Content \"C:\\\\xampp\\\\apache\\\\logs\\\\error.log\" -Tail 40)",
+      "Bash(powershell -Command \"Get-Content 'C:\\\\xampp\\\\apache\\\\logs\\\\error.log' -Tail 50\")"
+    ]
+  }
+}
