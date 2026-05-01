@@ -181,7 +181,7 @@ class GenerarDetallePedido
         </tr>
     </tfoot>
 </table>
-    TABLA;
+TABLA;
   }
 
   private static function generarBotonesAccion(PedidoDesglosado $pedido, string $volverUrl, bool $esGerente, bool $esCamarero, bool $esCocinero): string
