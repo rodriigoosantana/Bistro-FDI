@@ -258,9 +258,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     if (PedidoService::actualizar($pedido)) {
                         $saldoActualizado = UsuarioService::actualizarSaldoBistrocoins($clienteIdPedido, $nuevoSaldoCliente);
-                        if ($saldoActualizado && !empty($ofertasIds) && $descuento > 0) {
-                            OfertaService::registrarOfertasEnPedido(intval($idPedido), $ofertasIds);
-                            $_SESSION['ofertas_seleccionadas'] = [];
+                        if ($saldoActualizado) {
+                            if (!empty($ofertasIds) && $descuento > 0) {  # registrar ofertas solo si efectivamente aplicaron descuento
+                                OfertaService::registrarOfertasEnPedido(intval($idPedido), $ofertasIds);
+                            }
+                            $_SESSION['ofertas_seleccionadas'] = []; # limpiar siempre la sesión
                         }
                         if (!$saldoActualizado) {
                             $mensajeError = 'El pedido se confirmó, pero no se pudo actualizar el saldo de BistroCoins.';
@@ -326,10 +328,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         PedidoService::actualizarProductoBitCoineado($pedidoCreado->getId(), intval($item['productoId']), $bc);
                     }
 
-                    if (!empty($ofertasIdsSesion) && $descuentoSesion > 0) {
+                   if (!empty($ofertasIdsSesion) && $descuentoSesion > 0) {
                         OfertaService::registrarOfertasEnPedido($pedidoCreado->getId(), $ofertasIdsSesion);
-                        $_SESSION['ofertas_seleccionadas'] = [];
                     }
+                    $_SESSION['ofertas_seleccionadas'] = [];  # limpiar siempre, aunque las ofertas hayan dejado de aplicar
 
                     if (!UsuarioService::actualizarSaldoBistrocoins($clienteIdPedido, $nuevoSaldoCliente)) {
                         $mensajeError = 'El pedido se creó, pero no se pudo actualizar el saldo de BistroCoins.';

@@ -226,7 +226,7 @@ EOF;
     $email = trim($datos['email'] ?? '');
     $email = filter_var($email, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-    if (!$email || strlen($email) < 4) {
+    if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
       $this->errores['email'] =
         'No es una dirección de correo válida.';
     }

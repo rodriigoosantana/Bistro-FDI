@@ -16,6 +16,7 @@ if (!Aplicacion::estaLogueado()) {
 $esGerente  = (Aplicacion::getRolId() === Usuario::ROL_GERENTE);
 $esCamarero = (Aplicacion::getRolId() === Usuario::ROL_CAMARERO);
 $esCocinero = (Aplicacion::getRolId() === Usuario::ROL_COCINERO);
+$esPersonal = $esGerente || $esCamarero || $esCocinero;
 
 if (!isset($_GET['id'])) {
     header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
@@ -28,18 +29,63 @@ if (!$pedidoDesglosado) {
     exit();
 }
 
+# control de acceso a nivel de pedido: el cliente solo ve los suyos; el personal ve todos
+$esDuenoPedido = (intval(Aplicacion::getUserId()) === $pedidoDesglosado->getClienteId());
+if (!$esPersonal && !$esDuenoPedido) {
+    header('Location: ' . RUTA_APP . '/index.php');
+    exit();
+}
+
 $volverUrl = RUTA_VISTAS . '/pedidos/pedidoslist.php';
 
 // BORRADO (Solo gerente)
-if ($esGerente && isset($_POST['accion']) && $_POST['accion'] === 'borrar') {
+# BORRADO: solo gerente
+if (isset($_POST['accion']) && $_POST['accion'] === 'borrar') {
+    if (!$esGerente) {
+        header('Location: ' . RUTA_APP . '/index.php');
+        exit();
+    }
     PedidoService::eliminar($pedidoDesglosado->getId());
     header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
     exit();
 }
 
 // CAMBIO DE ESTADO
+# CAMBIO DE ESTADO: comprueba rol y que la transición está permitida
 if (isset($_POST['accion']) && $_POST['accion'] === 'cambiar_estado' && isset($_POST['nuevo_estado'])) {
-    $nuevoEstado = Estado::from(trim($_POST['nuevo_estado']));
+    if (!$esPersonal) {
+        header('Location: ' . RUTA_APP . '/index.php');
+        exit();
+    }
+
+    # validar que el valor recibido es un Estado real
+    try {
+        $nuevoEstado = Estado::from(trim($_POST['nuevo_estado']));
+    } catch (\ValueError $e) {
+        header('Location: ' . RUTA_VISTAS . '/pedidos/pedidosdetail.php?id=' . $pedidoDesglosado->getId());
+        exit();
+    }
+
+    # autorizar la transición concreta segun rol y estado actual
+    # estas reglas espejan GenerarDetallePedido::generarBotonesAccion
+    $estadoActual = $pedidoDesglosado->getEstado();
+    $puedeTransicionar = false;
+
+    if ($esPersonal) {
+        if ($estadoActual === Estado::Nuevo         && $nuevoEstado === Estado::Cancelado)     $puedeTransicionar = true;
+        if ($estadoActual === Estado::Recibido      && $nuevoEstado === Estado::EnPreparacion) $puedeTransicionar = true;
+        if ($estadoActual === Estado::ListoCocina   && $nuevoEstado === Estado::Terminado)     $puedeTransicionar = true;
+        if ($estadoActual === Estado::Terminado     && $nuevoEstado === Estado::Entregado)     $puedeTransicionar = true;
+    }
+    if ($esGerente || $esCocinero) {
+        if ($estadoActual === Estado::EnPreparacion && $nuevoEstado === Estado::Cocinando)    $puedeTransicionar = true;
+        if ($estadoActual === Estado::Cocinando     && $nuevoEstado === Estado::ListoCocina)  $puedeTransicionar = true;
+    }
+
+    if (!$puedeTransicionar) {
+        header('Location: ' . RUTA_APP . '/index.php');
+        exit();
+    }
 
     if ($nuevoEstado === Estado::Cocinando) {
         PedidoService::asignarCocinero($pedidoDesglosado->getId(), intval(Aplicacion::getUserId()));
@@ -52,6 +98,11 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'cambiar_estado' && isset($_
 
 // TOGGLE PRODUCTO PREPARADO
 if (isset($_POST['accion']) && $_POST['accion'] === 'toggle_producto' && isset($_POST['producto_id'])) {
+    if (!($esGerente || $esCocinero) || $pedidoDesglosado->getEstado() !== Estado::Cocinando) {
+        header('Location: ' . RUTA_APP . '/index.php');
+        exit();
+    }
+
     $productoId = intval($_POST['producto_id']);
     $pedidoId   = $pedidoDesglosado->getId();
 
