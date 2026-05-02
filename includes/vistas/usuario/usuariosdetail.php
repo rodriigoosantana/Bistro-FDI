@@ -1,22 +1,19 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
 require_once dirname(__DIR__, 3) . '/includes/config.php';
 
 use es\ucm\fdi\aw\vistas\usuario\GenerarPerfilUsuario;
 use es\ucm\fdi\aw\Usuario\UsuarioService;
-use es\ucm\fdi\aw\Usuario\Rol;
 
 $nombreUsuario = $_GET['nombreUsuario'] ?? null;
-$usuario = UsuarioService::buscarPorNombre($nombreUsuario);
+$usuario       = UsuarioService::buscarPorNombre($nombreUsuario);
 
 $tituloPagina = 'Perfil';
 $tituloHeader = "Perfil de {$usuario->getNombreUsuario()}";
 
-$contenidoPrincipal = generarPerfilUsuario::generarPerfil($usuario);
+$contenidoPrincipal = GenerarPerfilUsuario::generarPerfil($usuario);
 
-$modUrl = RUTA_VISTAS . '/usuario/usuariosedit.php?nombreUsuario=' . urlencode($usuario->getNombreUsuario());
+$modUrl    = RUTA_VISTAS . '/usuario/usuariosedit.php?nombreUsuario=' . urlencode($usuario->getNombreUsuario());
 $logoutUrl = RUTA_VISTAS . '/usuario/logout.php';
 
 $contenidoAside = <<<ASIDE
