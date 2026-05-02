@@ -392,6 +392,7 @@ EOF;
         $apellidos,
         $email,
         $avatar,
+        0,
         $usuario_id
       );
 
