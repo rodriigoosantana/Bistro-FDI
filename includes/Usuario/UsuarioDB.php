@@ -17,13 +17,13 @@ class UsuarioDB
          VALUES (?, ?, ?, ?, ?, ?, ?)",
     );
 
-    $nombreUsuario	= $usuario->getNombreUsuario();
-    $nombre		= $usuario->getNombre();
-    $apellidos		= $usuario->getApellidos();
-    $email		= $usuario->getEmail();
-    $avatar		= $usuario->getAvatar();
-    $password		= $usuario->getPassword();
-    $saldoBistroCoins	= $usuario->getSaldoBistrocoins();
+    $nombreUsuario  = $usuario->getNombreUsuario();
+    $nombre    = $usuario->getNombre();
+    $apellidos    = $usuario->getApellidos();
+    $email    = $usuario->getEmail();
+    $avatar    = $usuario->getAvatar();
+    $password    = $usuario->getPassword();
+    $saldoBistroCoins  = $usuario->getSaldoBistrocoins();
 
     $query->bind_param("ssssssd", $nombreUsuario, $nombre, $apellidos, $email, $avatar, $password, $saldoBistroCoins);
     try { #Intentamos insertar el usuario, si el nombre de usuario ya existe, se lanzará una excepción que capturaremos para lanzar una excepción de dominio más específica.
@@ -32,7 +32,7 @@ class UsuarioDB
       $usuario->setId($conn->insert_id);
       return $usuario;
     } catch (\mysqli_sql_exception $e) { #Capturamos la excepción de MySQLi para verificar si se debe a una violación de clave única (nombre de usuario ya existente).
-      if ($conn->sqlstate === '23000') { #Código de error SQLSTATE para violación de restricción de clave única, lo que indica que el nombre de usuario ya existe.
+      if ($conn->sqlstate === '23000') {
         throw new UsuarioYaExisteException($usuario->getNombreUsuario()); #Lanzamos una excepción de dominio específica para indicar que el nombre de usuario ya está en uso.
       }
       throw $e; #Si es otro tipo de error, lo relanzamos para que sea manejado por un nivel superior.
@@ -71,13 +71,13 @@ class UsuarioDB
       WHERE id = ?",
     );
 
-    $nombreUsuario	= $usuario->getNombreUsuario();
-    $nombre		= $usuario->getNombre();
-    $apellidos		= $usuario->getApellidos();
-    $email		= $usuario->getEmail();
-    $avatar		= $usuario->getAvatar();
-    $saldoBistroCoins	= $usuario->getSaldoBistrocoins();
-    $id			= $usuario->getId();
+    $nombreUsuario  = $usuario->getNombreUsuario();
+    $nombre    = $usuario->getNombre();
+    $apellidos    = $usuario->getApellidos();
+    $email    = $usuario->getEmail();
+    $avatar    = $usuario->getAvatar();
+    $saldoBistroCoins  = $usuario->getSaldoBistrocoins();
+    $id      = $usuario->getId();
 
     $query->bind_param("sssssdi", $nombreUsuario, $nombre, $apellidos, $email, $avatar, $saldoBistroCoins, $id);
     $query->execute();
