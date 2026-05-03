@@ -25,7 +25,7 @@ class Usuario
 
   //region Constructor
 
-  public function __construct($nombreUsuario, $password, $nombre, $apellidos, $email, $avatar, $saldo_bistrocoins = null, $id = null)
+  public function __construct($nombreUsuario, $password, $nombre, $apellidos, $email, $avatar, $saldo_bistrocoins, $id = null)
   {
     $this->id = $id;
     $this->nombreUsuario = $nombreUsuario;

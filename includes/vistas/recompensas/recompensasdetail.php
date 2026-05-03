@@ -49,6 +49,7 @@ if ($esGerente && ($modoEdicion || !$recompensa)) {
   $htmlContenido = $form->gestiona();
 
   $tituloPagina = $recompensa ? 'Editar recompensa' : 'Nueva recompensa';
+  $tituloHeader = $recompensa ? 'Editar recompensa' : 'Nueva recompensa';
 
   $contenidoPrincipal = <<<HTML
 <section id="contenido">
@@ -66,6 +67,7 @@ HTML;
 } else {
 
   $tituloPagina = 'Detalle recompensa';
+  $tituloHeader = 'Detalle recompensa';
 
   $contenidoPrincipal = GenerarDetalleRecompensa::generar(
     $recompensa,

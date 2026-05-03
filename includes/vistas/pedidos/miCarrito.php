@@ -312,10 +312,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         PedidoService::actualizarProductoBitCoineado($pedidoCreado->getId(), intval($item['productoId']), $bc);
                     }
 
-                    if (!empty($ofertasIdsSesion) && $descuentoSesion > 0) {
+                   if (!empty($ofertasIdsSesion) && $descuentoSesion > 0) {
                         OfertaService::registrarOfertasEnPedido($pedidoCreado->getId(), $ofertasIdsSesion);
-                        $_SESSION['ofertas_seleccionadas'] = [];
                     }
+                    $_SESSION['ofertas_seleccionadas'] = [];  # limpiar siempre, aunque las ofertas hayan dejado de aplicar
 
                     unset($_SESSION['recompensas_canjeadas'], $_SESSION['carrito_temp']);
                     header('Location: ' . RUTA_VISTAS . '/pedidos/pedidospay.php?id=' . $pedidoCreado->getId());

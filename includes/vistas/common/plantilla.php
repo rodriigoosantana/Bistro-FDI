@@ -46,6 +46,7 @@
   <script src="<?php echo RUTA_JS . '/slider.js' ?>"></script>
   <script src="<?php echo RUTA_JS . '/confirmar.js' ?>"></script>
   <script src="<?php echo RUTA_JS . '/formulariosValidacion.js' ?>"></script>
+  <script src="<?php echo RUTA_JS . '/formularioRegistro.js' ?>"></script>
   <script src="<?php echo RUTA_JS . '/formularioOfertas.js' ?>"></script>
 </body>
 

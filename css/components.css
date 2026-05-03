@@ -152,8 +152,11 @@ form .form-group {
   width: 100%;
 }
 
-form input,
-form select,
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="number"],
+form input[type="date"],
 form textarea {
   width: 100%;
   max-width: 100%;
@@ -209,6 +212,28 @@ form[id^="form"]:not(#formLogin) .touched-field:required:valid {
   background-color: #f0fdf4;
   box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.08);
 }
+
+#formRegistro .avatar-options {
+  display: block;
+}
+
+#formRegistro .avatar-options p {
+  margin: 0 0 6px 0;
+}
+
+#formRegistro .avatar-option {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-right: 8px;
+}
+
+#formRegistro .avatar-option input {
+  width: auto;
+  max-width: none;
+}
+
 
 
 input[type="text"],
