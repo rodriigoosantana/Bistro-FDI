@@ -132,6 +132,37 @@ td {
 
 /* ── FORMULARIOS ── */
 
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+form fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+form fieldset > div,
+form .form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="number"],
+form input[type="date"],
+form textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 form[id^="form"]:not(#formLogin) .required-mark {
   color: #dc2626;
   font-weight: 700;
