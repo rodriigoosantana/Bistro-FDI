@@ -5,6 +5,8 @@ namespace es\ucm\fdi\aw\Pedido;
 use es\ucm\fdi\aw\Pedido\Pedido;
 use es\ucm\fdi\aw\Pedido\PedidoDB;
 use es\ucm\fdi\aw\Pedido\PedidoDesglosado;
+use es\ucm\fdi\aw\Recompensa\RecompensaService;
+use es\ucm\fdi\aw\Usuario\UsuarioService;
 use \Exception;
 use \DateTime;
 
@@ -98,5 +100,38 @@ class PedidoService
     public static function obtenerUltimoPedidoDelDia(DateTime $fecha): ?Pedido
     {
         return PedidoDB::obtenerUltimoPedidoDelDia($fecha);
+    }
+
+    /**
+     * Aplica el descuento/ganancia de BistroCoins al cobrar un pedido.
+     * Debe llamarse cuando el pago queda efectivo:
+     *   - Pago con tarjeta validada (pedidospay.php)
+     *   - Cobro por camarero (pedidosdetail.php, Recibido → EnPreparacion)
+     */
+    public static function aplicarBistrocoinsAlPagar(int $idPedido): bool
+    {
+        $pedido    = self::buscarDesglosadoPorId($idPedido);
+        $clienteId = $pedido->getClienteId();
+
+        $usuario     = UsuarioService::buscarPorId($clienteId);
+        $saldoActual = $usuario ? intval($usuario->getSaldoBistrocoins()) : 0;
+
+        // Coste del canje: sumar bistrocoins de cada producto canjeado
+        $costeCanje = 0;
+        foreach ($pedido->getProductos() as $prod) {
+            if ($prod->isBistroCoineado()) {
+                $recompensa = RecompensaService::buscarPorProductoId($prod->getProductoId());
+                if ($recompensa) {
+                    $costeCanje += intval($recompensa->getBistroCoinsNecesarias()) * intval($prod->getCantidad());
+                }
+            }
+        }
+
+        // Coins ganadas = floor del importe finalmente pagado
+        $importeFinal = max(0.0, $pedido->getTotalConDescuento());
+        $coinsGanadas = intval(floor($importeFinal));
+        $nuevoSaldo   = max(0, $saldoActual - $costeCanje + $coinsGanadas);
+
+        return UsuarioService::actualizarSaldoBistrocoins($clienteId, $nuevoSaldo);
     }
 }

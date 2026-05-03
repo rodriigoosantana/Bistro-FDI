@@ -45,6 +45,11 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'cambiar_estado' && isset($_
         PedidoService::asignarCocinero($pedidoDesglosado->getId(), intval(Aplicacion::getUserId()));
     }
 
+    // Cobro por camarero: el saldo de BistroCoins se aplica al pasar de Recibido a EnPreparacion
+    if ($nuevoEstado === Estado::EnPreparacion && $pedidoDesglosado->getEstado() === Estado::Recibido) {
+        PedidoService::aplicarBistrocoinsAlPagar($pedidoDesglosado->getId());
+    }
+
     PedidoService::cambiarEstado($pedidoDesglosado->getId(), $nuevoEstado);
     header('Location: ' . RUTA_VISTAS . '/pedidos/pedidosdetail.php?id=' . $pedidoDesglosado->getId());
     exit();
