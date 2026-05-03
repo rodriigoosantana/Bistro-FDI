@@ -247,33 +247,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $descuento = OfertaService::calcularDescuentoMultiple($ofertasIds, $carrito);
                     }
 
-                    $descuentoTotal        = min($precioTotalAcumulado, $descuento + $descuentoCanje);
-                    $importeFinalPagado    = max(0.0, $precioTotalAcumulado - $descuentoTotal);
-                    $bistrocoinsGanadas    = intval(floor($importeFinalPagado));
-                    $nuevoSaldoCliente     = max(0, $saldoCliente - $costeCanjeBistrocoins + $bistrocoinsGanadas);
+                    $descuentoTotal = min($precioTotalAcumulado, $descuento + $descuentoCanje);
 
                     $pedido->setTotal($precioTotalAcumulado);
                     $pedido->setDescuento($descuentoTotal);
                     $pedido->setEstado(Estado::Recibido);
 
                     if (PedidoService::actualizar($pedido)) {
-                        $saldoActualizado = UsuarioService::actualizarSaldoBistrocoins($clienteIdPedido, $nuevoSaldoCliente);
-                        if ($saldoActualizado) {
-                            if (!empty($ofertasIds) && $descuento > 0) {  # registrar ofertas solo si efectivamente aplicaron descuento
-                                OfertaService::registrarOfertasEnPedido(intval($idPedido), $ofertasIds);
-                            }
-                            $_SESSION['ofertas_seleccionadas'] = []; # limpiar siempre la sesión
+                        if (!empty($ofertasIds) && $descuento > 0) {
+                            OfertaService::registrarOfertasEnPedido(intval($idPedido), $ofertasIds);
+                            $_SESSION['ofertas_seleccionadas'] = [];
                         }
-                        if (!$saldoActualizado) {
-                            $mensajeError = 'El pedido se confirmó, pero no se pudo actualizar el saldo de BistroCoins.';
-                        } else {
-                            if ($clienteIdPedido === intval(Aplicacion::getUserId())) {
-                                $_SESSION['saldo'] = $nuevoSaldoCliente;
-                            }
-                            unset($_SESSION['recompensas_canjeadas']);
-                            header('Location: ' . RUTA_VISTAS . '/pedidos/pedidospay.php?id=' . intval($idPedido));
-                            exit();
-                        }
+                        unset($_SESSION['recompensas_canjeadas']);
+                        header('Location: ' . RUTA_VISTAS . '/pedidos/pedidospay.php?id=' . intval($idPedido));
+                        exit();
                     } else {
                         $mensajeError = 'Error al confirmar el pedido.';
                     }
@@ -313,10 +300,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $descuentoSesion = OfertaService::calcularDescuentoMultiple($ofertasIdsSesion, $carritoSesion);
                 }
 
-                $descuentoTotalSesion    = min($precioTotalAcumulado, $descuentoSesion + $descuentoCanjeSesion);
-                $importeFinalPagadoSesion = max(0.0, $precioTotalAcumulado - $descuentoTotalSesion);
-                $bistrocoinsGanadasSesion = intval(floor($importeFinalPagadoSesion));
-                $nuevoSaldoCliente        = max(0, $saldoCliente - $costeCanjeBistrocoins + $bistrocoinsGanadasSesion);
+                $descuentoTotalSesion = min($precioTotalAcumulado, $descuentoSesion + $descuentoCanjeSesion);
 
                 $dto          = new Pedido($numero_pedido, $fecha_creacion, Estado::Recibido, $tipo, $clienteIdPedido, null, $precioTotalAcumulado, null, $descuentoTotalSesion);
                 $pedidoCreado = PedidoService::crear($dto);
@@ -333,14 +317,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     $_SESSION['ofertas_seleccionadas'] = [];  # limpiar siempre, aunque las ofertas hayan dejado de aplicar
 
-                    if (!UsuarioService::actualizarSaldoBistrocoins($clienteIdPedido, $nuevoSaldoCliente)) {
-                        $mensajeError = 'El pedido se creó, pero no se pudo actualizar el saldo de BistroCoins.';
-                    } else {
-                        $_SESSION['saldo'] = $nuevoSaldoCliente;
-                        unset($_SESSION['recompensas_canjeadas'], $_SESSION['carrito_temp']);
-                        header('Location: ' . RUTA_VISTAS . '/pedidos/pedidospay.php?id=' . $pedidoCreado->getId());
-                        exit();
-                    }
+                    unset($_SESSION['recompensas_canjeadas'], $_SESSION['carrito_temp']);
+                    header('Location: ' . RUTA_VISTAS . '/pedidos/pedidospay.php?id=' . $pedidoCreado->getId());
+                    exit();
                 } else {
                     $mensajeError = 'Error al crear el pedido.';
                 }

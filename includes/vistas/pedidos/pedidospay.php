@@ -3,6 +3,7 @@
 use es\ucm\fdi\aw\Pedido\PedidoService;
 use es\ucm\fdi\aw\Pedido\PagoService;
 use es\ucm\fdi\aw\Usuario\Usuario;
+use es\ucm\fdi\aw\Usuario\UsuarioService;
 use es\ucm\fdi\aw\Pedido\Estado;
 use es\ucm\fdi\aw\Oferta\OfertaService;
 use es\ucm\fdi\aw\Aplicacion;
@@ -53,6 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['metodo_pago'])) {
 
         if ($resultadoValidacion['valido']) {
             if (PedidoService::cambiarEstado($idPedido, Estado::EnPreparacion)) {
+                PedidoService::aplicarBistrocoinsAlPagar($idPedido);
+                // Refrescar saldo en sesión si el usuario actual es el dueño del pedido
+                if (intval(Aplicacion::getUserId()) === $pedidoDesglosado->getClienteId()) {
+                    $usuarioActualizado = UsuarioService::buscarPorId($pedidoDesglosado->getClienteId());
+                    if ($usuarioActualizado) {
+                        $_SESSION['saldo'] = intval($usuarioActualizado->getSaldoBistrocoins());
+                    }
+                }
                 header('Location: ' . RUTA_VISTAS . '/pedidos/pedidoslist.php');
                 exit();
             } else {
