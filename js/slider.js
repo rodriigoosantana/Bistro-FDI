@@ -1,16 +1,5 @@
 /**
  * Gestiona los sliders de imágenes en la lista de productos y en el detalle.
- *
- * Sustituye a lo que estaba en HTML como:
- *   <div class="slider-wrap"
- *        data-imagenes='["/ruta/img1.jpg", "/ruta/img2.jpg"]'
- *        data-auto="true">
- *     <img class="slider-img" src="/ruta/img1.jpg" alt="nombre">
- *     <div class="slider-dots">
- *       <span class="slider-dot active"></span>
- *       <span class="slider-dot"></span>
- *     </div>
- *   </div>
  */
 
 document.addEventListener('DOMContentLoaded', function () {

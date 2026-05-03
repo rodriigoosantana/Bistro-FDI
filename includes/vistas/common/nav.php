@@ -14,7 +14,7 @@ use es\ucm\fdi\aw\Aplicacion; ?>
 
       <!-- Lo que pueden ver solo gerentes -->
       <?php if (Aplicacion::esGerente()): ?>
-        <li><a href="<?php echo RUTA_VISTAS . '/listaUsuarios.php' ?>">Usuarios</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/usuario/usuarioslist.php' ?>">Usuarios</a></li>
       <?php endif; ?>
 
       <!-- Lo que pueden ver todos los usuarios registrados -->
@@ -22,18 +22,18 @@ use es\ucm\fdi\aw\Aplicacion; ?>
         <li><a href="<?php echo RUTA_VISTAS . '/productos/productoslist.php' ?>">Productos</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/productos/categoriaslist.php' ?>">Categorías</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/ofertas/ofertaslist.php' ?>">Ofertas</a></li>
-        <li><a href="<?php echo RUTA_VISTAS . '/pedidos/nuevo_pedido.php' ?>">Nuevo Pedido</a></li>
+        <li><a href="<?php echo  RUTA_VISTAS . '/pedidos/pedidosnew.php' ?>">Nuevo Pedido</a></li>
         <li><a href="<?php echo RUTA_VISTAS . '/pedidos/pedidoslist.php' ?>">Pedidos</a></li>
-        <li><a href="<?php echo RUTA_VISTAS . '/recompensas/listaRecompensas.php' ?>">Recompensas</a></li>
-        <li><a href="<?php echo RUTA_VISTAS . '/perfilUsuario.php?nombreUsuario=' . Aplicacion::getNombreUsuario(); ?>">Mi Perfil</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/recompensas/recompensaslist.php' ?>">Recompensas</a></li>
+        <li><a href="<?php echo RUTA_VISTAS . '/usuario/usuariosdetail.php?nombreUsuario=' . Aplicacion::getNombreUsuario(); ?>">Mi Perfil</a></li>
       <?php endif; ?>
 
 
-      <li><a href="<?php echo RUTA_VISTAS . '/logout.php' ?>">Cerrar sesión</a></li>
+      <li><a href="<?php echo RUTA_VISTAS . '/usuario/logout.php' ?>">Cerrar sesión</a></li>
 
     <?php else: ?> <!-- Si no está logueado -->
-      <li><a href="<?php echo RUTA_VISTAS . '/login.php' ?>">Iniciar sesión</a></li>
-      <li><a href="<?php echo RUTA_VISTAS . '/registro.php' ?>">Registrarse</a></li>
+      <li><a href="<?php echo RUTA_VISTAS . '/usuario/login.php' ?>">Iniciar sesión</a></li>
+      <li><a href="<?php echo RUTA_VISTAS . '/usuario/registro.php' ?>">Registrarse</a></li>
     <?php endif; ?>
 
   </ul>

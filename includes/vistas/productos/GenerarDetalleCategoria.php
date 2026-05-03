@@ -8,53 +8,15 @@ class GenerarDetalleCategoria
 {
   public static function generar(Categoria $categoria, string $volverUrl, bool $esGerente): string
   {
-    $nombre      = htmlspecialchars($categoria->getNombre());
-    $descripcion = htmlspecialchars($categoria->getDescripcion());
-    $activa      = $categoria->isActiva() ? 'Activa' : 'Inactiva';
-
-    // Imagen o placeholder
-    if ($categoria->getImagen()) {
-      $rutaImagen = RUTA_APP . htmlspecialchars($categoria->getImagen());
-      $htmlImagen = "<img src=\"{$rutaImagen}\" alt=\"{$nombre}\" width=\"150\" />";
-    } else {
-      $htmlImagen = "<div class=\"img-placeholder\">📷<br>Sin imagen</div>";
-    }
-
-    // Botones de gerente
-    $botonesGerente = '';
-    if ($esGerente) {
-      $editarUrl = RUTA_VISTAS . '/productos/categoriasdetail.php?id=' . $categoria->getId() . '&editar=1';
-      $botonesGerente = "<a href=\"{$editarUrl}\" class=\"btn btn-editar\">Modificar</a> ";
-
-      if ($categoria->isActiva()) {
-        $botonesGerente .= <<<BTN
-                <form method="POST" action="" style="display:inline"
-                      onsubmit="return confirm('¿Desactivar esta categoría? Sus productos también se desactivarán.')">
-                    <input type="hidden" name="accion" value="desactivar">
-                    <button type="submit" class="btn btn-borrar">Desactivar</button>
-                </form>
-                BTN;
-      } else {
-        $botonesGerente .= <<<BTN
-                <form method="POST" action="" style="display:inline">
-                    <input type="hidden" name="accion" value="reactivar">
-                    <button type="submit" class="btn btn-nuevo">Reactivar</button>
-                </form>
-                BTN;
-      }
-    }
+    $htmlInfo       = self::generarSeccionInfo($categoria);
+    $botonesGerente = self::generarBotonesGerente($categoria, $esGerente);
 
     return <<<EOS
     <section id="contenido">
         <h2>Ver Categoría</h2>
-        <div class="detalle-categoria">
-            <div class="detalle-imagen">
-                {$htmlImagen}
-            </div>
+        <div class="detalle-producto">
             <div class="detalle-info">
-                <p><strong>Nombre:</strong> {$nombre}</p>
-                <p><strong>Descripción:</strong> {$descripcion}</p>
-                <p><strong>Activa:</strong> {$activa}</p>
+                {$htmlInfo}
             </div>
         </div>
         <div class="acciones-pagina">
@@ -64,5 +26,46 @@ class GenerarDetalleCategoria
     </section>
     EOS;
   }
+
+  private static function generarSeccionInfo(Categoria $categoria): string
+  {
+    $nombre      = htmlspecialchars($categoria->getNombre());
+    $descripcion = htmlspecialchars($categoria->getDescripcion());
+    $activa      = $categoria->isActiva() ? 'Sí' : 'No';
+    $preparacion = $categoria->necesitaPreparacion() ? 'Sí' : 'No';
+
+    $htmlImagen = '';
+    if ($categoria->getImagen()) {
+      $rutaImg    = htmlspecialchars(RUTA_APP . $categoria->getImagen());
+      $htmlImagen = "<p><img src=\"{$rutaImg}\" alt=\"{$nombre}\" style=\"max-width:200px;\"></p>";
+    }
+
+    return <<<EOS
+    {$htmlImagen}
+    <p><strong>Nombre:</strong> {$nombre}</p>
+    <p><strong>Descripción:</strong> {$descripcion}</p>
+    <p><strong>Activa:</strong> {$activa}</p>
+    <p><strong>Necesita preparación:</strong> {$preparacion}</p>
+    EOS;
+  }
+
+  private static function generarBotonesGerente(Categoria $categoria, bool $esGerente): string
+  {
+    if (!$esGerente) {
+      return '';
+    }
+
+    $editarUrl    = RUTA_VISTAS . '/productos/categoriasdetail.php?id=' . $categoria->getId() . '&editar=1';
+    $accionEstado = $categoria->isActiva() ? 'desactivar' : 'reactivar';
+    $textoEstado  = $categoria->isActiva() ? 'Desactivar' : 'Reactivar';
+    $claseEstado  = $categoria->isActiva() ? 'btn btn-borrar' : 'btn btn-editar';
+
+    return <<<BTN
+    <a href="{$editarUrl}" class="btn btn-editar">Modificar</a>
+    <form method="POST" action="" style="display:inline">
+        <input type="hidden" name="accion" value="{$accionEstado}">
+        <button type="submit" class="{$claseEstado}">{$textoEstado}</button>
+    </form>
+    BTN;
+  }
 }
-?>

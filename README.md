@@ -1,36 +1,56 @@
 # Bistro-FDI
 
-Aplicación web para la gestión de un restaurante universitario, desarrollada como proyecto de la asignatura **Aplicaciones Web** (curso 2025/2026) en la Facultad de Informática de la UCM.
+Aplicación web para la gestión integral de un restaurante universitario: catálogo de productos, carrito y pedidos con seguimiento de estados, sistema de ofertas y programa de recompensas. Desarrollada como proyecto de la asignatura **Aplicaciones Web** (curso 2025/2026) en la Facultad de Informática de la UCM.
 
 ## Equipo
-| Nombre | GitHub |
-|---|---|
-| Matteo Cazzola | [@Mattcazz](https://github.com/Mattcazz) |
-| Marco González | [@MarcoGon27](https://github.com/MarcoGon27) |
-| Nicolás Ucieda | [@Nixo371](https://github.com/Nixo371) |
-| Juan David García | [@Juandaga218](https://github.com/Juandaga218) |
-| Rodrigo Santana | [@rodriigoosantana](https://github.com/rodriigoosantana) |
+
+| Nombre | GitHub | Funcionalidades desarrolladas |
+|---|---|---|
+| Matteo Cazzola | [@Mattcazz](https://github.com/Mattcazz) | F2 - Gestión de pedidos · F5 - Programa de recompensas |
+| Marco González | [@MarcoGon27](https://github.com/MarcoGon27) | F0 - Gestión de usuarios · F5 - Programa de recompensas |
+| Nicolás Ucieda | [@Nixo371](https://github.com/Nixo371) | F3 - Preparación de los pedidos  |
+| Juan David García | [@Juandaga218](https://github.com/Juandaga218) | F2 - Gestión de productos y categorías · F4 - Gestión de ofertas |
+| Rodrigo Santana | [@rodriigoosantana](https://github.com/rodriigoosantana) | F2 - Gestión de productos y categorías · F4 - Gestión de ofertas |
+
+---
+
+## Funcionalidades
+
+- **Catálogo** de productos organizados por categorías, con imágenes, IVA configurable (0 %, 4 %, 10 %, 21 %) y borrado lógico.
+- **Carrito y pedidos** con máquina de estados (*Pedido → En preparación → Terminado → Entregado → Pagado*) y flujo diferenciado por rol.
+- **Ofertas** aplicables al carrito con cálculo automático de descuento por división entera sobre las cantidades.
+- **Recompensas** canjeables por los clientes mediante un sistema de puntos acumulados.
+- **Cuatro roles diferenciados** (gerente, cocinero, camarero, cliente), cada uno con su propia navegación y permisos.
+
+---
+
+## Stack técnico
+
+- **PHP 8.1+** con namespace `es\ucm\fdi\aw` y autoloader PSR-4
+- **MySQLi** con `MYSQLI_REPORT_STRICT` (excepciones automáticas, sin comprobaciones manuales de `execute()`)
+- **Apache** sobre Linux (producción) / XAMPP (desarrollo local)
+- **Frontend**: HTML5, CSS3 modularizado con `@import`, JavaScript vanilla
 
 ---
 
 ## Instalación
 
 ### Requisitos
-- XAMPP (PHP 8.1+, MySQL, Apache)
+- XAMPP con PHP 8.1 o superior
 
 ### Pasos
 
-1. Clona el repositorio en la carpeta `htdocs` de XAMPP:
+1. Clona el repositorio dentro de la carpeta `htdocs` de XAMPP en la rama de desarrollo:
    ```bash
-   git clone https://github.com/rodriigoosantana/Bistro-FDI.git
+   git clone -b develop https://github.com/rodriigoosantana/Bistro-FDI.git
    ```
 
-2. Importa los ficheros SQL en phpMyAdmin en este orden:
+2. Importa los ficheros SQL en phpMyAdmin **en este orden**:
    ```
-   sql/00-createdb.sql
-   sql/01-createuser.sql
-   sql/02-tablas.sql
-   sql/03-datos.sql
+   includes/mysql/00-create_db.sql
+   includes/mysql/01-create_user.sql
+   includes/mysql/02-tablas.sql
+   includes/mysql/03-datos.sql
    ```
 
 3. Accede desde el navegador:
@@ -39,6 +59,8 @@ Aplicación web para la gestión de un restaurante universitario, desarrollada c
    ```
 
 ### Usuarios de prueba
+
+Credenciales de desarrollo incluidas en `03-datos.sql`:
 
 | Usuario | Contraseña | Rol |
 |---|---|---|
@@ -49,12 +71,66 @@ Aplicación web para la gestión de un restaurante universitario, desarrollada c
 
 ---
 
+## Despliegue
+
+La aplicación está desplegada en el VPS de la facultad: `vm013.containers.fdi.ucm.es`.
+
+Tras el primer despliegue, es necesario otorgar permisos de escritura a Apache sobre el directorio de subidas:
+
+```bash
+sudo chown -R www-data:www-data img/uploads/
+```
+
+---
+
 ## Arquitectura
-El proyecto sigue una arquitectura con separación de responsabilidades, respetando las siguientes normas de diseño:
+
+El proyecto sigue una arquitectura en tres capas con separación estricta de responsabilidades:
 
 ```
 Vista (PHP)  →  Service (lógica de negocio)  →  DB (acceso a datos)
 ```
 
-1. **El Dominio no conoce HTML**: Las clases del modelo de dominio (como Entidades y Servicios) no generan, imprimen ni devuelven código HTML. Su responsabilidad exclusiva es manejar la lógica de negocio y los datos. La representación e interfaz visual se maneja únicamente en la capa de la vista (o mediante formularios).
-2. **Las Vistas no conocen la BBDD**: Las vistas y plantillas de la interfaz de usuario no realizan consultas (SQL) directas a la base de datos ni manejan la conexión a la misma. Cuando requieren datos, los solicitan a la capa transaccional a través de las clases Service y consumen objetos construidos por el dominio.
+### Principios de diseño
+
+1. **El dominio no conoce HTML.** Las entidades y servicios no generan, imprimen ni devuelven código HTML. Su responsabilidad es la lógica de negocio y los datos. La representación se maneja en la capa de vista o mediante formularios.
+2. **Las vistas no conocen la BBDD.** Las vistas no realizan consultas SQL ni gestionan la conexión. Cuando necesitan datos, los solicitan a la capa de servicios y consumen objetos de dominio.
+3. **El SQL vive únicamente en las clases `*DB`.** Ninguna consulta se escribe en un `*Service` ni en una vista. Todas las consultas usan *prepared statements* con `bind_param`.
+4. **Borrado lógico.** Los productos y categorías no se eliminan físicamente: se marcan como `activo = 0`. Desactivar una categoría desactiva en cascada sus productos.
+5. **Sanitización en el render.** `htmlspecialchars()` se aplica únicamente al renderizar, nunca en `procesaFormulario`.
+
+### Patrones empleados
+
+- **Singleton** en `Aplicacion` para el acceso centralizado a sesión, BBDD y usuario en curso.
+- **Template Method** en `formularioBase`, de la que heredan todos los formularios (`FormularioProducto`, `FormularioOferta`, etc.).
+- **DTO** con `PedidoDesglosado` para transportar pedidos enriquecidos a la vista sin exponer la entidad.
+- **Autoloader PSR-4** registrado en `config.php`, mapeando el namespace `es\ucm\fdi\aw\` a `includes/`.
+
+### Estructura del proyecto
+
+```
+Bistro-FDI/
+├── index.php                    # Front controller
+├── css/                         # Hoja de entrada + 6 parciales (@import)
+├── js/
+├── img/
+│   └── uploads/                 # Imágenes subidas (productos, categorías, avatares)
+└── includes/
+    ├── Aplicacion.php           # Singleton de aplicación
+    ├── config.php               # Constantes, autoloader, conexión
+    ├── mysql/                   # Scripts SQL (00-03)
+    ├── Producto/                # Producto, Categoría, ProductoImagen (Entidad + DB + Service)
+    ├── Pedido/                  # Pedido, PedidoDesglosado, Estado, Tipo, PagoService
+    ├── Oferta/                  # Oferta, OfertaProducto
+    ├── Recompensa/
+    ├── Usuario/                 # Usuario, Rol, RolesUsuario
+    └── vistas/
+        ├── common/              # plantilla.php, header, nav, aside, footer, formularioBase
+        ├── productos/
+        ├── pedidos/
+        ├── ofertas/
+        ├── recompensas/
+        └── usuario/
+        ├── recompensas/
+        └── usuario/
+```

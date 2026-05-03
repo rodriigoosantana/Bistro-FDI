@@ -10,16 +10,9 @@ class GenerarDetalleProducto
 {
   public static function generar(Producto $producto, string $volverUrl, bool $esGerente): string
   {
-    $categoria   = CategoriaService::buscarPorId($producto->getCategoriaId());
-    $nombreCat   = $categoria ? htmlspecialchars($categoria->getNombre()) : 'Sin categoría';
-    $nombre      = htmlspecialchars($producto->getNombre());
-    $descripcion = htmlspecialchars($producto->getDescripcion());
-    $precioFinal = number_format($producto->getPrecioFinal(), 2, ',', '.');
-    $iva         = $producto->getIva();
-    $disponible  = $producto->isDisponible() ? 'Sí' : 'No';
-    $ofertado    = $producto->isOfertado()   ? 'Sí' : 'No';
-
-    $htmlImagenes = self::generarHtmlImagenes($producto->getId(), $nombre);
+    $nombre         = htmlspecialchars($producto->getNombre());
+    $htmlImagenes   = self::generarHtmlImagenes($producto->getId(), $nombre);
+    $htmlInfo       = self::generarSeccionInfo($producto);
     $botonesGerente = self::generarBotonesGerente($producto, $esGerente);
 
     return <<<EOS
@@ -30,13 +23,7 @@ class GenerarDetalleProducto
                 {$htmlImagenes}
             </div>
             <div class="detalle-info">
-                <p><strong>Nombre:</strong> {$nombre}</p>
-                <p><strong>Descripción:</strong> {$descripcion}</p>
-                <p><strong>Categoría:</strong> {$nombreCat}</p>
-                <p><strong>Precio:</strong> {$precioFinal} €</p>
-                <p><strong>IVA:</strong> {$iva}%</p>
-                <p><strong>Disponible:</strong> {$disponible}</p>
-                <p><strong>Ofertado:</strong> {$ofertado}</p>
+                {$htmlInfo}
             </div>
         </div>
         <div class="acciones-pagina">
@@ -44,6 +31,28 @@ class GenerarDetalleProducto
             {$botonesGerente}
         </div>
     </section>
+    EOS;
+  }
+
+  private static function generarSeccionInfo(Producto $producto): string
+  {
+    $categoria   = CategoriaService::buscarPorId($producto->getCategoriaId());
+    $nombreCat   = $categoria ? htmlspecialchars($categoria->getNombre()) : 'Sin categoría';
+    $nombre      = htmlspecialchars($producto->getNombre());
+    $descripcion = htmlspecialchars($producto->getDescripcion());
+    $precioFinal = number_format($producto->getPrecioFinal(), 2, ',', '.');
+    $iva         = $producto->getIva();
+    $disponible  = $producto->isDisponible() ? 'Sí' : 'No';
+    $ofertado    = $producto->isOfertado()   ? 'Sí' : 'No';
+
+    return <<<EOS
+    <p><strong>Nombre:</strong> {$nombre}</p>
+    <p><strong>Descripción:</strong> {$descripcion}</p>
+    <p><strong>Categoría:</strong> {$nombreCat}</p>
+    <p><strong>Precio:</strong> {$precioFinal} €</p>
+    <p><strong>IVA:</strong> {$iva}%</p>
+    <p><strong>Disponible:</strong> {$disponible}</p>
+    <p><strong>Ofertado:</strong> {$ofertado}</p>
     EOS;
   }
 
@@ -62,7 +71,7 @@ class GenerarDetalleProducto
     $dotsHtml = '';
     if (count($imagenes) > 1) {
       foreach ($imagenes as $i => $img) {
-        $active = $i === 0 ? ' active' : '';
+        $active    = $i === 0 ? ' active' : '';
         $dotsHtml .= "<span class=\"slider-dot{$active}\"></span>";
       }
       $dotsHtml = "<div class=\"slider-dots\">{$dotsHtml}</div>";

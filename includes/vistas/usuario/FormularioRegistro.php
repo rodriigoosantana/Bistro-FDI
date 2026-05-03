@@ -1,16 +1,16 @@
 <?php
 
-namespace es\ucm\fdi\aw\vistas\login;
+namespace es\ucm\fdi\aw\vistas\usuario;
 
 use es\ucm\fdi\aw\Aplicacion;
-use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\vistas\common\FormularioBase;
 use es\ucm\fdi\aw\Usuario\Usuario;
 use es\ucm\fdi\aw\Usuario\Rol;
 use es\ucm\fdi\aw\Usuario\UsuarioService;
 
 use es\ucm\fdi\aw\Usuario\UsuarioYaExisteException; # Excepción personalizada para indicar que el nombre de usuario ya existe
 
-class FormularioRegistro extends formularioBase
+class FormularioRegistro extends FormularioBase
 {
   private $usuario;
   private $gerente = false; //True cuando el usuario que accede es un gerente
@@ -53,6 +53,10 @@ class FormularioRegistro extends formularioBase
     $rol = $datos['rol']
       ?? ($this->usuario ? Rol::cargarRol($this->usuario->getId())->getId() : '');
 
+    $urlComprobarNombreUsuario = RUTA_VISTAS . '/usuario/comprobarNombreUsuario.php';
+    $nombreUsuarioOriginal = $this->usuario ? $this->usuario->getNombreUsuario() : '';
+    $nombreUsuarioOriginalAttr = htmlspecialchars($nombreUsuarioOriginal, ENT_QUOTES);
+
     $htmlErroresGlobales = self::generaListaErroresGlobales($this->errores);
 
     $erroresCampos = self::generaErroresCampos(
@@ -85,7 +89,7 @@ class FormularioRegistro extends formularioBase
     if ($this->usuario == null) { //Solo aparece el campo de confirmación de constraseña en un registro, no en una modificación
       $password2Html = <<<HTML
             <div>
-                <label for="password2">Reintroduce el password:</label><br>
+                <label for="password2">Reintroduce el password <span class="required-mark">*</span>:</label><br>
                 <input id="password2" type="password" name="password2" required minlength="4"/>
                 {$erroresCampos['password2']}
             </div>
@@ -104,15 +108,15 @@ class FormularioRegistro extends formularioBase
       '/img/uploads/avatares/avatar_predeterminado_2.jpeg'
     ];
 
-    $htmlAvataresPredeterminados = '<div><p>O escoge un avatar predeterminado:</p>';
+    $htmlAvataresPredeterminados = '<div class="avatar-options"><p>O escoge un avatar predeterminado:</p>';
 
     foreach ($avataresPredeterminados as $ruta) {
       $checked = ($avatar === $ruta) ? 'checked' : '';
       $ruta_img = RUTA_APP . $ruta;
       $htmlAvataresPredeterminados .= <<<HTML
-        <label>
-            <input type="radio" name="avatarPredeterminado" value="$ruta" $checked>
+        <label class="avatar-option">
             <img src="$ruta_img" width="50" height="50" alt="Avatar">
+            <input type="radio" name="avatarPredeterminado" value="$ruta" $checked>
         </label>
     HTML;
     }
@@ -124,28 +128,29 @@ class FormularioRegistro extends formularioBase
             <br>
 
             <div>
-                <label for="nombreUsuario">Nombre de usuario:</label><br>
-                <input id="nombreUsuario" type="text" name="nombreUsuario" value="$nombreUsuario" required minlength="4"/>
+                <label for="nombreUsuario">Nombre de usuario <span class="required-mark">*</span>:</label><br>
+                <input id="nombreUsuario" type="text" name="nombreUsuario" value="$nombreUsuario" required minlength="4" data-check-url="$urlComprobarNombreUsuario" data-original-username="$nombreUsuarioOriginalAttr"/>
+                <span id="estadoNombreUsuario" class="username-status" aria-live="polite"></span>
                 {$erroresCampos['nombreUsuario']}
             </div>
             <br>
 
             <div>
-                <label for="nombre">Nombre:</label><br>
+                <label for="nombre">Nombre <span class="required-mark">*</span>:</label><br>
                 <input id="nombre" type="text" name="nombre" value="$nombre" required minlength="4"/>
                 {$erroresCampos['nombre']}
             </div>
             <br>
 
             <div>
-                <label for="apellidos">Apellidos:</label><br>
+                <label for="apellidos">Apellidos <span class="required-mark">*</span>:</label><br>
                 <input id="apellidos" type="text" name="apellidos" value="$apellidos" required minlength="4"/>
                 {$erroresCampos['apellidos']}
             </div>
             <br>
 
             <div>
-                <label for="email">Email:</label><br>
+                <label for="email">Email <span class="required-mark">*</span>:</label><br>
                 <input id="email" type="email" name="email" value="$email" required minlength="4"/>
                 {$erroresCampos['email']}
             </div>
@@ -164,7 +169,7 @@ class FormularioRegistro extends formularioBase
             $opcionesRoles
 
             <div>
-                <label for="password">Password:</label><br>
+                <label for="password">Password <span class="required-mark">*</span>:</label><br>
                 <input id="password" type="password" name="password" required minlength="4"/>
                 {$erroresCampos['password']}
             </div>
@@ -195,15 +200,12 @@ EOF;
       $this->errores['nombreUsuario'] =
         'El nombre de usuario debe tener al menos 4 caracteres.';
     }
-    /*
     $usuarioExistente = UsuarioService::buscarPorNombre($nombreUsuario);
-
     if (($this->usuario == null && $usuarioExistente != null) ||
-      ($this->usuario != null && $usuarioExistente != null && $usuarioExistente->getNombreUsuario() !== $this->usuario->getNombreUsuario())
+      ($this->usuario != null && $usuarioExistente != null && mb_strtolower($usuarioExistente->getNombreUsuario()) !== mb_strtolower($this->usuario->getNombreUsuario()))
     ) {
-      $this->errores['nombreUsuario'] = "El nombre de usuario ya existe";
+      $this->errores['nombreUsuario'] = 'El nombre de usuario ya existe';
     }
-      */
 
     $nombre = trim($datos['nombre'] ?? '');
     $nombre = filter_var($nombre, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
@@ -224,7 +226,7 @@ EOF;
     $email = trim($datos['email'] ?? '');
     $email = filter_var($email, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-    if (!$email || strlen($email) < 4) {
+    if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
       $this->errores['email'] =
         'No es una dirección de correo válida.';
     }
@@ -294,6 +296,7 @@ EOF;
         $apellidos,
         $email,
         $avatar,
+        0,
         $usuario_id
       );
 
@@ -331,8 +334,8 @@ EOF;
           $_SESSION['rolId'] = Rol::cargarRol($usuarioInsertado->getId())->getId();
           $_SESSION['userId'] = $usuarioInsertado->getId();
           $_SESSION['nombreUsuario'] = $usuarioInsertado->getNombreUsuario();
-          $_SESSION['avatar'] = $usuario->getAvatar();
-          $_SESSION['saldo'] = $usuario->getSaldoBistrocoins();
+          $_SESSION['avatar'] = $usuarioInsertado->getAvatar();
+          $_SESSION['saldo'] = $usuarioInsertado->getSaldoBistrocoins();
 
           $app->putAtributoPeticion('mensajes', [
             'Se ha registrado exitosamente',

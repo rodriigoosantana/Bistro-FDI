@@ -3,12 +3,12 @@
 namespace es\ucm\fdi\aw\vistas\recompensas;
 
 use es\ucm\fdi\aw\Aplicacion;
-use es\ucm\fdi\aw\vistas\common\formularioBase;
+use es\ucm\fdi\aw\vistas\common\FormularioBase;
 use es\ucm\fdi\aw\Recompensa\Recompensa;
 use es\ucm\fdi\aw\Recompensa\RecompensaService;
 use es\ucm\fdi\aw\Producto\ProductoService;
 
-class FormularioRecompensa extends formularioBase
+class FormularioRecompensa extends FormularioBase
 {
   private ?Recompensa $recompensa;
 
@@ -19,7 +19,7 @@ class FormularioRecompensa extends formularioBase
     parent::__construct(
       'formRecompensa',
       [
-        'urlRedireccion' => RUTA_VISTAS . '/recompensas/listaRecompensas.php'
+        'urlRedireccion' => RUTA_VISTAS . '/recompensas/recompensaslist.php'
       ]
     );
   }
@@ -56,7 +56,7 @@ class FormularioRecompensa extends formularioBase
         <legend>{$tituloForm}</legend>
 
         <div>
-            <label for="productoId">Producto:</label><br>
+            <label for="productoId">Producto <span class="required-mark">*</span>:</label><br>
             <select id="productoId" name="productoId" required>
                 {$opcionesProductos}
             </select>
@@ -66,7 +66,7 @@ class FormularioRecompensa extends formularioBase
         <br>
 
         <div>
-            <label for="bistrocoins">BistroCoins necesarias:</label><br>
+            <label for="bistrocoins">BistroCoins necesarias <span class="required-mark">*</span>:</label><br>
             <input id="bistrocoins" type="number" name="bistrocoins" value="{$bistrocoins}" min="1" required />
             {$erroresCampos['bistrocoins']}
         </div>

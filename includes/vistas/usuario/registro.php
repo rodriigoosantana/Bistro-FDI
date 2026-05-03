@@ -1,8 +1,8 @@
 <?php
 
-require_once dirname(__DIR__, 2) . '/includes/config.php';
+require_once dirname(__DIR__, 3) . '/includes/config.php';
 
-use es\ucm\fdi\aw\vistas\login\FormularioRegistro;
+use es\ucm\fdi\aw\vistas\usuario\FormularioRegistro;
 
 $form = new FormularioRegistro();
 
@@ -17,7 +17,7 @@ $contenidoPrincipal = <<<EOS
    </section>
 EOS;
 
-$loginUrl = RUTA_VISTAS . '/login.php';
+$loginUrl = RUTA_VISTAS . '/usuario/login.php';
 $contenidoAside = <<<ASIDE
 <section>
     <h3>Crear cuenta</h3>
@@ -26,4 +26,4 @@ $contenidoAside = <<<ASIDE
 <a href="{$loginUrl}" class="aside-link">¿Ya tienes cuenta? Inicia sesión</a>
 ASIDE;
 
-require("common/plantilla.php");
+require(RAIZ_APP . '/includes/vistas/common/plantilla.php');
