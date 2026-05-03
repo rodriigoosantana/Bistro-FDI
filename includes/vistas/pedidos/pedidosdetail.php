@@ -87,6 +87,29 @@ if (isset($_POST['accion']) && $_POST['accion'] === 'cambiar_estado' && isset($_
         exit();
     }
 
+    if ($nuevoEstado === Estado::ListoCocina) {
+        $faltanPreparar = false;
+        foreach ($pedidoDesglosado->getProductos() as $producto) {
+            $requierePreparacion = PedidoService::productoEnPedidodNecesitaPreparacion(
+                $pedidoDesglosado->getId(),
+                $producto->getId()
+            );
+            if ($requierePreparacion && !$producto->isPreparado()) {
+                $faltanPreparar = true;
+                break;
+            }
+        }
+
+        if ($faltanPreparar) {
+            $app = Aplicacion::getInstance();
+            $app->putAtributoPeticion('mensajes', [
+                'No puedes marcar listo en cocina: faltan productos por preparar.'
+            ]);
+            header('Location: ' . RUTA_VISTAS . '/pedidos/pedidosdetail.php?id=' . $pedidoDesglosado->getId());
+            exit();
+        }
+    }
+
     if ($nuevoEstado === Estado::Cocinando) {
         PedidoService::asignarCocinero($pedidoDesglosado->getId(), intval(Aplicacion::getUserId()));
     }
